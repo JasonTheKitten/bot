@@ -1,0 +1,39 @@
+plugins {
+	id 'com.github.johnrengelman.shadow' version '5.0.0'
+	id 'java'
+	id 'java-library'
+}
+
+version '0.0.1'
+
+repositories {
+	mavenCentral()
+	jcenter()
+}
+dependencies {
+	implementation 'com.discord4j:discord4j-core:3.0.11'
+	implementation 'com.google.code.gson:gson:2.8.6'
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
+apply plugin: 'java-library'
+
+jar {
+  manifest {
+    attributes("Main-Class": "everyos.discord.exobot.Main")
+  }
+}
+
+shadowJar {
+   classifier = null
+}
+
+task run(type: JavaExec) {
+  group = 'Run'
+  description = 'Runs the app'
+
+  classpath sourceSets.main.runtimeClasspath
+  main = "everyos.discord.exobot.Main"
+  //args "", ""
+}
