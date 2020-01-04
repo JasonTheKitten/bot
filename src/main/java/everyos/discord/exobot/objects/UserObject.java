@@ -1,6 +1,10 @@
-package everyos.discord.exobot;
+package everyos.discord.exobot.objects;
+
+import com.google.gson.JsonObject;
 
 import discord4j.core.object.entity.Member;
+import discord4j.core.object.util.Snowflake;
+import everyos.discord.exobot.Statics;
 import everyos.discord.exobot.util.UserHelper;
 import reactor.core.publisher.Mono;
 
@@ -17,6 +21,13 @@ public class UserObject {
 		this.opted = false;
 	}
 	
+	public UserObject(GuildObject guild, JsonObject save) {
+		this.guild = guild;
+		this.id = save.get("id").getAsString();
+		this.user = guild.guild.getMemberById(Snowflake.of(this.id)).block();
+		this.opted = save.get("opted").getAsBoolean();
+	}
+
 	public GlobalUserObject toGlobal() {
 		return new GlobalUserObject(this.user); //TODO: Add to Statics list
 	}

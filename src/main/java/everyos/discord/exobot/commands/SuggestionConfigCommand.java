@@ -2,10 +2,11 @@ package everyos.discord.exobot.commands;
 
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Message;
-import everyos.discord.exobot.ChannelObject;
-import everyos.discord.exobot.GuildObject;
+import everyos.discord.exobot.StaticFunctions;
 import everyos.discord.exobot.cases.ChannelCase;
 import everyos.discord.exobot.cases.SuggestionChannelCaseData;
+import everyos.discord.exobot.objects.ChannelObject;
+import everyos.discord.exobot.objects.GuildObject;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.MessageHelper;
@@ -33,12 +34,14 @@ public class SuggestionConfigCommand implements ICommand {
 		
 		if (args.length == 1) {
 			from.CASE = ChannelCase.CASES.NULL;
+			StaticFunctions.save();
 			MessageHelper.send(message.getChannel(), "Config reset!", true); return;
 		}
 		
 		ChannelObject to = guildData.getChannel(ChannelHelper.parseChannelId(args[1]));
 		from.CASE = ChannelCase.CASES.SUGGESTIONS;
 		from.data = new SuggestionChannelCaseData(to);
+		StaticFunctions.save();
 		MessageHelper.send(message.getChannel(), "Channels have been set", true); return;
 	}
 

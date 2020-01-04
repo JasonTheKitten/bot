@@ -1,9 +1,9 @@
 package everyos.discord.exobot.commands;
 
 import discord4j.core.object.entity.Message;
-import everyos.discord.exobot.ChannelObject;
-import everyos.discord.exobot.GuildObject;
-import everyos.discord.exobot.UserObject;
+import everyos.discord.exobot.objects.ChannelObject;
+import everyos.discord.exobot.objects.GuildObject;
+import everyos.discord.exobot.objects.UserObject;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.StringUtil;
@@ -47,6 +47,6 @@ public class KickCommand implements ICommand {
 	}
 	
 	@Override public String getFullHelp() {
-		return "**<user>** The user to kick\\n**[reason]** The reason for the kick";
+		return "**<user>** The user to kick\n**[reason]** The reason for the kick";
 	}
 }

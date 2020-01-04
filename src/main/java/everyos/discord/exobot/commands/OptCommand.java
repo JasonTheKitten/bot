@@ -1,7 +1,8 @@
 package everyos.discord.exobot.commands;
 
 import discord4j.core.object.entity.Message;
-import everyos.discord.exobot.ChannelObject;
+import everyos.discord.exobot.StaticFunctions;
+import everyos.discord.exobot.objects.ChannelObject;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.StringUtil;
@@ -18,6 +19,7 @@ public class OptCommand implements ICommand {
 			channel.send("Expected at least one argument!", true); return;
 		}
 		UserHelper.getUserData(GuildHelper.getGuildData(message.getGuild()), UserHelper.parseUserId(args[0])).opted=true;
+		StaticFunctions.save();
 		channel.send("User has been opted", true);
 	}
 

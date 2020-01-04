@@ -1,6 +1,7 @@
 package everyos.discord.exobot.commands;
 
 import discord4j.core.object.entity.Message;
+import everyos.discord.exobot.StaticFunctions;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.MessageHelper;
@@ -17,6 +18,7 @@ public class PrefixCommand implements ICommand {
 		
 		String guildID = GuildHelper.getGuildID(message.getGuild());
 		GuildHelper.getGuildData(message.getGuild()).prefix = argument;
+		StaticFunctions.save();
 		MessageHelper.send(message.getChannel(), "Set new prefix!", true);
 	}
 

@@ -2,9 +2,10 @@ package everyos.discord.exobot.commands;
 
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Message;
-import everyos.discord.exobot.ChannelObject;
-import everyos.discord.exobot.GuildObject;
+import everyos.discord.exobot.StaticFunctions;
 import everyos.discord.exobot.cases.ChannelCase;
+import everyos.discord.exobot.objects.ChannelObject;
+import everyos.discord.exobot.objects.GuildObject;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.MessageHelper;
@@ -32,6 +33,7 @@ public class BotIncludeCommand implements ICommand {
 		
 		if (from.CASE == ChannelCase.CASES.DISABLED) {
 			from.CASE = ChannelCase.CASES.NULL;
+			StaticFunctions.save();
 			MessageHelper.send(message.getChannel(), "Re-enabled bot commands on channel", true);
 		} else {
 			MessageHelper.send(message.getChannel(), "Channel already enabled!", true);

@@ -62,6 +62,7 @@ public class WebServer implements Runnable {
 					int rch = stream.read();
 					if (rch == -1) break;
 					char ch = (char) rch;
+					System.out.print(ch);
 					switch(state) {
 						case Method:
 							if (ch==' ') {

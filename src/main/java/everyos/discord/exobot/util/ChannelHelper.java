@@ -2,8 +2,8 @@ package everyos.discord.exobot.util;
 
 import discord4j.core.object.entity.Channel;
 import discord4j.core.object.util.Snowflake;
-import everyos.discord.exobot.ChannelObject;
-import everyos.discord.exobot.GuildObject;
+import everyos.discord.exobot.objects.ChannelObject;
+import everyos.discord.exobot.objects.GuildObject;
 import reactor.core.publisher.Mono;
 
 public class ChannelHelper {

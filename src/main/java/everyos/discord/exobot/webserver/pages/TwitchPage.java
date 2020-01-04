@@ -10,8 +10,8 @@ public class TwitchPage implements IServerPage {
 		String challenge = sentRequest.url.query.getOrDefault("hub.challenge", "");
 		String response = 
 				"HTTP/1.1 200 Success\r\n"+
-				"Content-Length:"+challenge.length()+"\r\n"+
-				"Content-Type:text/plain\r\n"+
+				"Content-Length: "+challenge.length()+"\r\n"+
+				"Content-Type: text/plain\r\n"+
 				"\r\n"+challenge;
 		try {
 			sock.getOutputStream().write(response.getBytes());

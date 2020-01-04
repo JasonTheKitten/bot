@@ -1,8 +1,8 @@
 package everyos.discord.exobot.util;
 
 import discord4j.core.object.entity.Guild;
-import everyos.discord.exobot.GuildObject;
 import everyos.discord.exobot.Statics;
+import everyos.discord.exobot.objects.GuildObject;
 import reactor.core.publisher.Mono;
 
 public class GuildHelper {

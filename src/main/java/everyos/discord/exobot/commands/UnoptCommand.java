@@ -1,8 +1,9 @@
 package everyos.discord.exobot.commands;
 
 import discord4j.core.object.entity.Message;
-import everyos.discord.exobot.ChannelObject;
-import everyos.discord.exobot.UserObject;
+import everyos.discord.exobot.StaticFunctions;
+import everyos.discord.exobot.objects.ChannelObject;
+import everyos.discord.exobot.objects.UserObject;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.StringUtil;
@@ -18,8 +19,11 @@ public class UnoptCommand implements ICommand {
 			StringUtil.split(argument, " ")[0]
 		));
 		user.opted=false;
+		StaticFunctions.save();
 		if (user.isHigherThanBot()) {
 			channel.send("The user is still opted because the have a role above the bot's. The user will no longer be opted once this role is removed.", true);
+		} else {
+			channel.send("The user is no longer opted", true);
 		}
 	}
 

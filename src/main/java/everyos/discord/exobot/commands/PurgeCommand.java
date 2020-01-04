@@ -7,13 +7,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.reactivestreams.Publisher;
 
 import discord4j.core.object.entity.Channel;
+import discord4j.core.object.entity.Channel.Type;
 import discord4j.core.object.entity.GuildMessageChannel;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.util.Snowflake;
 import discord4j.rest.http.client.ClientException;
-import everyos.discord.exobot.ChannelObject;
-import everyos.discord.exobot.GuildObject;
-import everyos.discord.exobot.UserObject;
+import everyos.discord.exobot.objects.ChannelObject;
+import everyos.discord.exobot.objects.GuildObject;
+import everyos.discord.exobot.objects.UserObject;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.StringUtil;
@@ -44,6 +45,7 @@ public class PurgeCommand implements ICommand {
 		ArrayList<ChannelObject> channels = new ArrayList<ChannelObject>();
 		HashMap<UserObject, Boolean> users = new HashMap<UserObject, Boolean>();
 		Boolean acceptAnyUserUF = true;
+		Boolean purgeAllChannels = false;
 		
 		if (args.length>1)
 			for (int i=1; i<args.length; i++) {
@@ -56,8 +58,19 @@ public class PurgeCommand implements ICommand {
 						channel.send("Purging of one of the channel types is not supported at this moment", true); return;
 					}
 					channels.add(nchannel);
+				} else if (args[i].equals("+#")) {
+					purgeAllChannels = true;
 				}
 			}
+		
+		if (purgeAllChannels){
+			channels.clear();
+			guild.guild.getChannels().takeWhile(c->{
+				if (c.getType()!=Type.GUILD_TEXT) return true;
+				channels.add(ChannelHelper.getChannelData(guild, c));
+				return true;
+			}).blockLast();
+		}
 		
 		if (channels.size() == 0) channels.add(channel);
 		
@@ -79,7 +92,7 @@ public class PurgeCommand implements ICommand {
 						messagesPurged.incrementAndGet();
 					}
 				} catch (ClientException e) {}
-				return messagesToPurge==0||messagesPurged.get()==messagesToPurge;
+				return messagesToPurge==0||messagesPurged.get()<messagesToPurge;
 			}).blockLast();
 			Publisher<Snowflake> publisher = Flux.fromIterable(snowflakes);
 			while(actC.bulkDelete(publisher).blockFirst()!=null) {}; //TODO: Delete remaining messages
@@ -99,6 +112,6 @@ public class PurgeCommand implements ICommand {
 	@Override public String getFullHelp() {
 		return "**<number/all> Number of messages to purge, or \"all\" to purge all messages\n"+
 				"**[users, channels] A list of users and channels to include in the purge. Default is all users, current channel. "+
-				"To purge all channels, set \\\"#\\\" as a channel argument";
+				"To purge all channels, set \"+#\" as a channel argument";
 	}
 }

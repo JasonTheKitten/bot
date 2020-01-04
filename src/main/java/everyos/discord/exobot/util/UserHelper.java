@@ -3,8 +3,8 @@ package everyos.discord.exobot.util;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Snowflake;
-import everyos.discord.exobot.GuildObject;
-import everyos.discord.exobot.UserObject;
+import everyos.discord.exobot.objects.GuildObject;
+import everyos.discord.exobot.objects.UserObject;
 import reactor.core.publisher.Mono;
 
 public class UserHelper {

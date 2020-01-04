@@ -13,7 +13,6 @@ import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.data.stored.PresenceBean;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.Message.Type;
 import discord4j.core.object.presence.Activity;
@@ -23,19 +22,21 @@ import everyos.discord.exobot.commands.BanCommand;
 import everyos.discord.exobot.commands.BotExcludeCommand;
 import everyos.discord.exobot.commands.BotIncludeCommand;
 import everyos.discord.exobot.commands.EchoCommand;
-import everyos.discord.exobot.commands.FullHelpCommand;
 import everyos.discord.exobot.commands.HelpCommand;
 import everyos.discord.exobot.commands.ICommand;
 import everyos.discord.exobot.commands.KickCommand;
 import everyos.discord.exobot.commands.LogSaveCommand;
 import everyos.discord.exobot.commands.OptCommand;
 import everyos.discord.exobot.commands.PrefixCommand;
+import everyos.discord.exobot.commands.PurgeAfterCommand;
 import everyos.discord.exobot.commands.PurgeCommand;
 import everyos.discord.exobot.commands.RemindCommand;
 import everyos.discord.exobot.commands.SuggestionConfigCommand;
 import everyos.discord.exobot.commands.TwitchConfigCommand;
 import everyos.discord.exobot.commands.UnbanCommand;
 import everyos.discord.exobot.commands.UnoptCommand;
+import everyos.discord.exobot.objects.GlobalUserObject;
+import everyos.discord.exobot.objects.GuildObject;
 import everyos.discord.exobot.util.CommandHelper;
 import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.MessageHelper;
@@ -47,7 +48,6 @@ public class Main {
 		System.out.println("Command is running");
 		
 		String[] args;
-		
 		if (rargs.length<2) {
 			args = new String[2];
 			
@@ -79,22 +79,21 @@ public class Main {
 		CommandHelper.register("kick", new KickCommand());
 		CommandHelper.register("ban", new BanCommand());
 		CommandHelper.register("unban", new UnbanCommand());
-		CommandHelper.register("fullhelp", new FullHelpCommand());
 		CommandHelper.register("purge", new PurgeCommand());
 		CommandHelper.register("remind", new RemindCommand());
 		CommandHelper.register("logsave", new LogSaveCommand());
+		CommandHelper.register("purgeafter", new PurgeAfterCommand());
 		
 		final DiscordClient client = new DiscordClientBuilder(args[1]).build();
 		
 		Statics.client = client;
+		StaticFunctions.load();
 		
 		EventDispatcher dispatcher = client.getEventDispatcher();
 		dispatcher.on(ReadyEvent.class)
         	.subscribe(ready -> {
         		System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id="+args[0]+"&scope=bot&permissions=8");
-        		PresenceBean presence = new PresenceBean();
-        		presence.setStatus("Spaghetti");
-        		client.updatePresence(Presence.online(Activity.playing("dead"))).block();
+        		client.updatePresence(Presence.online(Activity.playing("in production studios near you"))).block();
         	});
 		
 		dispatcher.on(MessageCreateEvent.class)

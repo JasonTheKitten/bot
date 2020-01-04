@@ -1,9 +1,12 @@
 package everyos.discord.exobot.commands;
 
 import discord4j.core.object.entity.Message;
+import everyos.discord.exobot.StaticFunctions;
 
 public class RemindCommand implements ICommand {
-	@Override public void execute(Message message, String argument) {}
+	@Override public void execute(Message message, String argument) {
+		StaticFunctions.save();
+	}
 
 	@Override public String getHelp() {
 		return "<user><days/login><text> Reminds a user some text";
