@@ -14,10 +14,10 @@ public class OptCommand implements ICommand {
 		if (!UserHelper.getUserData(GuildHelper.getGuildData(message.getGuild()), message.getAuthorAsMember()).isOpted()) {
 			channel.send("User is not opted to use this command", true); return;
 		}
-		String args[] = StringUtil.split(argument, " ");
+        String[] args = StringUtil.split(argument, " ");
 		if (args.length<1) {
 			channel.send("Expected at least one argument!", true); return;
-		}
+        }
 		UserHelper.getUserData(GuildHelper.getGuildData(message.getGuild()), UserHelper.parseUserId(args[0])).opted=true;
 		StaticFunctions.save();
 		channel.send("User has been opted", true);

@@ -70,7 +70,7 @@ public class Main {
 		CommandHelper.register("help", new HelpCommand());
 		CommandHelper.register("echo", new EchoCommand());
 		CommandHelper.register("prefix", new PrefixCommand());
-		CommandHelper.register("configsuggest", new SuggestionConfigCommand());
+		CommandHelper.register("suggestions", new SuggestionConfigCommand());
 		CommandHelper.register("opt", new OptCommand());
 		CommandHelper.register("unopt", new UnoptCommand());
 		CommandHelper.register("botinclude", new BotIncludeCommand());
@@ -103,7 +103,7 @@ public class Main {
 	    			ChannelCase.CASES special = ChannelCase.getSpecial(GuildHelper.getGuildData(message.getGuild()), message.getChannel().block());
 	    			if (special!=ChannelCase.CASES.NULL) {
 	    				ChannelCase.execute(special, message); return;
-	    			}
+                    }
 		    		if (messageevent.getMember().get().isBot()) return;
 		    		if (!(message.getType() == Type.DEFAULT)) {return;}
 		    		String content = message.getContent().get();
@@ -127,27 +127,15 @@ public class Main {
 	    			} catch(Exception e2) {e2.printStackTrace();}
 	    		}
 	    	});
-		
-		Frame logout = new Frame("Close this window to logout Discord bot");
-		logout.addWindowListener(new WindowListener(){
-			@Override public void windowClosing(WindowEvent e) {
-				logout.dispose();
-				client.logout().block();
+        
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override public void run() {
+                client.logout().block();
 				Statics.servers.forEach(k->{
 					k.close();
 				});
-			}
-			@Override public void windowOpened(WindowEvent e) {}
-			@Override public void windowClosed(WindowEvent e) {}
-			@Override public void windowIconified(WindowEvent e) {}
-			@Override public void windowDeiconified(WindowEvent e) {}
-			@Override public void windowActivated(WindowEvent e) {}
-			@Override public void windowDeactivated(WindowEvent e) {}
-		});
-		logout.setPreferredSize(new Dimension(400, 0));
-		logout.setResizable(false);
-		logout.pack();
-		logout.setVisible(true);
+            }
+        });
 		
 		client.login().block();
 	}

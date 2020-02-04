@@ -16,8 +16,7 @@ public class PrefixCommand implements ICommand {
 			return;
 		}
 		
-		String guildID = GuildHelper.getGuildID(message.getGuild());
-		GuildHelper.getGuildData(message.getGuild()).prefix = argument;
+		GuildHelper.getGuildData(message.getGuild()).prefix = argument.replaceAll("%20", " ").replaceAll("%25", "%");
 		StaticFunctions.save();
 		MessageHelper.send(message.getChannel(), "Set new prefix!", true);
 	}

@@ -60,6 +60,8 @@ public class PurgeCommand implements ICommand {
 					channels.add(nchannel);
 				} else if (args[i].equals("+#")) {
 					purgeAllChannels = true;
+				} else {
+					channel.send("Invalid parameter", true); return;
 				}
 			}
 		
@@ -95,7 +97,8 @@ public class PurgeCommand implements ICommand {
 				return messagesToPurge==0||messagesPurged.get()<messagesToPurge;
 			}).blockLast();
 			Publisher<Snowflake> publisher = Flux.fromIterable(snowflakes);
-			while(actC.bulkDelete(publisher).blockFirst()!=null) {}; //TODO: Delete remaining messages
+			actC.bulkDelete(publisher).blockFirst();
+			//while(actC.bulkDelete(publisher).blockFirst()!=null) {}; //TODO: Delete remaining messages
 		});
 		
 		channel.send("Messages purged!", true);

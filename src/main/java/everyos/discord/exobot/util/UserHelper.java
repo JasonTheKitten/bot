@@ -19,8 +19,10 @@ public class UserHelper {
 		return getUserData(guild, mono.block());
 	}
 	public static UserObject getUserData(GuildObject guild, String user) {
-		String ruser = user;
-		if (isUserId(ruser)) ruser = parseUserId(ruser);
+        String ruser = user;
+        System.out.println(ruser);
+        if (isUserId(ruser)) ruser = parseUserId(ruser);
+        System.out.println(ruser);
 		return getUserData(guild, guild.guild.getMemberById(Snowflake.of(ruser)).block());
 	}
 	public static UserObject getUserData(GuildObject guild, Member user) {
@@ -34,10 +36,10 @@ public class UserHelper {
 	
 	public static String parseUserId(String arg) {
 		if (!isUserId(arg)) return null;
-		return arg.substring(3, arg.length()-1);
+		return arg.substring(2, arg.length()-1);
 	}
 	public static boolean isUserId(String arg) {
 		if (arg==null) return false;
-		return arg.startsWith("<@!") && arg.endsWith(">");
+		return arg.startsWith("<@") && arg.endsWith(">");
 	}
 }

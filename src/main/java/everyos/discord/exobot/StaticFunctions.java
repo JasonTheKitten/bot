@@ -7,10 +7,23 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 public class StaticFunctions {
-	private static String dir = new File(System.getenv("APPDATA")).getAbsolutePath() + "\\everyos\\exobot";
-	private static String filename = "save.json";
+    private static String dir;
+    private static String filename = "save.json";
+    static String seper = "/";    
+    static {
+        String mdir;
+        String OS = (System.getProperty("os.name")).toUpperCase();
+        if (OS.contains("win")) {
+            mdir =  new File(System.getenv("APPDATA")).getAbsolutePath();
+	    seper = "\\";
+        } else {
+            mdir = new File(System.getProperty("user.home")).getAbsolutePath();
+        }
+        dir = mdir + seper + "everyos" + seper +"bot";
+    }
+
 	public static String getAppData(String path){
-		return dir+"\\"+path;
+            return dir+seper+path;
 	}
 	public static boolean save(){
 		try {
