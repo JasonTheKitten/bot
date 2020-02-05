@@ -12,6 +12,7 @@ import discord4j.core.spec.EmbedCreateSpec;
 import everyos.discord.exobot.cases.ChannelCase;
 import everyos.discord.exobot.cases.ChannelCase.CASES;
 import everyos.discord.exobot.cases.IChannelCaseData;
+import everyos.discord.exobot.cases.SentenceGameChannelCaseData;
 import everyos.discord.exobot.cases.SuggestionChannelCaseData;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.MessageHelper;
@@ -32,24 +33,36 @@ public class ChannelObject {
 
 	public ChannelObject(GuildObject guild, JsonObject save) {
 		this.guild = guild;
-		this.id = save.get("id").getAsString();
-		this.channel = guild.guild.getChannelById(Snowflake.of(this.id)).block();
+        this.id = save.get("id").getAsString();
+        try {
+            this.channel = guild.guild.getChannelById(Snowflake.of(this.id)).block();
+        } catch (Exception e) {
+            return;
+        };
 		try {
 			CASE = CASES.valueOf(save.get("case").getAsString());
 			if (CASE == CASES.SUGGESTIONS) {
 				this.data = new SuggestionChannelCaseData(save.get("casedata").getAsJsonObject());
-			}
+			} else if (CASE == CASES.SENTENCEGAME) {
+                this.data = new SentenceGameChannelCaseData(save.get("casedata").getAsJsonObject());
+            }
 		} catch (Exception e) {
 			e.printStackTrace();
 			CASE = ChannelCase.CASES.NULL;
 		}
 	}
 
-	public Message send(String msg, boolean permitPing) {
-		return MessageHelper.send((MessageChannel) this.channel, msg, permitPing);
+	public void send(String msg, boolean permitPing) {
+		MessageHelper.send((MessageChannel) this.channel, msg, permitPing);
 	}
-	public Message send(Consumer<? super EmbedCreateSpec> embed) {
-		return MessageHelper.send((MessageChannel) this.channel, embed);
+	public void send(Consumer<? super EmbedCreateSpec> embed) {
+		MessageHelper.send((MessageChannel) this.channel, embed);
+    }
+    public Message sendThen(String msg, boolean permitPing) {
+		return MessageHelper.sendThen((MessageChannel) this.channel, msg, permitPing);
+	}
+	public Message sendThen(Consumer<? super EmbedCreateSpec> embed) {
+		return MessageHelper.sendThen((MessageChannel) this.channel, embed);
 	}
 
 	public JSONObject serializeSave() {

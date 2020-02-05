@@ -2,7 +2,6 @@ package everyos.discord.exobot.cases;
 
 import com.google.gson.JsonObject;
 
-import everyos.discord.exobot.objects.ChannelObject;
 import everyos.discord.exobot.util.SaveUtil.JSONObject;
 
 public class SentenceGameChannelCaseData implements IChannelCaseData {

@@ -33,6 +33,7 @@ import everyos.discord.exobot.commands.PrefixCommand;
 import everyos.discord.exobot.commands.PurgeAfterCommand;
 import everyos.discord.exobot.commands.PurgeCommand;
 import everyos.discord.exobot.commands.RemindCommand;
+import everyos.discord.exobot.commands.SentenceGameCommand;
 import everyos.discord.exobot.commands.SuggestionConfigCommand;
 import everyos.discord.exobot.commands.TwitchConfigCommand;
 import everyos.discord.exobot.commands.UnbanCommand;
@@ -103,6 +104,8 @@ public class Main {
         CommandHelper.register("purgeafter", new PurgeAfterCommand());
         CommandHelper.register("inc", new IncrementCommand());
         CommandHelper.register("increment", new IncrementCommand());
+        CommandHelper.register("oneword", new SentenceGameCommand());
+        CommandHelper.register("sentencegame", new SentenceGameCommand());
 
         InvalidCommand invalidCommand = new InvalidCommand();
 		

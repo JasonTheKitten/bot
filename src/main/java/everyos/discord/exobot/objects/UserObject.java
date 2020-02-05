@@ -47,12 +47,12 @@ public class UserObject {
 				reason.setReason(msg);
 				if (days!=0) reason.setDeleteMessageDays(days);
 			}
-		}).block();
+		}).subscribe();
 	}
 	public void ban() { ban(null, 0); }
 
 	public void kick(String msg) {
-		this.user.kick(msg).block();
+		this.user.kick(msg).subscribe();
 	}
 	public void kick() { kick(null); }
 

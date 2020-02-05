@@ -11,11 +11,22 @@ public class MessageHelper {
 	public static void send(Mono<MessageChannel> channel, String message, boolean permitPing) {
 		send(channel.block(), message, permitPing);
 	}
-	public static Message send(MessageChannel channel, String message, boolean permitPing) {
+	public static void send(MessageChannel channel, String message, boolean permitPing) {
+		if (!permitPing) message = message.replace("@", "(Ping attempt)");
+		channel.createMessage(message).subscribe();
+	}
+	public static void send(MessageChannel channel, Consumer<? super EmbedCreateSpec> embed) {
+		channel.createEmbed(embed).subscribe();
+    }
+
+    public static Message sendThen(Mono<MessageChannel> channel, String message, boolean permitPing) {
+		return sendThen(channel.block(), message, permitPing);
+	}
+    public static Message sendThen(MessageChannel channel, String message, boolean permitPing) {
 		if (!permitPing) message = message.replace("@", "(Ping attempt)");
 		return channel.createMessage(message).block();
 	}
-	public static Message send(MessageChannel channel, Consumer<? super EmbedCreateSpec> embed) {
+	public static Message sendThen(MessageChannel channel, Consumer<? super EmbedCreateSpec> embed) {
 		return channel.createEmbed(embed).block();
 	}
 }
