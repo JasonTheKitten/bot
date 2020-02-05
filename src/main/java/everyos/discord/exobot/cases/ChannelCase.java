@@ -41,7 +41,6 @@ public class ChannelCase {
                 SentenceGameChannelCaseData data = (SentenceGameChannelCaseData) channel.data;
                 long uid = message.getAuthor().get().getId().asLong();
 
-                System.out.println(content.isEmpty());
                 if (content.isEmpty() || !content.matches("^[a-zA-Z0-9]*$") || data.lastUser==uid) {
                     message.delete().subscribe();
                     return;
@@ -55,7 +54,7 @@ public class ChannelCase {
                 message.getChannel().subscribe(e->{
                     e.createMessage("The new sentence is:").subscribe();
                     for (int i=0; i<data.sentence.length(); i+=2000)
-                        e.createMessage(StringUtil.sub(data.sentence, i, i+1999)).block();
+                        e.createMessage(StringUtil.sub(data.sentence, i, i+1999)).subscribe();
                 });
 
                 break;
