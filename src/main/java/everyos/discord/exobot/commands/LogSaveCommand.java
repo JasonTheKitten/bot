@@ -1,7 +1,6 @@
 package everyos.discord.exobot.commands;
 
 import discord4j.core.object.entity.Message;
-import everyos.discord.exobot.StaticFunctions;
 import everyos.discord.exobot.Statics;
 import everyos.discord.exobot.objects.ChannelObject;
 import everyos.discord.exobot.objects.GuildObject;

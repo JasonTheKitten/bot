@@ -10,6 +10,8 @@ import discord4j.core.DiscordClient;
 import everyos.discord.exobot.commands.ICommand;
 import everyos.discord.exobot.objects.GlobalUserObject;
 import everyos.discord.exobot.objects.GuildObject;
+import everyos.discord.exobot.util.SaveUtil.JSONArray;
+import everyos.discord.exobot.util.SaveUtil.JSONObject;
 import everyos.discord.exobot.webserver.WebServer;
 
 public class Statics {
@@ -22,20 +24,21 @@ public class Statics {
 	
 	public static void loadSave() {}
 	public static String serializeSave() {
-		StringBuilder save = new StringBuilder("{\"guilds\":[");
-		guilds.forEach((k, v)->{
-			save.append(v.serializeSave()+",");
-		});
-		save.append("], \"users\":[");
-		users.forEach((k, v)->{
-			save.append(v.serializeSave()+",");
-		});
-		save.append("], \"twitchchannels\":{");
-		twitchchannels.forEach((k, v)->{
-			save.append("\""+k+"\":\""+v+"\",");
-		});
-		save.append("}}");
-		return save.toString().replaceAll(",}", "}").replaceAll(",]", "]");
+        JSONObject save = new JSONObject();
+
+        final JSONArray array = new JSONArray();
+        guilds.forEach((k, v)->array.put(v.serializeSave()));
+        save.put("guilds", array);
+
+        array.clear();
+        users.forEach((k, v)->array.put(v.serializeSave()));
+        save.put("users", array);
+
+        array.clear();
+        guilds.forEach((k, v)->array.put(v.serializeSave()));
+        save.put("twitchchannels", array);
+
+		return save.toString();
 	}
 	public static void loadSave(String argument) {
 		try {

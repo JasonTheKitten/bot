@@ -6,3 +6,7 @@ build
 bin
 .settings
 .project
+
+#Ignore annoying files and config files
+.theia
+*.config

@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 public class StaticFunctions {
     private static String dir;
     private static String filename = "save.json";
+    public static String keysFile = "keys.config";
     static String seper = "/";    
     static {
         String mdir;

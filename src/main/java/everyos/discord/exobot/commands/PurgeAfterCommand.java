@@ -31,7 +31,6 @@ public class PurgeAfterCommand implements ICommand {
 			channel.send("Expected at least one parameter", true); return;
 		}
 		
-		ArrayList<ChannelObject> channels = new ArrayList<ChannelObject>();
 		HashMap<UserObject, Boolean> users = new HashMap<UserObject, Boolean>();
 		Boolean acceptAnyUserUF = true;
 		
@@ -40,7 +39,9 @@ public class PurgeAfterCommand implements ICommand {
 				if (UserHelper.isUserId(args[i])) {
 					acceptAnyUserUF = false;
 					users.put(UserHelper.getUserData(guild, args[i]), true);
-				}
+				} else {
+                    channel.send("Invalid parameter: "+args[i], true); return;
+                }
 			}
 		
 		final Boolean acceptAnyUser = acceptAnyUserUF;

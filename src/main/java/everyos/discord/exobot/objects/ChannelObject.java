@@ -15,6 +15,7 @@ import everyos.discord.exobot.cases.IChannelCaseData;
 import everyos.discord.exobot.cases.SuggestionChannelCaseData;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.MessageHelper;
+import everyos.discord.exobot.util.SaveUtil.JSONObject;
 
 public class ChannelObject {
 	public ChannelCase.CASES CASE = ChannelCase.CASES.NULL;
@@ -51,14 +52,11 @@ public class ChannelObject {
 		return MessageHelper.send((MessageChannel) this.channel, embed);
 	}
 
-	public String serializeSave() {
-		StringBuilder serialized = new StringBuilder("{\"id\":\""+id+"\",\"case\":\""+CASE.toString()+"\",\"casedata\":"); //TODO: Special data
-		if (data==null) {
-			serialized.append("{}");
-		} else {
-			serialized.append(data.serializeSave());
-		}
-		serialized.append("}");
-		return serialized.toString();
+	public JSONObject serializeSave() {
+        JSONObject save = new JSONObject();
+        save.put("id", id);
+        save.put("case", CASE.toString());
+		save.put("casedata", (data==null?(new JSONObject()):data.serializeSave()));
+		return save;
 	}
 }

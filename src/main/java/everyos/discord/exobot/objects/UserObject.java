@@ -6,13 +6,15 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.util.Snowflake;
 import everyos.discord.exobot.Statics;
 import everyos.discord.exobot.util.UserHelper;
+import everyos.discord.exobot.util.SaveUtil.JSONObject;
 import reactor.core.publisher.Mono;
 
 public class UserObject {
 	public GuildObject guild;
 	public Member user;
 	public String id;
-	public boolean opted;
+    public boolean opted;
+    public int i;
 
 	public UserObject(GuildObject guild, Member user) {
 		this.guild = guild;
@@ -25,7 +27,8 @@ public class UserObject {
 		this.guild = guild;
 		this.id = save.get("id").getAsString();
 		this.user = guild.guild.getMemberById(Snowflake.of(this.id)).block();
-		this.opted = save.get("opted").getAsBoolean();
+        this.opted = save.get("opted").getAsBoolean();
+        this.i = save.has("i")?save.get("i").getAsInt():0;
 	}
 
 	public GlobalUserObject toGlobal() {
@@ -63,7 +66,11 @@ public class UserObject {
 		return this.user.isHigher(user.block()).block();
 	}
 
-	public String serializeSave() {
-		return "{\"id\":\""+id+"\",\"opted\":"+opted+"}";
+	public JSONObject serializeSave() {
+        JSONObject save = new JSONObject();
+        save.put("id", id);
+        save.put("opted", opted);
+        save.put("i", this.i);
+		return save;
 	}
 }

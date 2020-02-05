@@ -1,11 +1,11 @@
 package everyos.discord.exobot;
 
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import discord4j.core.DiscordClient;
@@ -24,6 +24,8 @@ import everyos.discord.exobot.commands.BotIncludeCommand;
 import everyos.discord.exobot.commands.EchoCommand;
 import everyos.discord.exobot.commands.HelpCommand;
 import everyos.discord.exobot.commands.ICommand;
+import everyos.discord.exobot.commands.IncrementCommand;
+import everyos.discord.exobot.commands.InvalidCommand;
 import everyos.discord.exobot.commands.KickCommand;
 import everyos.discord.exobot.commands.LogSaveCommand;
 import everyos.discord.exobot.commands.OptCommand;
@@ -46,19 +48,35 @@ import everyos.discord.exobot.webserver.WebServer;
 public class Main {
 	public static void main(String[] rargs) throws Exception {
 		System.out.println("Command is running");
-		
+        
+        File keys = new File(StaticFunctions.getAppData("keys.config"));
+
 		String[] args;
 		if (rargs.length<2) {
 			args = new String[2];
-			
+
 			System.out.println("User Client ID and Bot Token both expected");
-			Scanner s = new Scanner(System.in);
+            Scanner s;
+            if (keys.exists()) {
+                s = new Scanner(keys);
+            } else try {
+                s = new Scanner(System.in);
+            } catch (NoSuchElementException e) {
+                System.out.println("Could not start prompt"); return;
+            };
 			System.out.println("Enter Client ID:");
 			args[0] = s.next();
 			System.out.println("Enter Bot Token:");
 			args[1] = s.next();
 			s.close();
-		} else {args=rargs;}
+        } else {args=rargs;}
+        
+        if (!keys.exists()) {
+            keys.getParentFile().mkdirs();
+            BufferedWriter writer = new BufferedWriter(new FileWriter(StaticFunctions.getAppData(StaticFunctions.keysFile)));
+            writer.write(args[0]+" "+args[1]);
+            writer.close();
+        }
 		
 		HashMap<String, ICommand> commands = new HashMap<String, ICommand>();
 		Statics.commands = commands;
@@ -82,7 +100,11 @@ public class Main {
 		CommandHelper.register("purge", new PurgeCommand());
 		CommandHelper.register("remind", new RemindCommand());
 		CommandHelper.register("logsave", new LogSaveCommand());
-		CommandHelper.register("purgeafter", new PurgeAfterCommand());
+        CommandHelper.register("purgeafter", new PurgeAfterCommand());
+        CommandHelper.register("inc", new IncrementCommand());
+        CommandHelper.register("increment", new IncrementCommand());
+
+        InvalidCommand invalidCommand = new InvalidCommand();
 		
 		final DiscordClient client = new DiscordClientBuilder(args[1]).build();
 		
@@ -90,43 +112,41 @@ public class Main {
 		StaticFunctions.load();
 		
 		EventDispatcher dispatcher = client.getEventDispatcher();
-		dispatcher.on(ReadyEvent.class)
-        	.subscribe(ready -> {
-        		System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id="+args[0]+"&scope=bot&permissions=8");
-        		client.updatePresence(Presence.online(Activity.playing("in production studios near you"))).block();
-        	});
+		dispatcher.on(ReadyEvent.class).subscribe(ready -> {
+        	System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id="+args[0]+"&scope=bot&permissions=8");
+            client.updatePresence(Presence.online(Activity.watching("spiders make webs"))).block();
+        });
 		
-		dispatcher.on(MessageCreateEvent.class)
-	    	.subscribe(messageevent -> {
-	    		Message message = messageevent.getMessage();
-	    		try {
-	    			ChannelCase.CASES special = ChannelCase.getSpecial(GuildHelper.getGuildData(message.getGuild()), message.getChannel().block());
-	    			if (special!=ChannelCase.CASES.NULL) {
-	    				ChannelCase.execute(special, message); return;
-                    }
-		    		if (messageevent.getMember().get().isBot()) return;
-		    		if (!(message.getType() == Type.DEFAULT)) {return;}
-		    		String content = message.getContent().get();
-		    		String prefix = GuildHelper.getGuildData(message.getGuild()).prefix;
-		    		if (content.startsWith(prefix)) {
-		    			String msg = StringUtil.sub(content, prefix.length());
-		    			int space = msg.indexOf(" ");
-		    			if (space<=0) space=content.length();
-		    			if (space<=0) space=1;
-		    			String cmd = StringUtil.sub(msg, 0, space);
-		    			String argstr = StringUtil.sub(msg, space+1, content.length());
-		    			if (cmd==""){cmd="help";}
-		    			
-		    			ICommand exe = commands.getOrDefault(cmd, commands.get("help"));
-		    			exe.execute(message, argstr);
-		    		}
-	    		} catch(Exception e) {
-	    			e.printStackTrace();
-	    			try {
-	    				MessageHelper.send(message.getChannel(), e.getClass().getSimpleName()+":"+e.getMessage(), true);
-	    			} catch(Exception e2) {e2.printStackTrace();}
-	    		}
-	    	});
+		dispatcher.on(MessageCreateEvent.class).subscribe(messageevent -> {
+            Message message = messageevent.getMessage();
+            try {
+                ChannelCase.CASES special = ChannelCase.getSpecial(GuildHelper.getGuildData(message.getGuild()), message.getChannel().block());
+                if (special!=ChannelCase.CASES.NULL) {
+                    ChannelCase.execute(special, message); return;
+                }
+                if (!messageevent.getMember().isPresent()||messageevent.getMember().get().isBot()) return;
+                if (!(message.getType() == Type.DEFAULT)) {return;}
+                String content = message.getContent().orElse("");
+                String prefix = GuildHelper.getGuildData(message.getGuild()).prefix;
+                if (content.startsWith(prefix)) {
+                    String msg = StringUtil.sub(content, prefix.length());
+                    int space = msg.indexOf(" ");
+                    if (space<=0) space=content.length();
+                    if (space<=0) space=1;
+                    String cmd = StringUtil.sub(msg, 0, space);
+                    String argstr = StringUtil.sub(msg, space+1, content.length());
+                    if (cmd==""){cmd="help";}
+                    
+                    ICommand exe = commands.getOrDefault(cmd, invalidCommand);
+                    exe.execute(message, argstr);
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
+                try {
+                    MessageHelper.send(message.getChannel(), e.getClass().getSimpleName()+":"+e.getMessage(), true);
+                } catch(Exception e2) {e2.printStackTrace();}
+            }
+	    });
         
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override public void run() {

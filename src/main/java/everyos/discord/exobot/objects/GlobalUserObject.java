@@ -6,6 +6,7 @@ import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Snowflake;
 import everyos.discord.exobot.Statics;
 import everyos.discord.exobot.util.UserHelper;
+import everyos.discord.exobot.util.SaveUtil.JSONObject;
 
 public class GlobalUserObject {
 	public User user;
@@ -21,7 +22,10 @@ public class GlobalUserObject {
 		this.user = Statics.client.getUserById(Snowflake.of(this.id)).block();
 	}
 
-	public String serializeSave() {
-		return "{\"id\":\""+id+"\",}";
+	public JSONObject serializeSave() {
+        JSONObject save = new JSONObject();
+        save.put("id", id);
+
+        return save;
 	}
 }

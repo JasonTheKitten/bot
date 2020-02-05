@@ -3,6 +3,7 @@ package everyos.discord.exobot.cases;
 import com.google.gson.JsonObject;
 
 import everyos.discord.exobot.objects.ChannelObject;
+import everyos.discord.exobot.util.SaveUtil.JSONObject;
 
 public class SuggestionChannelCaseData implements IChannelCaseData {
 	public String voteChannel;
@@ -15,7 +16,9 @@ public class SuggestionChannelCaseData implements IChannelCaseData {
 		this.voteChannel = save.get("votechannel").getAsString();
 	}
 
-	@Override public String serializeSave() {
-		return "{\"votechannel\":\""+this.voteChannel+"\"}";
+	@Override public JSONObject serializeSave() {
+        JSONObject save = new JSONObject();
+        save.put("votechannel", this.voteChannel);
+        return save;
 	}
 }

@@ -32,8 +32,7 @@ shadowJar {
 task run(type: JavaExec) {
   group = 'Run'
   description = 'Runs the app'
-
+  
   classpath sourceSets.main.runtimeClasspath
   main = "everyos.discord.exobot.Main"
-  
 }

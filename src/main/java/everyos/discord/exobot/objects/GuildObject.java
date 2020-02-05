@@ -10,6 +10,8 @@ import discord4j.core.object.util.Snowflake;
 import everyos.discord.exobot.Statics;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.GuildHelper;
+import everyos.discord.exobot.util.SaveUtil.JSONArray;
+import everyos.discord.exobot.util.SaveUtil.JSONObject;
 import reactor.core.publisher.Mono;
 
 public class GuildObject {
@@ -17,14 +19,16 @@ public class GuildObject {
 	public Guild guild;
 	public HashMap<String, ChannelObject> channels;
 	public HashMap<String, UserObject> users;
-	public String prefix;
+    public String prefix;
+    public int i;
 	
 	public GuildObject(Guild guild) {
 		this.guild = guild;
 		this.id = GuildHelper.getGuildId(guild);
 		this.channels = new HashMap<String, ChannelObject>();
 		this.users = new HashMap<String, UserObject>();
-		this.prefix = "*";
+        this.prefix = "*";
+        this.i = 0;
 	}
 	
 	public GuildObject(JsonObject save) {
@@ -33,7 +37,8 @@ public class GuildObject {
 		
 		this.id = save.get("id").getAsString();
 		this.guild = Statics.client.getGuildById(Snowflake.of(this.id)).block();
-		this.prefix = save.get("prefix").getAsString();
+        this.prefix = save.get("prefix").getAsString();
+        this.i = save.has("i")?save.get("i").getAsInt():0;
 		
 		save.get("channels").getAsJsonArray().forEach(v->{
 			try {
@@ -59,16 +64,20 @@ public class GuildObject {
 		return ChannelHelper.getChannelData(this, channel);
 	}
 
-	public String serializeSave() {
-		StringBuilder save = new StringBuilder("{\"id\":\""+id+"\",\"channels\":[");
-		channels.forEach((k, v)->{
-			save.append(v.serializeSave()+",");
-		});
-		save.append("],\"users\":[");
-		users.forEach((k, v)->{
-			save.append(v.serializeSave()+",");
-		});
-		save.append("],\"prefix\":\""+prefix+"\"}");
-		return save.toString();
+	public JSONObject serializeSave() {
+        JSONObject save = new JSONObject();
+        save.put("id", id);
+        save.put("prefix", prefix);
+        save.put("i", i);
+
+        final JSONArray array = new JSONArray();
+        channels.forEach((k, v)->array.put(v.serializeSave()));
+        save.put("channels", array);
+
+        array.clear();
+        users.forEach((k, v)->array.put(v.serializeSave()));
+        save.put("users", array);
+
+        return save;
 	}
 }

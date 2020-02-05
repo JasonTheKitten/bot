@@ -61,7 +61,7 @@ public class PurgeCommand implements ICommand {
 				} else if (args[i].equals("+#")) {
 					purgeAllChannels = true;
 				} else {
-					channel.send("Invalid parameter", true); return;
+					channel.send("Invalid parameter: "+args[i], true); return;
 				}
 			}
 		
