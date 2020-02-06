@@ -21,6 +21,7 @@ import everyos.discord.exobot.cases.ChannelCase;
 import everyos.discord.exobot.commands.BanCommand;
 import everyos.discord.exobot.commands.BotExcludeCommand;
 import everyos.discord.exobot.commands.BotIncludeCommand;
+import everyos.discord.exobot.commands.CurrencyCommand;
 import everyos.discord.exobot.commands.EchoCommand;
 import everyos.discord.exobot.commands.HelpCommand;
 import everyos.discord.exobot.commands.ICommand;
@@ -40,10 +41,12 @@ import everyos.discord.exobot.commands.UnbanCommand;
 import everyos.discord.exobot.commands.UnoptCommand;
 import everyos.discord.exobot.objects.GlobalUserObject;
 import everyos.discord.exobot.objects.GuildObject;
+import everyos.discord.exobot.objects.UserObject;
 import everyos.discord.exobot.util.CommandHelper;
 import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.MessageHelper;
 import everyos.discord.exobot.util.StringUtil;
+import everyos.discord.exobot.util.UserHelper;
 import everyos.discord.exobot.webserver.WebServer;
 
 public class Main {
@@ -105,7 +108,7 @@ public class Main {
         CommandHelper.register("inc", new IncrementCommand());
         CommandHelper.register("increment", new IncrementCommand());
         CommandHelper.register("oneword", new SentenceGameCommand());
-        CommandHelper.register("sentencegame", new SentenceGameCommand());
+        CommandHelper.register("currency", new CurrencyCommand());
 
         InvalidCommand invalidCommand = new InvalidCommand();
 		
@@ -117,17 +120,24 @@ public class Main {
 		EventDispatcher dispatcher = client.getEventDispatcher();
 		dispatcher.on(ReadyEvent.class).subscribe(ready -> {
         	System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id="+args[0]+"&scope=bot&permissions=8");
-            client.updatePresence(Presence.online(Activity.watching("spiders make webs"))).block();
+            client.updatePresence(Presence.online(Activity.watching("spiders make webs"))).subscribe();
         });
 		
 		dispatcher.on(MessageCreateEvent.class).subscribe(messageevent -> {
             Message message = messageevent.getMessage();
             try {
-                ChannelCase.CASES special = ChannelCase.getSpecial(GuildHelper.getGuildData(message.getGuild()), message.getChannel().block());
+                if (!messageevent.getMember().isPresent()||messageevent.getMember().get().isBot()) return;
+
+                GuildObject guild = GuildHelper.getGuildData(message.getGuild());
+                
+                UserObject invoker = UserHelper.getUserData(guild, message.getAuthorAsMember());
+                invoker.money++;
+                StaticFunctions.save();
+
+                ChannelCase.CASES special = ChannelCase.getSpecial(guild, message.getChannel().block());
                 if (special!=ChannelCase.CASES.NULL) {
                     ChannelCase.execute(special, message); return;
                 }
-                if (!messageevent.getMember().isPresent()||messageevent.getMember().get().isBot()) return;
                 if (!(message.getType() == Type.DEFAULT)) {return;}
                 String content = message.getContent().orElse("");
                 String prefix = GuildHelper.getGuildData(message.getGuild()).prefix;
@@ -153,7 +163,7 @@ public class Main {
         
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override public void run() {
-                client.logout().block();
+                client.logout().subscribe();
 				Statics.servers.forEach(k->{
 					k.close();
 				});

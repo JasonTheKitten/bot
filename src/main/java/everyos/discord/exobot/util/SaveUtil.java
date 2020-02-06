@@ -1,10 +1,21 @@
 package everyos.discord.exobot.util;
 
 public class SaveUtil {
+    private static String escape(String te) {
+        return te
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\b", "\\b")
+            .replace("\f", "\\f")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t");
+    }
+
     public static class JSONObject {
         private StringBuilder data = new StringBuilder("{");
         private void createKey(String k) {
-            data.append("\""+k.replace("\"", "\\\"")+"\":");
+            data.append("\""+escape(k)+"\":");
         }
 
         public void put(String k, int i) {
@@ -17,7 +28,7 @@ public class SaveUtil {
         }
         public void put(String k, String s) {
             createKey(k);
-            data.append("\""+s.replace("\"", "\\\"")+"\",");
+            data.append("\""+escape(s)+"\",");
         }
         public void put(String k, boolean b) {
             createKey(k);
@@ -51,7 +62,7 @@ public class SaveUtil {
             data.append(i+",");
         }
         public void put(String s) {
-            data.append("\""+s.replace("\"", "\\\"")+"\",");
+            data.append("\""+escape(s)+"\",");
         }
         public void put(boolean b) {
             data.append(b+",");

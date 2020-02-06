@@ -20,9 +20,7 @@ public class UserHelper {
 	}
 	public static UserObject getUserData(GuildObject guild, String user) {
         String ruser = user;
-        System.out.println(ruser);
         if (isUserId(ruser)) ruser = parseUserId(ruser);
-        System.out.println(ruser);
 		return getUserData(guild, guild.guild.getMemberById(Snowflake.of(ruser)).block());
 	}
 	public static UserObject getUserData(GuildObject guild, Member user) {

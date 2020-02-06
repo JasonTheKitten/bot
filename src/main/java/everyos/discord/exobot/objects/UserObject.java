@@ -15,12 +15,15 @@ public class UserObject {
 	public String id;
     public boolean opted;
     public int i;
+    public int money;
 
 	public UserObject(GuildObject guild, Member user) {
 		this.guild = guild;
 		this.user = user;
 		this.id = UserHelper.getUserId(user);
-		this.opted = false;
+        this.opted = false;
+        this.i = 0;
+        this.money = 0;
 	}
 	
 	public UserObject(GuildObject guild, JsonObject save) {
@@ -29,6 +32,7 @@ public class UserObject {
 		this.user = guild.guild.getMemberById(Snowflake.of(this.id)).block();
         this.opted = save.get("opted").getAsBoolean();
         this.i = save.has("i")?save.get("i").getAsInt():0;
+        this.money = save.has("money")?save.get("money").getAsInt():0;
 	}
 
 	public GlobalUserObject toGlobal() {
@@ -71,6 +75,11 @@ public class UserObject {
         save.put("id", id);
         save.put("opted", opted);
         save.put("i", this.i);
+        save.put("money", this.money);
 		return save;
 	}
+
+    public boolean isBot() {
+        return this.user.isBot();
+    }
 }
