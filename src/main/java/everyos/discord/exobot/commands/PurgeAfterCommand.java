@@ -56,11 +56,11 @@ public class PurgeAfterCommand implements ICommand {
 				}
 			} catch (ClientException e) {}
 			return true;
-		}).blockLast();
-		Publisher<Snowflake> publisher = Flux.fromIterable(snowflakes);
-		while(actC.bulkDelete(publisher).blockFirst()!=null) {}; //TODO: Delete remaining messages
-		
-		channel.send("Messages purged!", true);
+		}).last().subscribe(e -> {
+            Publisher<Snowflake> publisher = Flux.fromIterable(snowflakes);
+            actC.bulkDelete(publisher).subscribe();
+            channel.send("Messages purged!", true);
+        });
 	}
 
 	@Override public String getHelp() {

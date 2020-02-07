@@ -16,6 +16,7 @@ public class UserObject {
     public boolean opted;
     public int i;
     public int money;
+    public long dailytimestamp;
 
 	public UserObject(GuildObject guild, Member user) {
 		this.guild = guild;
@@ -24,6 +25,7 @@ public class UserObject {
         this.opted = false;
         this.i = 0;
         this.money = 0;
+        this.dailytimestamp = -(24*60*60*1000);
 	}
 	
 	public UserObject(GuildObject guild, JsonObject save) {
@@ -33,6 +35,7 @@ public class UserObject {
         this.opted = save.get("opted").getAsBoolean();
         this.i = save.has("i")?save.get("i").getAsInt():0;
         this.money = save.has("money")?save.get("money").getAsInt():0;
+        this.dailytimestamp = save.has("dailytimestamp")?save.get("dailytimestamp").getAsLong():-(24*60*60*1000);
 	}
 
 	public GlobalUserObject toGlobal() {
@@ -72,10 +75,11 @@ public class UserObject {
 
 	public JSONObject serializeSave() {
         JSONObject save = new JSONObject();
-        save.put("id", id);
-        save.put("opted", opted);
+        save.put("id", this.id);
+        save.put("opted", this.opted);
         save.put("i", this.i);
         save.put("money", this.money);
+        save.put("dailytimestamp", this.dailytimestamp);
 		return save;
 	}
 

@@ -34,7 +34,7 @@ public class UserHelper {
 	
 	public static String parseUserId(String arg) {
 		if (!isUserId(arg)) return null;
-		return arg.substring(2, arg.length()-1);
+		return arg.substring(2, arg.length()-1).replace("!", "");
 	}
 	public static boolean isUserId(String arg) {
 		if (arg==null) return false;

@@ -23,8 +23,8 @@ public class CurrencyCommand implements ICommand {
 
 		UserObject invoker = UserHelper.getUserData(guild, message.getAuthorAsMember());
 
-        if (args[0].equals("balance")) {
-            channel.send("Your current balance is: "+invoker.money+ "feth", true);
+        if (args[0].equals("balance")||args[0].equals("bal")) {
+            channel.send("Your current balance is: "+invoker.money+ " feth", true);
             return;
         } else if (args[0].equals("give")) {
             if (args.length<3) {
@@ -53,6 +53,24 @@ public class CurrencyCommand implements ICommand {
                 channel.send("Money sent"+(user.isBot()?" to the bot":" to the user"), true);
             }
             StaticFunctions.save();
+        } else if (args[0].equals("daily")) {
+            long time = System.currentTimeMillis()/1000;
+            long timeleft = 24*60*60-(time-invoker.dailytimestamp);
+            if (timeleft<=0) {
+                invoker.dailytimestamp = time;
+                invoker.money+=100;
+                StaticFunctions.save();
+                channel.send("Daily prize credited 100 feth to account", true);
+            } else {
+                channel.send("You can only run this once a day, dummy!", true);
+                long tlc = timeleft;
+                long hours = Math.floorDiv(tlc, 60*60);
+                tlc=tlc%(60*60);
+                long minutes = Math.floorDiv(tlc, 60);
+                long seconds = tlc%60;
+                channel.send(hours+"h, "+minutes+"m, "+seconds+"s left", true);
+            }
+            return;
         } else {
             channel.send("Unsupported subcommand", true); return;
         }
@@ -67,7 +85,7 @@ public class CurrencyCommand implements ICommand {
 	}
 	
 	@Override public String getFullHelp() {
-        return "**<command>** Can be give, balance, or ~~rate~~\n"+
+        return "**<command>** Can be give, balance, or work\n"+
             "**[args+]** Run <balance/rate> subcommand for additional usage";
 	}
 }
