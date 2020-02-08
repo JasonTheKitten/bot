@@ -73,7 +73,7 @@ public class ChannelCase {
                     return;
                 }
 
-                data.sentence += content + " ";
+                data.sentence += content + ((words.get(content.toLowerCase()).getAsInt()==2)?"":" ");
                 data.lastUser = uid;
 
                 StaticFunctions.save();

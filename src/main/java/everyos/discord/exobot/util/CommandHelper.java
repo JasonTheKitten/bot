@@ -6,5 +6,9 @@ import everyos.discord.exobot.commands.ICommand;
 public class CommandHelper {
 	public static void register(String name, ICommand command) {
 		Statics.commands.put(name, command);
+    }
+    public static void register(String name, String alias, ICommand command) {
+        Statics.commands.put(name, command);
+        Statics.commands.put(alias, command);
 	}
 }

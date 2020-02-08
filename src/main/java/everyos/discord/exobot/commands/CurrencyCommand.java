@@ -1,5 +1,8 @@
 package everyos.discord.exobot.commands;
 
+import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import discord4j.core.object.entity.Message;
 import everyos.discord.exobot.StaticFunctions;
 import everyos.discord.exobot.Statics;
@@ -24,8 +27,36 @@ public class CurrencyCommand implements ICommand {
 		UserObject invoker = UserHelper.getUserData(guild, message.getAuthorAsMember());
 
         if (args[0].equals("balance")||args[0].equals("bal")) {
-            channel.send("Your current balance is: "+invoker.money+ " feth", true);
+            UserObject target = invoker;
+            if (args.length>1) {
+                if(!UserHelper.isUserId(args[1])) {
+                    channel.send("I don't recognize this user!", true); return;
+                }
+                target = UserHelper.getUserData(guild, args[1]);
+            }
+            channel.send("Your current balance is: "+target.money+ " feth", true);
             return;
+        } else if (args[0].equals("leaderboard")||args[0].equals("top")) {
+            int len = 10;
+            LinkedList<UserObject> lboard = new LinkedList<UserObject>();
+            AtomicInteger c = new AtomicInteger(0);
+            guild.users.forEach((k, user)->{
+                if (user.user==null) return;
+                for (int i=0; i<c.incrementAndGet()/*len*/; i++) {
+                    if (i==lboard.size()||lboard.get(i).money<user.money) {
+                        lboard.add(i, user); break;
+                    }
+                }
+            });
+            channel.send(embed->{
+                embed.setTitle("Currency Leaderboard");
+                int size = lboard.size();
+                for (int i=0; i<((size<len)?size:len); i++) {
+                    UserObject user = lboard.get(i);
+                    embed.addField("#"+(i+1), user.user.getDisplayName()+": "+user.money+" feth", false);
+                }
+                embed.setFooter("You rank #"+(lboard.indexOf(invoker)+1), null);
+            });
         } else if (args[0].equals("give")) {
             if (args.length<3) {
                 channel.send("Usage: <command> give @user amount", true); return;
@@ -41,7 +72,7 @@ public class CurrencyCommand implements ICommand {
                 } else channel.send("I don't recognize this user!", true);
                 return;
             }
-            UserObject user = UserHelper.getUserData(guild, UserHelper.parseUserId(args[1]));
+            UserObject user = UserHelper.getUserData(guild, args[1]);
             if (user.id == invoker.id) {
                 channel.send("Very funny", true); return;
             }
@@ -58,9 +89,9 @@ public class CurrencyCommand implements ICommand {
             long timeleft = 24*60*60-(time-invoker.dailytimestamp);
             if (timeleft<=0) {
                 invoker.dailytimestamp = time;
-                invoker.money+=100;
+                invoker.money+=guild.dailymoney;
                 StaticFunctions.save();
-                channel.send("Daily prize credited 100 feth to account", true);
+                channel.send("Daily prize credited "+guild.dailymoney+" feth to account", true);
             } else {
                 channel.send("You can only run this once a day, dummy!", true);
                 long tlc = timeleft;
@@ -71,6 +102,23 @@ public class CurrencyCommand implements ICommand {
                 channel.send(hours+"h, "+minutes+"m, "+seconds+"s left", true);
             }
             return;
+        } else if (args[0].equals("setdaily")||args[0].equals("setchat")) {
+            if (!invoker.isOpted()) {
+                channel.send("User is not opted to use this command", true); return;
+            }
+            if (args.length<1) {
+			    channel.send("Expected two parameters", true); return;
+            }
+
+            if (args[0].equals("setdaily")) {
+                guild.dailymoney = Integer.parseInt(args[1]);
+            } else {
+                guild.chatmoney = Integer.parseInt(args[1]);
+            }
+            
+            StaticFunctions.save();
+
+            channel.send("New configuration saved!", true);
         } else {
             channel.send("Unsupported subcommand", true); return;
         }
@@ -85,7 +133,7 @@ public class CurrencyCommand implements ICommand {
 	}
 	
 	@Override public String getFullHelp() {
-        return "**<command>** Can be give, balance, or work\n"+
-            "**[args+]** Run <balance/rate> subcommand for additional usage";
+        return "**<command>** Can be give, balance/bal, leaderboard/top, setdaily, setchat, or daily\n"+
+            "**[args+]** Run <balance> subcommand for additional usage";
 	}
 }

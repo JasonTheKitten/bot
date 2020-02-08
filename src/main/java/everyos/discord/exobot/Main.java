@@ -35,6 +35,7 @@ import everyos.discord.exobot.commands.PurgeAfterCommand;
 import everyos.discord.exobot.commands.PurgeCommand;
 import everyos.discord.exobot.commands.RemindCommand;
 import everyos.discord.exobot.commands.SentenceGameCommand;
+import everyos.discord.exobot.commands.StyleRoleCommand;
 import everyos.discord.exobot.commands.SuggestionConfigCommand;
 import everyos.discord.exobot.commands.TwitchConfigCommand;
 import everyos.discord.exobot.commands.UnbanCommand;
@@ -105,10 +106,10 @@ public class Main {
 		CommandHelper.register("remind", new RemindCommand());
 		CommandHelper.register("logsave", new LogSaveCommand());
         CommandHelper.register("purgeafter", new PurgeAfterCommand());
-        CommandHelper.register("inc", new IncrementCommand());
-        CommandHelper.register("increment", new IncrementCommand());
+        CommandHelper.register("increment", "inc", new IncrementCommand());
         CommandHelper.register("oneword", new SentenceGameCommand());
-        CommandHelper.register("currency", new CurrencyCommand());
+        CommandHelper.register("currency", "feth", new CurrencyCommand());
+        CommandHelper.register("addstylerole", new StyleRoleCommand());
 
         InvalidCommand invalidCommand = new InvalidCommand();
 		
@@ -131,7 +132,7 @@ public class Main {
                 GuildObject guild = GuildHelper.getGuildData(message.getGuild());
                 
                 UserObject invoker = UserHelper.getUserData(guild, message.getAuthorAsMember());
-                invoker.money++;
+                invoker.money+=guild.chatmoney;
                 StaticFunctions.save();
 
                 ChannelCase.CASES special = ChannelCase.getSpecial(guild, message.getChannel().block());
@@ -148,7 +149,7 @@ public class Main {
                     if (space<=0) space=1;
                     String cmd = StringUtil.sub(msg, 0, space);
                     String argstr = StringUtil.sub(msg, space+1, content.length());
-                    if (cmd==""){cmd="help";}
+                    if (content=="*"){cmd="help";}
                     
                     ICommand exe = commands.getOrDefault(cmd, invalidCommand);
                     exe.execute(message, argstr);

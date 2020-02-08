@@ -21,6 +21,9 @@ public class GuildObject {
 	public HashMap<String, UserObject> users;
     public String prefix;
     public int i;
+    public int dailymoney;
+    public int chatmoney;
+    public boolean styledRolesEnabled;
 	
 	public GuildObject(Guild guild) {
 		this.guild = guild;
@@ -29,6 +32,9 @@ public class GuildObject {
 		this.users = new HashMap<String, UserObject>();
         this.prefix = "*";
         this.i = 0;
+        this.dailymoney = 100;
+        this.chatmoney = 1;
+        this.styledRolesEnabled = false;
 	}
 	
 	public GuildObject(JsonObject save) {
@@ -39,6 +45,9 @@ public class GuildObject {
 		this.guild = Statics.client.getGuildById(Snowflake.of(this.id)).block();
         this.prefix = save.get("prefix").getAsString();
         this.i = save.has("i")?save.get("i").getAsInt():0;
+        this.dailymoney = save.has("dailymoney")?save.get("dailymoney").getAsInt():100;
+        this.chatmoney = save.has("chatmoney")?save.get("chatmoney").getAsInt():1;
+        this.styledRolesEnabled = save.has("enablestyledroles")?save.get("enablestyledroles").getAsBoolean():false;
 		
 		save.get("channels").getAsJsonArray().forEach(v->{
 			try {
@@ -69,6 +78,8 @@ public class GuildObject {
         save.put("id", id);
         save.put("prefix", prefix);
         save.put("i", i);
+        save.put("dailymoney", dailymoney);
+        save.put("chatmoney", chatmoney);
 
         final JSONArray array = new JSONArray();
         channels.forEach((k, v)->array.put(v.serializeSave()));
