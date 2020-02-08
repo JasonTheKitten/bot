@@ -52,6 +52,7 @@ public class CurrencyCommand implements ICommand {
                 embed.setTitle("Currency Leaderboard");
                 int size = lboard.size();
                 for (int i=0; i<((size<len)?size:len); i++) {
+                    if (lboard.get(i).money==0) break;
                     UserObject user = lboard.get(i);
                     embed.addField("#"+(i+1), user.requireUser().user.getDisplayName()+": "+user.money+" feth", false);
                 }

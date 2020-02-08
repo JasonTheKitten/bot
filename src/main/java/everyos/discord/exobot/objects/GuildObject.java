@@ -66,7 +66,9 @@ public class GuildObject {
     }
     
     public GuildObject requireGuild() {
-        if (this.guild == null) this.guild = Statics.client.getGuildById(Snowflake.of(this.id)).block();
+        synchronized(this) {
+            if (this.guild == null) this.guild = Statics.client.getGuildById(Snowflake.of(this.id)).block();
+        }
         return this;
     }
 

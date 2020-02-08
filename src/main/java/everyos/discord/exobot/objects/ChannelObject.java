@@ -51,7 +51,7 @@ public class ChannelObject {
     }
     
     public ChannelObject requireChannel(){
-        if (this.channel==null) this.channel = guild.guild.getChannelById(Snowflake.of(this.id)).block();
+        if (this.channel==null) this.channel = guild.requireGuild().guild.getChannelById(Snowflake.of(this.id)).block();
         return this;
     }
 

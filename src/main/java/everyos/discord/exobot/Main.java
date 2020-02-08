@@ -11,12 +11,14 @@ import java.util.Scanner;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.EventDispatcher;
+import discord4j.core.event.domain.PresenceUpdateEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.Message.Type;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
+import discord4j.core.object.presence.Status;
 import everyos.discord.exobot.cases.ChannelCase;
 import everyos.discord.exobot.commands.BanCommand;
 import everyos.discord.exobot.commands.BotExcludeCommand;
@@ -42,6 +44,7 @@ import everyos.discord.exobot.commands.UnbanCommand;
 import everyos.discord.exobot.commands.UnoptCommand;
 import everyos.discord.exobot.objects.GlobalUserObject;
 import everyos.discord.exobot.objects.GuildObject;
+import everyos.discord.exobot.objects.ReminderObject;
 import everyos.discord.exobot.objects.UserObject;
 import everyos.discord.exobot.util.CommandHelper;
 import everyos.discord.exobot.util.GuildHelper;
@@ -160,7 +163,28 @@ public class Main {
                     MessageHelper.send(message.getChannel(), e.getClass().getSimpleName()+":"+e.getMessage(), true);
                 } catch(Exception e2) {e2.printStackTrace();}
             }
-	    });
+        });
+        
+        dispatcher.on(PresenceUpdateEvent.class).subscribe(e->{
+            e.getMember().subscribe(member -> {
+                member.getPresence().subscribe(presence->{
+                    Status status = presence.getStatus();
+                    if (status==Status.OFFLINE||status==Status.DO_NOT_DISTURB) return;
+
+                    ArrayList<ReminderObject> reminders = UserHelper.getGlobalUserData(member).reminders;
+
+                    synchronized(reminders) {
+                        int i = 0;
+                        while (i<reminders.size()) {
+                            if (reminders.get(i).timestamp==-1) {
+                                reminders.get(i).send();
+                                reminders.remove(i);
+                            } else i++;
+                        }
+                    }
+                });
+            });
+        });
         
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override public void run() {

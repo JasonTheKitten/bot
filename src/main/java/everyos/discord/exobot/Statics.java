@@ -2,6 +2,7 @@ package everyos.discord.exobot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -15,12 +16,14 @@ import everyos.discord.exobot.util.SaveUtil.JSONObject;
 import everyos.discord.exobot.webserver.WebServer;
 
 public class Statics {
+    public static DiscordClient client;
 	public static HashMap<String, ICommand> commands;
 	public static HashMap<String, GuildObject> guilds;
 	public static HashMap<String, GlobalUserObject> users;
 	public static HashMap<String, String> twitchchannels;
-	public static DiscordClient client;
-	public static ArrayList<WebServer> servers;
+    public static ArrayList<WebServer> servers;
+
+    public final static Timer timer = new Timer();
 	
 	public static void loadSave() {}
 	public static String serializeSave() {

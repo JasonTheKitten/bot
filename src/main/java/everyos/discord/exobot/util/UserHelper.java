@@ -47,6 +47,7 @@ public class UserHelper {
 		return data;
     }
     public static GlobalUserObject getGlobalUserData(String uid) {
+        uid = parseUserId(uid);
         GlobalUserObject data = Statics.users.get(uid);
 		if (data==null) {
 			data = new GlobalUserObject(uid);
