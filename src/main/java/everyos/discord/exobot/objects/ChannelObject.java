@@ -26,19 +26,17 @@ public class ChannelObject {
 	public IChannelCaseData data;
 	
 	public ChannelObject(GuildObject guild, Channel channel) {
-		this.guild = guild;
+		this(guild, ChannelHelper.getChannelId(channel));
 		this.channel = channel;
-		this.id = ChannelHelper.getChannelId(channel);
-	}
+    }
+    public ChannelObject(GuildObject guild, String cid) {
+		this.guild = guild;
+		this.id = cid;
+    }
 
 	public ChannelObject(GuildObject guild, JsonObject save) {
 		this.guild = guild;
         this.id = save.get("id").getAsString();
-        try {
-            this.channel = guild.guild.getChannelById(Snowflake.of(this.id)).block();
-        } catch (Exception e) {
-            return;
-        };
 		try {
 			CASE = CASES.valueOf(save.get("case").getAsString());
 			if (CASE == CASES.SUGGESTIONS) {
@@ -50,19 +48,24 @@ public class ChannelObject {
 			e.printStackTrace();
 			CASE = ChannelCase.CASES.NULL;
 		}
-	}
+    }
+    
+    public ChannelObject requireChannel(){
+        if (this.channel==null) this.channel = guild.guild.getChannelById(Snowflake.of(this.id)).block();
+        return this;
+    }
 
 	public void send(String msg, boolean permitPing) {
-		MessageHelper.send((MessageChannel) this.channel, msg, permitPing);
+		MessageHelper.send((MessageChannel) this.requireChannel().channel, msg, permitPing);
 	}
 	public void send(Consumer<? super EmbedCreateSpec> embed) {
-		MessageHelper.send((MessageChannel) this.channel, embed);
+		MessageHelper.send((MessageChannel) this.requireChannel().channel, embed);
     }
     public Message sendThen(String msg, boolean permitPing) {
-		return MessageHelper.sendThen((MessageChannel) this.channel, msg, permitPing);
+		return MessageHelper.sendThen((MessageChannel) this.requireChannel().channel, msg, permitPing);
 	}
 	public Message sendThen(Consumer<? super EmbedCreateSpec> embed) {
-		return MessageHelper.sendThen((MessageChannel) this.channel, embed);
+		return MessageHelper.sendThen((MessageChannel) this.requireChannel().channel, embed);
 	}
 
 	public JSONObject serializeSave() {

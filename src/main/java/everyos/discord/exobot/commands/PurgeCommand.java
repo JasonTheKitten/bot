@@ -59,7 +59,7 @@ public class PurgeCommand implements ICommand {
                     users.put(UserHelper.getUserData(guild, args[i]), true);
                 } else if (ChannelHelper.isChannelId(args[i])) {
                     ChannelObject nchannel = ChannelHelper.getChannelData(guild, args[i]);
-                    if (nchannel.channel.getType() != Channel.Type.GUILD_TEXT) {
+                    if (nchannel.requireChannel().channel.getType() != Channel.Type.GUILD_TEXT) {
                         channel.send("Purging of one of the channel types is not supported at this moment", true);
                         return;
                     }

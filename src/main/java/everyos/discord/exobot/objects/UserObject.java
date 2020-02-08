@@ -76,13 +76,13 @@ public class UserObject {
 	public void kick() { kick(null); }
 
 	public boolean isHigherThan(UserObject user) {
-		return this.user.isHigher(user.user).block();
+		return requireUser().user.isHigher(user.user).block();
 	}
 	public boolean isHigherThan(Member user) {
-		return this.user.isHigher(user).block();
+		return requireUser().user.isHigher(user).block();
 	}
 	public boolean isHigherThan(Mono<Member> user) {
-		return this.user.isHigher(user.block()).block();
+		return requireUser().user.isHigher(user.block()).block();
 	}
 
 	public JSONObject serializeSave() {
@@ -96,6 +96,6 @@ public class UserObject {
 	}
 
     public boolean isBot() {
-        return this.user.isBot();
+        return requireUser().user.isBot();
     }
 }

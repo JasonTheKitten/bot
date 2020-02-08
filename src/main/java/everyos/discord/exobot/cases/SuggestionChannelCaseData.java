@@ -9,7 +9,7 @@ public class SuggestionChannelCaseData implements IChannelCaseData {
 	public String voteChannel;
 	
 	public SuggestionChannelCaseData(ChannelObject voteChannel) {
-		this.voteChannel = voteChannel.channel.getId().asString();
+		this.voteChannel = voteChannel.id;
 	}
 
 	public SuggestionChannelCaseData(JsonObject save) {

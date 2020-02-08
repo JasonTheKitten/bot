@@ -46,7 +46,7 @@ public class PurgeAfterCommand implements ICommand {
 		
 		final Boolean acceptAnyUser = acceptAnyUserUF;
 		
-		GuildMessageChannel actC = (GuildMessageChannel) channel.channel;
+		GuildMessageChannel actC = (GuildMessageChannel) channel.requireChannel().channel;
 		ArrayList<Snowflake> snowflakes = new ArrayList<Snowflake>();
 		
 		actC.getMessagesAfter(Snowflake.of(args[0])).takeWhile(msg->{

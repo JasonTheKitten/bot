@@ -1,7 +1,6 @@
 package everyos.discord.exobot.util;
 
 import discord4j.core.object.entity.Channel;
-import discord4j.core.object.util.Snowflake;
 import everyos.discord.exobot.objects.ChannelObject;
 import everyos.discord.exobot.objects.GuildObject;
 import reactor.core.publisher.Mono;
@@ -20,7 +19,12 @@ public class ChannelHelper {
 	public static ChannelObject getChannelData(GuildObject guild, String channel) {
 		String rchannel = channel;
 		if (isChannelId(rchannel)) rchannel = parseChannelId(rchannel);
-		return getChannelData(guild, guild.guild.getChannelById(Snowflake.of(rchannel)).block());
+		ChannelObject data = guild.channels.get(channel);
+		if (data==null) {
+			data = new ChannelObject(guild, channel);
+			guild.channels.put(channel, data);
+		}
+		return data;
 	}
 	public static ChannelObject getChannelData(GuildObject guild, Channel channel) {
 		ChannelObject data = guild.channels.get(channel.getId().asString());
