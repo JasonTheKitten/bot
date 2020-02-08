@@ -39,7 +39,11 @@ public class StyleRoleCommand implements ICommand {
             channel.send("Check usage", true); return;
         }
 
-        guild.guild.createRole(role->{
+        if (!guild.styledRolesEnabled) {
+            channel.send("This feature is disabled! Ask an opted user to enable it!", true); return;
+        }
+
+        guild.requireGuild().guild.createRole(role->{
             Color color = null;
             
             //if (args[0].substring(0, 1).equals("#")) {

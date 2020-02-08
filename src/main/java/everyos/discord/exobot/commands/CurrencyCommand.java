@@ -37,11 +37,11 @@ public class CurrencyCommand implements ICommand {
             channel.send("Your current balance is: "+target.money+ " feth", true);
             return;
         } else if (args[0].equals("leaderboard")||args[0].equals("top")) {
-            int len = 10;
+            int len = 5;
             LinkedList<UserObject> lboard = new LinkedList<UserObject>();
             AtomicInteger c = new AtomicInteger(0);
             guild.users.forEach((k, user)->{
-                if (user.user==null) return;
+                if (user.requireUser().user==null) return;
                 for (int i=0; i<c.incrementAndGet()/*len*/; i++) {
                     if (i==lboard.size()||lboard.get(i).money<user.money) {
                         lboard.add(i, user); break;
@@ -53,7 +53,7 @@ public class CurrencyCommand implements ICommand {
                 int size = lboard.size();
                 for (int i=0; i<((size<len)?size:len); i++) {
                     UserObject user = lboard.get(i);
-                    embed.addField("#"+(i+1), user.user.getDisplayName()+": "+user.money+" feth", false);
+                    embed.addField("#"+(i+1), user.requireUser().user.getDisplayName()+": "+user.money+" feth", false);
                 }
                 embed.setFooter("You rank #"+(lboard.indexOf(invoker)+1), null);
             });

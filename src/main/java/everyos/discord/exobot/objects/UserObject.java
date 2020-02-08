@@ -19,9 +19,13 @@ public class UserObject {
     public long dailytimestamp;
 
 	public UserObject(GuildObject guild, Member user) {
-		this.guild = guild;
+        this(guild, UserHelper.getUserId(user));
 		this.user = user;
-		this.id = UserHelper.getUserId(user);
+    }
+    
+    public UserObject(GuildObject guild, String uid) {
+		this.guild = guild;
+		this.id = uid;
         this.opted = false;
         this.i = 0;
         this.money = 0;
@@ -31,25 +35,33 @@ public class UserObject {
 	public UserObject(GuildObject guild, JsonObject save) {
 		this.guild = guild;
 		this.id = save.get("id").getAsString();
-		this.user = guild.guild.getMemberById(Snowflake.of(this.id)).block();
         this.opted = save.get("opted").getAsBoolean();
         this.i = save.has("i")?save.get("i").getAsInt():0;
         this.money = save.has("money")?save.get("money").getAsInt():0;
         this.dailytimestamp = save.has("dailytimestamp")?save.get("dailytimestamp").getAsLong():-(24*60*60*1000);
-	}
+    }
+    
+    public UserObject requireUser() {
+        if (this.user==null) this.user = guild.requireGuild().guild.getMemberById(Snowflake.of(this.id)).block();
+        return this;
+    }
 
 	public GlobalUserObject toGlobal() {
-		return new GlobalUserObject(this.user); //TODO: Add to Statics list
+        if (this.user == null) {
+            return UserHelper.getGlobalUserData(this.id);
+        } else {
+            return UserHelper.getGlobalUserData(this.user);
+        }
 	}
 	
 	public boolean isOpted() {
 		return isHigherThanBot()||this.opted;
 	}
 	public boolean isHigherThanBot() {
-		return this.user.isHigher(Statics.client.getSelfId().get()).block();
+		return requireUser().user.isHigher(Statics.client.getSelfId().get()).block();
 	}
 	public void ban(String msg, int days) {
-		this.user.ban(reason->{
+		requireUser().user.ban(reason->{
 			if (msg!=null&&!msg.equals("")) {
 				reason.setReason(msg);
 				if (days!=0) reason.setDeleteMessageDays(days);
@@ -59,7 +71,7 @@ public class UserObject {
 	public void ban() { ban(null, 0); }
 
 	public void kick(String msg) {
-		this.user.kick(msg).subscribe();
+		requireUser().user.kick(msg).subscribe();
 	}
 	public void kick() { kick(null); }
 

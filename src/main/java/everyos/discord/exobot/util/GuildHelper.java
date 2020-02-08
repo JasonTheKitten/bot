@@ -16,12 +16,19 @@ public class GuildHelper {
 	public static GuildObject getGuildData(Mono<Guild> guild) {
 		return getGuildData(guild.block());
 	}
-
 	public static GuildObject getGuildData(Guild guild) {
 		GuildObject data = Statics.guilds.get(guild.getId().asString());
 		if (data==null) {
 			data = new GuildObject(guild);
 			Statics.guilds.put(guild.getId().asString(), data);
+		}
+		return data;
+    }
+    public static GuildObject getGuildData(String gid) {
+		GuildObject data = Statics.guilds.get(gid);
+		if (data==null) {
+			data = new GuildObject(gid);
+			Statics.guilds.put(gid, data);
 		}
 		return data;
 	}

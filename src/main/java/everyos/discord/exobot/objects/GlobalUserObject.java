@@ -15,12 +15,24 @@ public class GlobalUserObject {
 	public GlobalUserObject(User user) {
 		this.user = user;
 		this.id = UserHelper.getUserId(user);
+    }
+    
+    public GlobalUserObject(String uid) {
+		this.id = uid;
 	}
 
 	public GlobalUserObject(JsonObject save) {
 		this.id = save.get("id").getAsString();
-		this.user = Statics.client.getUserById(Snowflake.of(this.id)).block();
-	}
+		/*Statics.client.getUserById(Snowflake.of(this.id)).subscribe(user->{
+            this.user = user;
+        });*/
+    }
+    
+    public GlobalUserObject requireUser() {
+        if (this.user==null) this.user = Statics.client.getUserById(Snowflake.of(this.id)).block();
+
+        return this;
+    }
 
 	public JSONObject serializeSave() {
         JSONObject save = new JSONObject();

@@ -26,8 +26,11 @@ public class GuildObject {
     public boolean styledRolesEnabled;
 	
 	public GuildObject(Guild guild) {
+        this(GuildHelper.getGuildId(guild));
 		this.guild = guild;
-		this.id = GuildHelper.getGuildId(guild);
+    }
+    public GuildObject(String gid) {
+        this.id = gid;
 		this.channels = new HashMap<String, ChannelObject>();
 		this.users = new HashMap<String, UserObject>();
         this.prefix = "*";
@@ -35,14 +38,13 @@ public class GuildObject {
         this.dailymoney = 100;
         this.chatmoney = 1;
         this.styledRolesEnabled = false;
-	}
+    }
 	
 	public GuildObject(JsonObject save) {
 		this.channels = new HashMap<String, ChannelObject>();
 		this.users = new HashMap<String, UserObject>();
 		
 		this.id = save.get("id").getAsString();
-		this.guild = Statics.client.getGuildById(Snowflake.of(this.id)).block();
         this.prefix = save.get("prefix").getAsString();
         this.i = save.has("i")?save.get("i").getAsInt():0;
         this.dailymoney = save.has("dailymoney")?save.get("dailymoney").getAsInt():100;
@@ -61,7 +63,12 @@ public class GuildObject {
 				users.put(curUser.id, curUser);
 			} catch (Exception e) {e.printStackTrace();}
 		});
-	}
+    }
+    
+    public GuildObject requireGuild() {
+        if (this.guild == null) this.guild = Statics.client.getGuildById(Snowflake.of(this.id)).block();
+        return this;
+    }
 
 	public ChannelObject getChannel(Mono<Channel> channel) {
 		return ChannelHelper.getChannelData(this, channel);

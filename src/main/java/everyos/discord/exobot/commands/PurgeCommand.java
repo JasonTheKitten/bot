@@ -74,7 +74,7 @@ public class PurgeCommand implements ICommand {
 
         if (purgeAllChannels) {
             channels.clear();
-            guild.guild.getChannels().takeWhile(c -> {
+            guild.requireGuild().guild.getChannels().takeWhile(c -> {
                 if (c.getType() != Type.GUILD_TEXT)
                     return true;
                 channels.add(ChannelHelper.getChannelData(guild, c));

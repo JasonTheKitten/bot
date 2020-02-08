@@ -67,13 +67,13 @@ public class ChannelCase {
                     message.delete().subscribe(); return;
                 }
 
-                if (!words.has(content.toLowerCase())) {
+                if (!(words.has(content.toLowerCase())||content.matches("[-+]?[0-9]*\\.?[0-9]+$"))) {
                     message.delete().subscribe();
                     channel.send("I don't quite recognize this word (yet)!", true);
                     return;
                 }
 
-                data.sentence += content + ((words.get(content.toLowerCase()).getAsInt()==2)?"":" ");
+                data.sentence += ((words.get(content.toLowerCase()).getAsInt()==2)?"":" ")+content;
                 data.lastUser = uid;
 
                 StaticFunctions.save();
