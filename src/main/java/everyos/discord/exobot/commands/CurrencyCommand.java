@@ -41,7 +41,7 @@ public class CurrencyCommand implements ICommand {
             LinkedList<UserObject> lboard = new LinkedList<UserObject>();
             AtomicInteger c = new AtomicInteger(0);
             guild.users.forEach((k, user)->{
-                if (user.requireUser().user==null) return;
+                //if (user.requireUser().user==null) return;
                 for (int i=0; i<c.incrementAndGet()/*len*/; i++) {
                     if (i==lboard.size()||lboard.get(i).money<user.money) {
                         lboard.add(i, user); break;
@@ -103,7 +103,7 @@ public class CurrencyCommand implements ICommand {
                 channel.send(hours+"h, "+minutes+"m, "+seconds+"s left", true);
             }
             return;
-        } else if (args[0].equals("setdaily")||args[0].equals("setchat")) {
+        } /*else if (args[0].equals("setdaily")||args[0].equals("setchat")) {
             if (!invoker.isOpted()) {
                 channel.send("User is not opted to use this command", true); return;
             }
@@ -120,7 +120,7 @@ public class CurrencyCommand implements ICommand {
             StaticFunctions.save();
 
             channel.send("New configuration saved!", true);
-        } else {
+        }*/ else {
             channel.send("Unsupported subcommand", true); return;
         }
 	}
@@ -134,7 +134,7 @@ public class CurrencyCommand implements ICommand {
 	}
 	
 	@Override public String getFullHelp() {
-        return "**<command>** Can be give, balance/bal, leaderboard/top, setdaily, setchat, or daily\n"+
+        return "**<command>** Can be give, balance/bal, leaderboard/top, or daily\n"+
             "**[args+]** Run <balance> subcommand for additional usage";
 	}
 }

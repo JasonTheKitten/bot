@@ -42,7 +42,9 @@ public class UserObject {
     }
     
     public UserObject requireUser() {
-        if (this.user==null) this.user = guild.requireGuild().guild.getMemberById(Snowflake.of(this.id)).block();
+        try {
+            if (this.user==null) this.user = guild.requireGuild().guild.getMemberById(Snowflake.of(this.id)).block();
+        } catch(Exception e) {e.printStackTrace();} //TODO: Maybe supply a fake user?
         return this;
     }
 

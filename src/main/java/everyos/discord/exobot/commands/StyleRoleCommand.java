@@ -59,6 +59,7 @@ public class StyleRoleCommand implements ICommand {
                 .setColor(color);
         }).subscribe(role->{
             invoker.user.addRole(role.getId()).subscribe();
+            channel.send("Gave you the role!", true);
         });
     }
 

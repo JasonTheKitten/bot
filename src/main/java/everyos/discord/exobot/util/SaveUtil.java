@@ -19,28 +19,40 @@ public class SaveUtil {
         }
 
         public void put(String k, int i) {
-            createKey(k);
-            data.append(i+",");
+            if (k!=null) {
+                createKey(k);
+                data.append(i+",");
+            }
         }
         public void put(String k, long i) {
-            createKey(k);
-            data.append(i+",");
+            if (k!=null) {
+                createKey(k);
+                data.append(i+",");
+            }
         }
         public void put(String k, String s) {
-            createKey(k);
-            data.append("\""+escape(s)+"\",");
+            if (s!=null&&k!=null) {
+                createKey(k);
+                data.append("\""+escape(s)+"\",");
+            }
         }
         public void put(String k, boolean b) {
-            createKey(k);
-            data.append(b+",");
+            if (k!=null) {
+                createKey(k);
+                data.append(b+",");
+            }
         }
         public void put(String k, JSONObject o) {
-            createKey(k);
-            data.append(o.toString()+",");
+            if (o!=null&&k!=null) {
+                createKey(k);
+                data.append(o.toString()+",");
+            }
         }
         public void put(String k, JSONArray a) {
-            createKey(k);
-            data.append(a.toString()+",");
+            if (a!=null&&k!=null) {
+                createKey(k);
+                data.append(a.toString()+",");
+            }
         }
         
         public String toString() {
@@ -62,16 +74,16 @@ public class SaveUtil {
             data.append(i+",");
         }
         public void put(String s) {
-            data.append("\""+escape(s)+"\",");
+            if(s!=null) data.append("\""+escape(s)+"\",");
         }
         public void put(boolean b) {
             data.append(b+",");
         }
         public void put(JSONObject o) {
-            data.append(o.toString()+",");
+            if(o!=null) data.append(o.toString()+",");
         }
         public void put(JSONArray a) {
-            data.append(a.toString()+",");
+            if(a!=null) data.append(a.toString()+",");
         }
         
         public String toString() {
