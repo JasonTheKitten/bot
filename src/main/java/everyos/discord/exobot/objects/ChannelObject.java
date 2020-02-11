@@ -10,6 +10,7 @@ import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.EmbedCreateSpec;
 import everyos.discord.exobot.cases.ChannelCase;
+import everyos.discord.exobot.cases.ChatLinkChannelCaseData;
 import everyos.discord.exobot.cases.ChannelCase.CASES;
 import everyos.discord.exobot.cases.IChannelCaseData;
 import everyos.discord.exobot.cases.SentenceGameChannelCaseData;
@@ -19,14 +20,14 @@ import everyos.discord.exobot.util.MessageHelper;
 import everyos.discord.exobot.util.SaveUtil.JSONObject;
 
 public class ChannelObject {
-	public VoiceChannelObject voicechannel;
-	
+    public VoiceChannelObject voicechannel;
+
     public ChannelCase.CASES CASE = ChannelCase.CASES.NULL;
     public GuildObject guild;
     public Channel channel;
     public String id;
     public IChannelCaseData data;
-	public String musicChannelID;
+    public String musicChannelID;
 
     public ChannelObject(GuildObject guild, Channel channel) {
         this(guild, ChannelHelper.getChannelId(channel));
@@ -41,13 +42,16 @@ public class ChannelObject {
     public ChannelObject(GuildObject guild, JsonObject save) {
         this.guild = guild;
         this.id = save.get("id").getAsString();
-        if (save.has("musicchannelid")) this.musicChannelID = save.get("musicchannelid").getAsString();
+        if (save.has("musicchannelid"))
+            this.musicChannelID = save.get("musicchannelid").getAsString();
         try {
             CASE = CASES.valueOf(save.get("case").getAsString());
             if (CASE == CASES.SUGGESTIONS) {
                 this.data = new SuggestionChannelCaseData(save.get("casedata").getAsJsonObject());
             } else if (CASE == CASES.SENTENCEGAME) {
                 this.data = new SentenceGameChannelCaseData(save.get("casedata").getAsJsonObject());
+            } else if (CASE == CASES.CHATLINK) {
+                this.data = new ChatLinkChannelCaseData(save.get("casedata").getAsJsonObject());
             }
         } catch (Exception e) {
             e.printStackTrace();

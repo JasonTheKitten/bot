@@ -24,15 +24,16 @@ import discord4j.core.object.entity.Message.Type;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import discord4j.core.object.presence.Status;
-import discord4j.voice.AudioProvider;
 import everyos.discord.exobot.cases.ChannelCase;
 import everyos.discord.exobot.commands.BanCommand;
 import everyos.discord.exobot.commands.BotExcludeCommand;
 import everyos.discord.exobot.commands.BotIncludeCommand;
+import everyos.discord.exobot.commands.ChannelLinkCommand;
 import everyos.discord.exobot.commands.CurrencyCommand;
 import everyos.discord.exobot.commands.EchoCommand;
 import everyos.discord.exobot.commands.HelpCommand;
 import everyos.discord.exobot.commands.ICommand;
+import everyos.discord.exobot.commands.IdentifierCommand;
 import everyos.discord.exobot.commands.IncrementCommand;
 import everyos.discord.exobot.commands.InvalidCommand;
 import everyos.discord.exobot.commands.KickCommand;
@@ -122,6 +123,8 @@ public class Main {
         CommandHelper.register("currency", "feth", new CurrencyCommand());
         CommandHelper.register("addstylerole", new StyleRoleCommand());
         CommandHelper.register("music", new MusicCommand());
+        CommandHelper.register("chatlink", new ChannelLinkCommand());
+        CommandHelper.register("channelidentify", new IdentifierCommand());
 
         InvalidCommand invalidCommand = new InvalidCommand();
 

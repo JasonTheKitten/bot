@@ -21,12 +21,15 @@ public class ChannelCase {
                 SentenceGameChannelCaseData.execute(message);
                 break;
 
+            case CHATLINK:
+                ChatLinkChannelCaseData.execute(message);
+
             default:
                 break;
         }
     }
 
     public static enum CASES {
-        NULL, DISABLED, SUGGESTIONS, SENTENCEGAME
+        NULL, DISABLED, SUGGESTIONS, SENTENCEGAME, CHATLINK
     }
 }

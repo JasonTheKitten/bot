@@ -32,7 +32,7 @@ public class RemindCommand implements ICommand {
             channel.send("Reminder body not specified!", true); return;
         }
 
-        long time = -1; //TODO: Calc
+        long time = -1;
         if (args.length>1) {
             time = 0;
             for (int i=1; i<args.length; i++) {

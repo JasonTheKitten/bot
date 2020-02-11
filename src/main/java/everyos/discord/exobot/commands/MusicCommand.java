@@ -22,8 +22,6 @@ public class MusicCommand implements ICommand {
         }
 
         UserObject invoker = UserHelper.getUserData(guild, message.getAuthorAsMember());
-        
-        String mchannel = null;
 
         if (args[0].equals("play")) {
             if (args.length<2) {
