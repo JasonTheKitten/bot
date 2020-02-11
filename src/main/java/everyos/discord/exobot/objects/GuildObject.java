@@ -24,6 +24,7 @@ public class GuildObject {
     public int dailymoney;
     public int chatmoney;
     public boolean styledRolesEnabled;
+	public String musicChannelID;
 	
 	public GuildObject(Guild guild) {
         this(GuildHelper.getGuildId(guild));
@@ -50,6 +51,7 @@ public class GuildObject {
         this.dailymoney = save.has("dailymoney")?save.get("dailymoney").getAsInt():100;
         this.chatmoney = save.has("chatmoney")?save.get("chatmoney").getAsInt():1;
         this.styledRolesEnabled = save.has("enablestyledroles")?save.get("enablestyledroles").getAsBoolean():false;
+        if (save.has("musicchannelid")) this.musicChannelID = save.get("musicchannelid").getAsString();
 		
 		save.get("channels").getAsJsonArray().forEach(v->{
 			try {
@@ -89,6 +91,7 @@ public class GuildObject {
         save.put("i", i);
         save.put("dailymoney", dailymoney);
         save.put("chatmoney", chatmoney);
+        save.put("musicchannelid", musicChannelID);
 
         final JSONArray array = new JSONArray();
         channels.forEach((k, v)->array.put(v.serializeSave()));

@@ -6,23 +6,27 @@ import java.util.Timer;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 
 import discord4j.core.DiscordClient;
 import everyos.discord.exobot.commands.ICommand;
 import everyos.discord.exobot.objects.GlobalUserObject;
 import everyos.discord.exobot.objects.GuildObject;
+import everyos.discord.exobot.providers.LavaPlayerAudioProvider;
 import everyos.discord.exobot.util.SaveUtil.JSONArray;
 import everyos.discord.exobot.util.SaveUtil.JSONObject;
 import everyos.discord.exobot.webserver.WebServer;
 
 public class Statics {
     public static DiscordClient client;
-	public static HashMap<String, ICommand> commands;
-	public static HashMap<String, GuildObject> guilds;
-	public static HashMap<String, GlobalUserObject> users;
-	public static HashMap<String, String> twitchchannels;
+    public static HashMap<String, ICommand> commands;
+    public static HashMap<String, GuildObject> guilds;
+    public static HashMap<String, GlobalUserObject> users;
+    public static HashMap<String, String> twitchchannels;
     public static ArrayList<WebServer> servers;
 
+    public static AudioPlayerManager playerManager;
+    public static LavaPlayerAudioProvider provider;
     public final static Timer timer = new Timer();
 	
 	public static void loadSave() {}

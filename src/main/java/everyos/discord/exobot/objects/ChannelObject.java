@@ -19,60 +19,77 @@ import everyos.discord.exobot.util.MessageHelper;
 import everyos.discord.exobot.util.SaveUtil.JSONObject;
 
 public class ChannelObject {
-	public ChannelCase.CASES CASE = ChannelCase.CASES.NULL;
-	public GuildObject guild;
-	public Channel channel;
-	public String id;
-	public IChannelCaseData data;
+	public VoiceChannelObject voicechannel;
 	
-	public ChannelObject(GuildObject guild, Channel channel) {
-		this(guild, ChannelHelper.getChannelId(channel));
-		this.channel = channel;
-    }
-    public ChannelObject(GuildObject guild, String cid) {
-		this.guild = guild;
-		this.id = cid;
+    public ChannelCase.CASES CASE = ChannelCase.CASES.NULL;
+    public GuildObject guild;
+    public Channel channel;
+    public String id;
+    public IChannelCaseData data;
+	public String musicChannelID;
+
+    public ChannelObject(GuildObject guild, Channel channel) {
+        this(guild, ChannelHelper.getChannelId(channel));
+        this.channel = channel;
     }
 
-	public ChannelObject(GuildObject guild, JsonObject save) {
-		this.guild = guild;
+    public ChannelObject(GuildObject guild, String cid) {
+        this.guild = guild;
+        this.id = cid;
+    }
+
+    public ChannelObject(GuildObject guild, JsonObject save) {
+        this.guild = guild;
         this.id = save.get("id").getAsString();
-		try {
-			CASE = CASES.valueOf(save.get("case").getAsString());
-			if (CASE == CASES.SUGGESTIONS) {
-				this.data = new SuggestionChannelCaseData(save.get("casedata").getAsJsonObject());
-			} else if (CASE == CASES.SENTENCEGAME) {
+        if (save.has("musicchannelid")) this.musicChannelID = save.get("musicchannelid").getAsString();
+        try {
+            CASE = CASES.valueOf(save.get("case").getAsString());
+            if (CASE == CASES.SUGGESTIONS) {
+                this.data = new SuggestionChannelCaseData(save.get("casedata").getAsJsonObject());
+            } else if (CASE == CASES.SENTENCEGAME) {
                 this.data = new SentenceGameChannelCaseData(save.get("casedata").getAsJsonObject());
             }
-		} catch (Exception e) {
-			e.printStackTrace();
-			CASE = ChannelCase.CASES.NULL;
-		}
+        } catch (Exception e) {
+            e.printStackTrace();
+            CASE = ChannelCase.CASES.NULL;
+        }
     }
-    
-    public ChannelObject requireChannel(){
-        if (this.channel==null) this.channel = guild.requireGuild().guild.getChannelById(Snowflake.of(this.id)).block();
+
+    public ChannelObject requireChannel() {
+        if (this.channel == null)
+            this.channel = guild.requireGuild().guild.getChannelById(Snowflake.of(this.id)).block();
         return this;
     }
 
-	public void send(String msg, boolean permitPing) {
-		MessageHelper.send((MessageChannel) this.requireChannel().channel, msg, permitPing);
-	}
-	public void send(Consumer<? super EmbedCreateSpec> embed) {
-		MessageHelper.send((MessageChannel) this.requireChannel().channel, embed);
+    public void send(String msg, boolean permitPing) {
+        MessageHelper.send((MessageChannel) this.requireChannel().channel, msg, permitPing);
     }
-    public Message sendThen(String msg, boolean permitPing) {
-		return MessageHelper.sendThen((MessageChannel) this.requireChannel().channel, msg, permitPing);
-	}
-	public Message sendThen(Consumer<? super EmbedCreateSpec> embed) {
-		return MessageHelper.sendThen((MessageChannel) this.requireChannel().channel, embed);
-	}
 
-	public JSONObject serializeSave() {
+    public void send(Consumer<? super EmbedCreateSpec> embed) {
+        MessageHelper.send((MessageChannel) this.requireChannel().channel, embed);
+    }
+
+    public Message sendThen(String msg, boolean permitPing) {
+        return MessageHelper.sendThen((MessageChannel) this.requireChannel().channel, msg, permitPing);
+    }
+
+    public Message sendThen(Consumer<? super EmbedCreateSpec> embed) {
+        return MessageHelper.sendThen((MessageChannel) this.requireChannel().channel, embed);
+    }
+
+    public JSONObject serializeSave() {
         JSONObject save = new JSONObject();
         save.put("id", id);
         save.put("case", CASE.toString());
-		save.put("casedata", (data==null?(new JSONObject()):data.serializeSave()));
-		return save;
-	}
+        save.put("casedata", (data == null ? (new JSONObject()) : data.serializeSave()));
+        save.put("musicchannelid", musicChannelID);
+        return save;
+    }
+
+    public VoiceChannelObject asVoiceChannel() {
+        if (this.voicechannel!=null) return this.voicechannel;
+        if (requireChannel().channel.getType()!=Channel.Type.GUILD_VOICE) return null;
+        this.voicechannel = new VoiceChannelObject(this);
+        return this.voicechannel;
+    }
 }

@@ -8,6 +8,11 @@ import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.track.playback.NonAllocatingAudioFrameBuffer;
+
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.EventDispatcher;
@@ -19,6 +24,7 @@ import discord4j.core.object.entity.Message.Type;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import discord4j.core.object.presence.Status;
+import discord4j.voice.AudioProvider;
 import everyos.discord.exobot.cases.ChannelCase;
 import everyos.discord.exobot.commands.BanCommand;
 import everyos.discord.exobot.commands.BotExcludeCommand;
@@ -31,6 +37,7 @@ import everyos.discord.exobot.commands.IncrementCommand;
 import everyos.discord.exobot.commands.InvalidCommand;
 import everyos.discord.exobot.commands.KickCommand;
 import everyos.discord.exobot.commands.LogSaveCommand;
+import everyos.discord.exobot.commands.MusicCommand;
 import everyos.discord.exobot.commands.OptCommand;
 import everyos.discord.exobot.commands.PrefixCommand;
 import everyos.discord.exobot.commands.PurgeAfterCommand;
@@ -46,6 +53,7 @@ import everyos.discord.exobot.objects.GlobalUserObject;
 import everyos.discord.exobot.objects.GuildObject;
 import everyos.discord.exobot.objects.ReminderObject;
 import everyos.discord.exobot.objects.UserObject;
+import everyos.discord.exobot.providers.LavaPlayerAudioProvider;
 import everyos.discord.exobot.util.CommandHelper;
 import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.MessageHelper;
@@ -113,13 +121,22 @@ public class Main {
         CommandHelper.register("oneword", new SentenceGameCommand());
         CommandHelper.register("currency", "feth", new CurrencyCommand());
         CommandHelper.register("addstylerole", new StyleRoleCommand());
+        CommandHelper.register("music", new MusicCommand());
 
         InvalidCommand invalidCommand = new InvalidCommand();
-		
+
+        AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
+        playerManager.getConfiguration().setFrameBufferFactory(NonAllocatingAudioFrameBuffer::new);
+        AudioSourceManagers.registerRemoteSources(playerManager);
+        Statics.playerManager = playerManager;
+        
+        LavaPlayerAudioProvider provider = new LavaPlayerAudioProvider();
+        Statics.provider = provider;
+
 		final DiscordClient client = new DiscordClientBuilder(args[1]).build();
 		
 		Statics.client = client;
-		StaticFunctions.load();
+        StaticFunctions.load();
 		
 		EventDispatcher dispatcher = client.getEventDispatcher();
 		dispatcher.on(ReadyEvent.class).subscribe(ready -> {
