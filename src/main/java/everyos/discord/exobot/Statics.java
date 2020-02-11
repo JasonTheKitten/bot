@@ -12,7 +12,6 @@ import discord4j.core.DiscordClient;
 import everyos.discord.exobot.commands.ICommand;
 import everyos.discord.exobot.objects.GlobalUserObject;
 import everyos.discord.exobot.objects.GuildObject;
-import everyos.discord.exobot.providers.LavaPlayerAudioProvider;
 import everyos.discord.exobot.util.SaveUtil.JSONArray;
 import everyos.discord.exobot.util.SaveUtil.JSONObject;
 import everyos.discord.exobot.webserver.WebServer;
@@ -26,7 +25,6 @@ public class Statics {
     public static ArrayList<WebServer> servers;
 
     public static AudioPlayerManager playerManager;
-    public static LavaPlayerAudioProvider provider;
     public final static Timer timer = new Timer();
 	
 	public static void loadSave() {}
