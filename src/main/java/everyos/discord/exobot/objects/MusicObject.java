@@ -12,23 +12,27 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
 import everyos.discord.exobot.Statics;
+import everyos.discord.exobot.providers.LavaPlayerAudioProvider;
 
 public class MusicObject {
     public VoiceChannelObject generic;
     
     private AudioPlayer player;
     private TrackScheduler scheduler;
+    private LavaPlayerAudioProvider provider;
     
     public MusicObject(VoiceChannelObject generic) {
-    	this.generic = generic;
+        this.generic = generic;
+        
+        this.provider = new LavaPlayerAudioProvider();
     	
     	player = Statics.playerManager.createPlayer();
     	scheduler = new TrackScheduler(player);
     	player.addListener(scheduler);
     	
     	generic.join(handle->{
-            Statics.provider.setPlayer(player);
-            handle.setProvider(Statics.provider);
+            provider.setPlayer(player);
+            handle.setProvider(provider);
         }).subscribe();
     }
     

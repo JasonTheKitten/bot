@@ -54,7 +54,6 @@ import everyos.discord.exobot.objects.GlobalUserObject;
 import everyos.discord.exobot.objects.GuildObject;
 import everyos.discord.exobot.objects.ReminderObject;
 import everyos.discord.exobot.objects.UserObject;
-import everyos.discord.exobot.providers.LavaPlayerAudioProvider;
 import everyos.discord.exobot.util.CommandHelper;
 import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.MessageHelper;
@@ -132,9 +131,6 @@ public class Main {
         playerManager.getConfiguration().setFrameBufferFactory(NonAllocatingAudioFrameBuffer::new);
         AudioSourceManagers.registerRemoteSources(playerManager);
         Statics.playerManager = playerManager;
-        
-        LavaPlayerAudioProvider provider = new LavaPlayerAudioProvider();
-        Statics.provider = provider;
 
 		final DiscordClient client = new DiscordClientBuilder(args[1]).build();
 		
