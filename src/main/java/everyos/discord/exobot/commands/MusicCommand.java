@@ -21,6 +21,8 @@ public class MusicCommand implements ICommand {
 			channel.send("Expected at least one parameter", true); return;
         }
 
+        message.suppressEmbeds(true).subscribe();
+
         UserObject invoker = UserHelper.getUserData(guild, message.getAuthorAsMember());
 
         if (args[0].equals("play")) {

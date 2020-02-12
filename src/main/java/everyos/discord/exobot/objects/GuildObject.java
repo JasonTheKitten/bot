@@ -20,11 +20,14 @@ public class GuildObject {
 	public HashMap<String, ChannelObject> channels;
 	public HashMap<String, UserObject> users;
     public String prefix;
+
     public int i;
     public int dailymoney;
     public int chatmoney;
     public boolean styledRolesEnabled;
-	public String musicChannelID;
+    public String musicChannelID;
+    public String welcomeMessage;
+    public String welcomeChannelID;
 	
 	public GuildObject(Guild guild) {
         this(GuildHelper.getGuildId(guild));
@@ -36,6 +39,7 @@ public class GuildObject {
 		this.users = new HashMap<String, UserObject>();
         this.prefix = "*";
         this.i = 0;
+
         this.dailymoney = 100;
         this.chatmoney = 1;
         this.styledRolesEnabled = false;
@@ -48,10 +52,13 @@ public class GuildObject {
 		this.id = save.get("id").getAsString();
         this.prefix = save.get("prefix").getAsString();
         this.i = save.has("i")?save.get("i").getAsInt():0;
+
         this.dailymoney = save.has("dailymoney")?save.get("dailymoney").getAsInt():100;
         this.chatmoney = save.has("chatmoney")?save.get("chatmoney").getAsInt():1;
         this.styledRolesEnabled = save.has("enablestyledroles")?save.get("enablestyledroles").getAsBoolean():false;
         if (save.has("musicchannelid")) this.musicChannelID = save.get("musicchannelid").getAsString();
+        if (save.has("welcomechannelid")) this.welcomeChannelID = save.get("welcomechannelid").getAsString();
+        if (save.has("welcomemessage")) this.welcomeMessage = save.get("welcomemessage").getAsString();
 		
 		save.get("channels").getAsJsonArray().forEach(v->{
 			try {
@@ -89,9 +96,12 @@ public class GuildObject {
         save.put("id", id);
         save.put("prefix", prefix);
         save.put("i", i);
+
         save.put("dailymoney", dailymoney);
         save.put("chatmoney", chatmoney);
         save.put("musicchannelid", musicChannelID);
+        save.put("welcomechannelid", welcomeChannelID);
+        save.put("welcomemessage", welcomeMessage);
 
         final JSONArray array = new JSONArray();
         channels.forEach((k, v)->array.put(v.serializeSave()));

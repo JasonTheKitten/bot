@@ -28,13 +28,15 @@ public class CurrencyCommand implements ICommand {
 
         if (args[0].equals("balance")||args[0].equals("bal")) {
             UserObject target = invoker;
+            String prefix = "Your";
             if (args.length>1) {
                 if(!UserHelper.isUserId(args[1])) {
                     channel.send("I don't recognize this user!", true); return;
                 }
                 target = UserHelper.getUserData(guild, args[1]);
+                prefix = "User's";
             }
-            channel.send("Your current balance is: "+target.money+ " feth", true);
+            channel.send(prefix+" current balance is: "+target.money+ " feth", true);
             return;
         } else if (args[0].equals("leaderboard")||args[0].equals("top")) {
             int len = 5;
@@ -54,9 +56,23 @@ public class CurrencyCommand implements ICommand {
                 for (int i=0; i<((size<len)?size:len); i++) {
                     if (lboard.get(i).money==0) break;
                     UserObject user = lboard.get(i);
-                    embed.addField("#"+(i+1), user.requireUser().user.getDisplayName()+": "+user.money+" feth", false);
+                    embed.addField("#"+(i+1)+(user.id.equals(invoker.id)?" (You)":""), user.requireUser().user.getDisplayName()+": "+user.money+" feth", false);
                 }
-                embed.setFooter("You rank #"+(lboard.indexOf(invoker)+1), null);
+                int pos = lboard.indexOf(invoker)+1;
+                if (pos-1>len) {
+                    UserObject user = lboard.get(pos-2);
+                    embed.addField("#"+(pos-1), user.requireUser().user.getDisplayName()+": "+user.money+" feth", false);
+                }
+                if (pos>len) {
+                    UserObject user = lboard.get(pos-1);
+                    embed.addField("#"+pos+" (You)", user.requireUser().user.getDisplayName()+": "+user.money+" feth", false);
+                }
+                if (pos+1>len) {
+                    UserObject user = lboard.get(pos);
+                    embed.addField("#"+(pos+1), user.requireUser().user.getDisplayName()+": "+user.money+" feth", false);
+                }
+                
+                embed.setFooter("You rank #"+pos, null);
             });
         } else if (args[0].equals("give")) {
             if (args.length<3) {

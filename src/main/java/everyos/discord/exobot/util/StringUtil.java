@@ -35,5 +35,15 @@ public class StringUtil {
 		if (str!=null) args.add(str.toString());
 		
 		return args.toArray(new String[args.size()]);
-	}
+    }
+    public static String split1(String str, String spl) {
+        str = str.replaceAll(spl+"+", spl);
+        
+        return sub(str, 0, str.indexOf(spl));
+    }
+    public static String split2(String str, String spl) {
+        str = str.replaceAll(spl+"+", spl);
+
+        return sub(str, str.indexOf(spl)+1);
+    }
 }

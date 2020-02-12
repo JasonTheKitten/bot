@@ -17,6 +17,7 @@ import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.PresenceUpdateEvent;
+import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
@@ -50,10 +51,14 @@ import everyos.discord.exobot.commands.SuggestionConfigCommand;
 import everyos.discord.exobot.commands.TwitchConfigCommand;
 import everyos.discord.exobot.commands.UnbanCommand;
 import everyos.discord.exobot.commands.UnoptCommand;
+import everyos.discord.exobot.commands.WelcomeCommand;
+import everyos.discord.exobot.objects.ChannelObject;
 import everyos.discord.exobot.objects.GlobalUserObject;
 import everyos.discord.exobot.objects.GuildObject;
+import everyos.discord.exobot.objects.MusicObject;
 import everyos.discord.exobot.objects.ReminderObject;
 import everyos.discord.exobot.objects.UserObject;
+import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.CommandHelper;
 import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.MessageHelper;
@@ -99,7 +104,8 @@ public class Main {
 		Statics.guilds = new HashMap<String, GuildObject>();
 		Statics.users = new HashMap<String, GlobalUserObject>();
 		Statics.twitchchannels = new HashMap<String, String>();
-		Statics.servers = new ArrayList<WebServer>();
+        Statics.servers = new ArrayList<WebServer>();
+        Statics.musicChannels = new ArrayList<MusicObject>();
 		
 		CommandHelper.register("help", new HelpCommand());
 		CommandHelper.register("echo", new EchoCommand());
@@ -124,6 +130,7 @@ public class Main {
         CommandHelper.register("music", new MusicCommand());
         CommandHelper.register("chatlink", new ChannelLinkCommand());
         CommandHelper.register("channelidentify", new IdentifierCommand());
+        CommandHelper.register("welcome", new WelcomeCommand());
 
         InvalidCommand invalidCommand = new InvalidCommand();
 
@@ -139,8 +146,11 @@ public class Main {
 		
 		EventDispatcher dispatcher = client.getEventDispatcher();
 		dispatcher.on(ReadyEvent.class).subscribe(ready -> {
-        	System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id="+args[0]+"&scope=bot&permissions=8");
+            System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id="+args[0]+"&scope=bot&permissions=8");
             client.updatePresence(Presence.online(Activity.watching("spiders make webs"))).subscribe();
+            Statics.musicChannels.forEach(ch->{
+                ch.join();
+            });
         });
 		
 		dispatcher.on(MessageCreateEvent.class).subscribe(messageevent -> {
@@ -199,6 +209,20 @@ public class Main {
                         }
                     }
                 });
+            });
+        });
+
+        dispatcher.on(MemberJoinEvent.class).subscribe(e->{
+            e.getGuild().subscribe(rawguild->{
+                GuildObject guild = GuildHelper.getGuildData(rawguild);
+                if ((guild.welcomeChannelID!=null)&&(guild.welcomeMessage!=null)) {
+                    ChannelObject channel = ChannelHelper.getChannelData(guild, guild.welcomeChannelID);
+                    channel.send(guild.welcomeMessage
+                        .replace("{user.ping}", e.getMember().getMention())
+                        .replace("{user.name}", e.getMember().getUsername())
+                        .replace("{+", "{")  
+                    , true);
+                }
             });
         });
         

@@ -28,9 +28,15 @@ public class MusicObject {
     	
     	player = Statics.playerManager.createPlayer();
     	scheduler = new TrackScheduler(player);
-    	player.addListener(scheduler);
-    	
-    	generic.join(handle->{
+        player.addListener(scheduler);
+        
+        Statics.musicChannels.add(this);
+
+        join();
+    }
+
+    public void join() {
+        generic.join(handle->{
             provider.setPlayer(player);
             handle.setProvider(provider);
         }).subscribe();

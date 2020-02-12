@@ -39,7 +39,7 @@ public class ChatLinkChannelCaseData implements IChannelCaseData {
             otherChannel.send("One message from blocked user", true); return;
         }*/ //TODO
         otherChannel.send(
-            "<"+author.getUsername()+">: "+message.getContent().orElse("<No Content>")
+            author.getUsername()+": "+message.getContent().orElse("<No Content>").replace("@everyone", "everyone").replace("@here", "here")
         , true);
     }
     

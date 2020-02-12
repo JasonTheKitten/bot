@@ -89,7 +89,7 @@ public class PurgeCommand implements ICommand {
         final Boolean acceptAnyUser = acceptAnyUserUF;
         channels.forEach(pchannel -> {
             AtomicInteger messagesPurged = new AtomicInteger(0);
-            GuildMessageChannel actC = ((GuildMessageChannel) pchannel.channel);
+            GuildMessageChannel actC = ((GuildMessageChannel) pchannel.requireChannel().channel);
             ArrayList<Snowflake> snowflakes = new ArrayList<Snowflake>();
 
             Message tmsg = actC.createMessage("This message will automatically be deleted").block();
