@@ -15,7 +15,10 @@ public class HelpCommand implements ICommand {
 		ChannelObject channel = ChannelHelper.getChannelData(guild, message.getChannel().block());
 		if (argument.trim()=="") {
 			channel.send(embed->{
-				embed.setTitle("Help");
+                embed.setTitle("Help (Click to view repository)");
+                embed.setUrl("https://github.com/JasonTheKitten/bot.git");
+                embed.setDescription("This bot is written by EveryOS. "+
+                    "If you like it, please star the GitHub repo and add it to your server using the link in the repo.");
 				for (COMMANDS group:ICommand.COMMANDS.values()) {
 					StringBuilder commands = new StringBuilder();
 					Statics.commands.forEach((k, v)->{

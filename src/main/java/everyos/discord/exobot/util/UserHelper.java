@@ -61,7 +61,7 @@ public class UserHelper {
 		return arg.substring(2, arg.length()-1).replace("!", "");
 	}
 	public static boolean isUserId(String arg) {
-		if (arg==null) return false;
+        if (arg==null) return false;
 		return arg.startsWith("<@") && arg.endsWith(">");
 	}
 }
