@@ -1,8 +1,8 @@
 package everyos.discord.exobot.commands;
 
 import discord4j.core.object.entity.Message;
-import everyos.discord.exobot.cases.ChatLinkChannelCaseData;
 import everyos.discord.exobot.cases.ChannelCase.CASES;
+import everyos.discord.exobot.cases.ChatLinkChannelCaseData;
 import everyos.discord.exobot.objects.ChannelObject;
 import everyos.discord.exobot.objects.GuildObject;
 import everyos.discord.exobot.util.ChannelHelper;
@@ -94,6 +94,6 @@ public class ChannelLinkCommand implements ICommand {
     }
 
     @Override public COMMANDS getType() {
-        return null;
+        return COMMANDS.Configuration;
     }
 }

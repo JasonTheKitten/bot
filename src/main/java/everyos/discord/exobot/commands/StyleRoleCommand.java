@@ -29,7 +29,7 @@ public class StyleRoleCommand implements ICommand {
             if (!invoker.isOpted()) {
                 channel.send("User is not opted to use this command", true); return;
             }
-            guild.styledRolesEnabled=(args[0]=="enable")?true:false;
+            guild.styledRolesEnabled=(args[0].equals("enable"))?true:false;
             StaticFunctions.save();
 
             channel.send("Updated configurations!", true); return;
