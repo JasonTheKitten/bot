@@ -1,6 +1,7 @@
 package everyos.discord.exobot.objects;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -8,12 +9,13 @@ import com.google.gson.JsonObject;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Snowflake;
 import everyos.discord.exobot.Statics;
-import everyos.discord.exobot.util.SaveUtil.JSONArray;
 import everyos.discord.exobot.util.SaveUtil.JSONObject;
+import everyos.discord.exobot.util.SaveUtil.JSONArray;
 import everyos.discord.exobot.util.UserHelper;
 
 public class GlobalUserObject {
-	public ArrayList<ReminderObject> reminders;
+    public ArrayList<ReminderObject> reminders;
+    public HashMap<String, PlaylistObject> playlists;
     public User user;
 	public String id;
 
@@ -37,6 +39,16 @@ public class GlobalUserObject {
                 this.reminders.add(ReminderObject.fromSave(element.getAsJsonObject()));
             }
         });
+
+        if (save.has("playlists")) {
+            JsonArray playo = save.get("playlists").getAsJsonArray();
+            synchronized(reminders) {
+                playo.forEach(playlistj->{
+                        PlaylistObject playlist = new PlaylistObject(playlistj.getAsJsonObject());
+                        this.playlists.put(playlist.name, playlist);
+                });
+            }
+        }
     }
     
     public GlobalUserObject requireUser() {
@@ -62,6 +74,14 @@ public class GlobalUserObject {
             }
         }
         save.put("reminders", array);
+
+        /*synchronized(playlists) {
+            final narray = new JSONArray();
+            playlists.forEach((k, v)->{
+                narray.put(v.serializeSave());
+            });
+        }
+        save.put("playlists", array);*/
 
         return save;
 	}

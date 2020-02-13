@@ -127,7 +127,7 @@ public class Main {
         CommandHelper.register("oneword", new SentenceGameCommand());
         CommandHelper.register("currency", "feth", new CurrencyCommand());
         CommandHelper.register("addstylerole", new StyleRoleCommand());
-        CommandHelper.register("music", new MusicCommand());
+        CommandHelper.register("music", "m", new MusicCommand());
         CommandHelper.register("chatlink", new ChannelLinkCommand());
         CommandHelper.register("channelidentify", new IdentifierCommand());
         CommandHelper.register("welcome", new WelcomeCommand());
@@ -178,7 +178,6 @@ public class Main {
                     if (space<=0) space=1;
                     String cmd = StringUtil.sub(msg, 0, space);
                     String argstr = StringUtil.sub(msg, space+1, content.length());
-                    if (content=="*"){cmd="help";}
                     
                     ICommand exe = commands.getOrDefault(cmd, invalidCommand);
                     exe.execute(message, argstr);

@@ -35,11 +35,12 @@ public class ChatLinkChannelCaseData implements IChannelCaseData {
         }
 
         User author = message.getAuthor().get();
-        /*if (otherGuild.requireGuild().guild.getBan(author.getId()).block()) {
+        if (otherGuild.requireGuild().guild.getBan(author.getId()).block()!=null) {
             otherChannel.send("One message from blocked user", true); return;
-        }*/ //TODO
+        }
         otherChannel.send(
-            author.getUsername()+": "+message.getContent().orElse("<No Content>").replace("@everyone", "everyone").replace("@here", "here")
+            author.getUsername()+"#"+author.getDiscriminator()+": "+message.getContent().orElse("<No Content>")
+                .replace("@everyone", "everyone").replace("@here", "here")
         , true);
     }
     
