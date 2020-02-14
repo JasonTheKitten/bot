@@ -29,6 +29,7 @@ public class MusicObject {
     	player = Statics.playerManager.createPlayer();
     	scheduler = new TrackScheduler(player);
         player.addListener(scheduler);
+        provider.setPlayer(player);
         
         Statics.musicChannels.add(this);
 
@@ -36,10 +37,7 @@ public class MusicObject {
     }
 
     public void join() {
-        generic.join(handle->{
-            provider.setPlayer(player);
-            handle.setProvider(provider);
-        }).subscribe();
+        generic.join(handle->handle.setProvider(provider)).subscribe();
     }
     
     public void play(String url, Consumer<? super AudioTrack> onLoaded, Runnable onError) {

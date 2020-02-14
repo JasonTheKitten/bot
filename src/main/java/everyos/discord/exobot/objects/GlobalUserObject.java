@@ -9,8 +9,8 @@ import com.google.gson.JsonObject;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Snowflake;
 import everyos.discord.exobot.Statics;
-import everyos.discord.exobot.util.SaveUtil.JSONObject;
 import everyos.discord.exobot.util.SaveUtil.JSONArray;
+import everyos.discord.exobot.util.SaveUtil.JSONObject;
 import everyos.discord.exobot.util.UserHelper;
 
 public class GlobalUserObject {
@@ -26,7 +26,9 @@ public class GlobalUserObject {
     
     public GlobalUserObject(String uid) {
         this.id = uid;
+        if (this.id==null) Integer.valueOf("A");
         this.reminders = new ArrayList<ReminderObject>();
+        this.playlists = new HashMap<String, PlaylistObject>();
 	}
 
 	public GlobalUserObject(JsonObject save) {
@@ -40,12 +42,13 @@ public class GlobalUserObject {
             }
         });
 
+        this.playlists = new HashMap<String, PlaylistObject>();
         if (save.has("playlists")) {
             JsonArray playo = save.get("playlists").getAsJsonArray();
             synchronized(reminders) {
                 playo.forEach(playlistj->{
-                        PlaylistObject playlist = new PlaylistObject(playlistj.getAsJsonObject());
-                        this.playlists.put(playlist.name, playlist);
+                    PlaylistObject playlist = new PlaylistObject(playlistj.getAsJsonObject());
+                    this.playlists.put(playlist.name, playlist);
                 });
             }
         }
@@ -75,14 +78,24 @@ public class GlobalUserObject {
         }
         save.put("reminders", array);
 
-        /*synchronized(playlists) {
-            final narray = new JSONArray();
+        final JSONArray narray = new JSONArray();
+        synchronized(playlists) {
             playlists.forEach((k, v)->{
                 narray.put(v.serializeSave());
             });
         }
-        save.put("playlists", array);*/
+        save.put("playlists", narray);
 
         return save;
-	}
+    }
+    
+    public PlaylistObject getPlaylist(String name, boolean createIfNull) {
+        if (playlists.get(name)!=null) {
+            return playlists.get(name);
+        } else if (!createIfNull) return null;
+        PlaylistObject playlist = new PlaylistObject(name);
+        playlists.put(name, playlist);
+        
+        return playlist;
+    }
 }

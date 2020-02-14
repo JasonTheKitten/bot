@@ -21,10 +21,12 @@ public class PlaylistObject {
         this.name = save.get("name").getAsString();
         
         this.playlist = new ArrayList<String>();
-        JsonArray rem = save.get("reminders").getAsJsonArray();
-        rem.forEach(element->{
-            this.playlist.add(element.getAsString());
-        });
+        synchronized(this.playlist) {
+            JsonArray pl = save.get("playlist").getAsJsonArray();
+            pl.forEach(element->{
+                this.playlist.add(element.getAsString());
+            });
+        } 
     }
 
     public JSONObject serializeSave() {
@@ -33,7 +35,7 @@ public class PlaylistObject {
 
         JSONArray array = new JSONArray();
         synchronized(playlist) {
-            playlist.forEach(url->playlist.add(url));
+            playlist.forEach(url->array.put(url));
         }
         save.put("playlist", array);
 

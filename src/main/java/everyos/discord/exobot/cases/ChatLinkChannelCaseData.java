@@ -16,10 +16,15 @@ public class ChatLinkChannelCaseData implements IChannelCaseData {
     public String channelPair;
 
     static public void execute(Message message) {
+        send(message, false);
+    }
+    
+    public static void send(Message message, boolean edit) {
         if (message.getAuthor().get().isBot()) return;
 
         GuildObject guild = GuildHelper.getGuildData(message.getGuild());
         ChannelObject channel = ChannelHelper.getChannelData(guild, message.getChannel().block());
+
         ChatLinkChannelCaseData data = (ChatLinkChannelCaseData) channel.data;
 
         GuildObject otherGuild = GuildHelper.getGuildData(data.guildPair);
@@ -35,15 +40,16 @@ public class ChatLinkChannelCaseData implements IChannelCaseData {
         }
 
         User author = message.getAuthor().get();
-        if (otherGuild.requireGuild().guild.getBan(author.getId()).block()!=null) {
-            otherChannel.send("One message from blocked user", true); return;
-        }
+        try {
+            if (otherGuild.requireGuild().guild.getBan(author.getId()).block()!=null) {
+                otherChannel.send("One message from blocked user", true); return;
+            }
+        } catch (Exception e) {}
+
         otherChannel.send(
-            author.getUsername()+"#"+author.getDiscriminator()+": "+message.getContent().orElse("<No Content>")
-                .replace("@everyone", "everyone").replace("@here", "here")
-        , true);
+            edit?"**<edit>** ":""+author.getUsername()+"#"+author.getDiscriminator()+": "+message.getContent().orElse("<No Content>")
+        , false);
     }
-    
 
 	public ChatLinkChannelCaseData(String guildPair, String channelPair) {
         this.channelPair = channelPair;

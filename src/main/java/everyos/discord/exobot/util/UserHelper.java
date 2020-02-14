@@ -57,6 +57,9 @@ public class UserHelper {
     }
 	
 	public static String parseUserId(String arg) {
+        try {
+            Long.valueOf(arg); return arg;
+        } catch (Exception e) {}
 		if (!isUserId(arg)) return null;
 		return arg.substring(2, arg.length()-1).replace("!", "");
 	}

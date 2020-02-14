@@ -6,9 +6,11 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 
 import discord4j.core.object.entity.Message;
+import everyos.discord.exobot.StaticFunctions;
 import everyos.discord.exobot.objects.ChannelObject;
 import everyos.discord.exobot.objects.GuildObject;
 import everyos.discord.exobot.objects.MusicObject;
+import everyos.discord.exobot.objects.PlaylistObject;
 import everyos.discord.exobot.objects.UserObject;
 import everyos.discord.exobot.objects.VoiceChannelObject;
 import everyos.discord.exobot.util.ChannelHelper;
@@ -39,21 +41,7 @@ public class MusicCommand implements ICommand {
             MusicObject music = getMusicChannel(guild, channel);
             if (music==null) return;
 
-            music.play(args[1], track->{
-                channel.send(embed->{
-                    AudioTrackInfo info = track.getInfo();
-                    embed.setAuthor(info.author, info.uri, null);
-                    embed.setTitle(info.title);
-                    embed.setDescription("Song added to queue");
-                    embed.addField("Length", TimeUtil.formatTime(Math.floor(info.length/1000)), false);
-                });
-            }, ()->{
-                channel.send("Track load failed!", true);
-            });
-        } else if (args[0].equals("playlist")) {
-        	if (args.length<2) {
-                channel.send("Subcommand expected one parameter", true); return;
-            }
+            playTrack(music, channel, args[1]);
         } else if (args[0].equals("repeat")) {
         	if (args.length<2) {
                 channel.send("Subcommand expected one parameter", true); return;
@@ -106,7 +94,8 @@ public class MusicCommand implements ICommand {
                 embed.addField("Length", 
                     TimeUtil.formatTime(Math.floor(np.getPosition()/1000))+"/"+
                     TimeUtil.formatTime(Math.floor(info.length/1000))+" ("+
-                    Math.floor(np.getPosition()/info.length*1000)/10+"%)", false);
+                    Math.floor(((long)np.getPosition()/(long)info.length)*1000L)/10L+"%)", false);
+                
             });
         } else if (args[0].equals("queue")) {
         	MusicObject music = getMusicChannel(guild, channel);
@@ -142,10 +131,75 @@ public class MusicCommand implements ICommand {
             }
             guild.musicChannelID = ChannelHelper.parseChannelId(args[1]);
             if (guild.musicChannelID==null) guild.musicChannelID = args[1];
+        } else if (args[0].equals("playlist")) {
+            if (args.length<2) {
+                channel.send("Subcommand expected at least one argument!\n"+
+                "<playlist>[args] Subcommands on playlists include create, add, delete, and details\n"+
+                "Select playlist without subcommand to play it", true); return;
+            }
+            if (args.length==2) {
+                MusicObject music = getMusicChannel(guild, channel);
+                if (music==null) return;
+
+                PlaylistObject playlist = invoker.toGlobal().getPlaylist(args[1], false);
+                if (playlist == null) {
+                    channel.send("Please create the playlist first!", true); return;
+                }
+
+                playlist.playlist.forEach(uri->playTrack(music, channel, uri));
+            } else if (args[2].equals("create")) {
+                invoker.toGlobal().getPlaylist(args[1], true);
+                channel.send("Created playlist!", true);
+            } else if (args[2].equals("delete")) {
+                invoker.toGlobal().playlists.remove(args[1]);
+                StaticFunctions.save();
+                channel.send("Deleted playlist!", true);
+            } else if (args[2].equals("add")) {
+                PlaylistObject playlist = invoker.toGlobal().getPlaylist(args[1], false);
+                if (playlist == null) {
+                    channel.send("Please create the playlist first!", true); return;
+                }
+                if (args.length<4) {
+                    channel.send("Expected URL!", true); return;
+                }
+                synchronized(playlist.playlist) {
+                    playlist.playlist.add(args[3]);
+                }
+                StaticFunctions.save();
+                channel.send("Added to playlist!", true);
+            } else if (args[2].equals("details")) {
+                PlaylistObject playlist = invoker.toGlobal().getPlaylist(args[1], false);
+                if (playlist == null) {
+                    channel.send("No such playlist!", true); return;
+                }
+                channel.send(embed->{
+                    embed.setTitle("Playlist");
+                    synchronized(playlist.playlist) {
+                        for (int i=0; i<playlist.playlist.size(); i++) {
+                            String track = playlist.playlist.get(i);
+                            embed.addField("Track "+(i+1), "**Title:** "+track, false);
+                        }
+                    }
+                });
+            }
         }
 	}
 
-	private MusicObject getMusicChannel(GuildObject guild, ChannelObject channel) {
+	private void playTrack(MusicObject music, ChannelObject channel, String uri) {
+        music.play(uri, track->{
+            channel.send(embed->{
+                AudioTrackInfo info = track.getInfo();
+                embed.setAuthor(info.author, info.uri, null);
+                embed.setTitle(info.title);
+                embed.setDescription("Song added to queue");
+                embed.addField("Length", TimeUtil.formatTime(Math.floor(info.length/1000)), false);
+            });
+        }, ()->{
+            channel.send("Track load failed!", true);
+        });
+    }
+
+    private MusicObject getMusicChannel(GuildObject guild, ChannelObject channel) {
 		String targetMusicChannel = (channel.musicChannelID==null)?guild.musicChannelID:channel.musicChannelID;
         if (targetMusicChannel==null) {
         	channel.send("Please have an opted user configure music channels", true); return null;

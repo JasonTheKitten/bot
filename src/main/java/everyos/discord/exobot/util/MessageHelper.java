@@ -23,7 +23,7 @@ public class MessageHelper {
 		return sendThen(channel.block(), message, permitPing);
 	}
     public static Message sendThen(MessageChannel channel, String message, boolean permitPing) {
-		if (!permitPing) message = message.replace("@", "(Ping attempt)");
+		if (!permitPing) message = message.replace("@+everyone", "everyone").replace("@+here", "here");
 		return channel.createMessage(message).block();
 	}
 	public static Message sendThen(MessageChannel channel, Consumer<? super EmbedCreateSpec> embed) {

@@ -19,13 +19,16 @@ import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.PresenceUpdateEvent;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
+import discord4j.core.event.domain.lifecycle.ReconnectEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.event.domain.message.MessageUpdateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.Message.Type;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import discord4j.core.object.presence.Status;
 import everyos.discord.exobot.cases.ChannelCase;
+import everyos.discord.exobot.cases.ChatLinkChannelCaseData;
 import everyos.discord.exobot.commands.BanCommand;
 import everyos.discord.exobot.commands.BotExcludeCommand;
 import everyos.discord.exobot.commands.BotIncludeCommand;
@@ -67,61 +70,67 @@ import everyos.discord.exobot.util.UserHelper;
 import everyos.discord.exobot.webserver.WebServer;
 
 public class Main {
-	public static void main(String[] rargs) throws Exception {
-		System.out.println("Command is running");
-        
+    public static void main(String[] rargs) throws Exception {
+        System.out.println("Command is running");
+
         File keys = new File(StaticFunctions.getAppData("keys.config"));
 
-		String[] args;
-		if (rargs.length<2) {
-			args = new String[2];
+        String[] args;
+        if (rargs.length < 2) {
+            args = new String[2];
 
-			System.out.println("User Client ID and Bot Token both expected");
+            System.out.println("User Client ID and Bot Token both expected");
             Scanner s;
             if (keys.exists()) {
                 s = new Scanner(keys);
-            } else try {
-                s = new Scanner(System.in);
-            } catch (NoSuchElementException e) {
-                System.out.println("Could not start prompt"); return;
-            };
-			System.out.println("Enter Client ID:");
-			args[0] = s.next();
-			System.out.println("Enter Bot Token:");
-			args[1] = s.next();
-			s.close();
-        } else {args=rargs;}
-        
+            } else
+                try {
+                    s = new Scanner(System.in);
+                } catch (NoSuchElementException e) {
+                    System.out.println("Could not start prompt");
+                    return;
+                }
+            ;
+            System.out.println("Enter Client ID:");
+            args[0] = s.next();
+            System.out.println("Enter Bot Token:");
+            args[1] = s.next();
+            s.close();
+        } else {
+            args = rargs;
+        }
+
         if (!keys.exists()) {
             keys.getParentFile().mkdirs();
-            BufferedWriter writer = new BufferedWriter(new FileWriter(StaticFunctions.getAppData(StaticFunctions.keysFile)));
-            writer.write(args[0]+" "+args[1]);
+            BufferedWriter writer = new BufferedWriter(
+                    new FileWriter(StaticFunctions.getAppData(StaticFunctions.keysFile)));
+            writer.write(args[0] + " " + args[1]);
             writer.close();
         }
-		
-		HashMap<String, ICommand> commands = new HashMap<String, ICommand>();
-		Statics.commands = commands;
-		Statics.guilds = new HashMap<String, GuildObject>();
-		Statics.users = new HashMap<String, GlobalUserObject>();
-		Statics.twitchchannels = new HashMap<String, String>();
+
+        HashMap<String, ICommand> commands = new HashMap<String, ICommand>();
+        Statics.commands = commands;
+        Statics.guilds = new HashMap<String, GuildObject>();
+        Statics.users = new HashMap<String, GlobalUserObject>();
+        Statics.twitchchannels = new HashMap<String, String>();
         Statics.servers = new ArrayList<WebServer>();
         Statics.musicChannels = new ArrayList<MusicObject>();
-		
-		CommandHelper.register("help", new HelpCommand());
-		CommandHelper.register("echo", new EchoCommand());
-		CommandHelper.register("prefix", new PrefixCommand());
-		CommandHelper.register("suggestions", new SuggestionConfigCommand());
-		CommandHelper.register("opt", new OptCommand());
-		CommandHelper.register("unopt", new UnoptCommand());
-		CommandHelper.register("botinclude", new BotIncludeCommand());
-		CommandHelper.register("botexclude", new BotExcludeCommand());
-		CommandHelper.register("twitchconfig", new TwitchConfigCommand());
-		CommandHelper.register("kick", new KickCommand());
-		CommandHelper.register("ban", new BanCommand());
-		CommandHelper.register("unban", new UnbanCommand());
-		CommandHelper.register("purge", new PurgeCommand());
-		CommandHelper.register("remind", new RemindCommand());
-		CommandHelper.register("logsave", new LogSaveCommand());
+
+        CommandHelper.register("help", new HelpCommand());
+        CommandHelper.register("echo", new EchoCommand());
+        CommandHelper.register("prefix", new PrefixCommand());
+        CommandHelper.register("suggestions", new SuggestionConfigCommand());
+        CommandHelper.register("opt", new OptCommand());
+        CommandHelper.register("unopt", new UnoptCommand());
+        CommandHelper.register("botinclude", new BotIncludeCommand());
+        CommandHelper.register("botexclude", new BotExcludeCommand());
+        CommandHelper.register("twitchconfig", new TwitchConfigCommand());
+        CommandHelper.register("kick", new KickCommand());
+        CommandHelper.register("ban", new BanCommand());
+        CommandHelper.register("unban", new UnbanCommand());
+        CommandHelper.register("purge", new PurgeCommand());
+        CommandHelper.register("remind", new RemindCommand());
+        CommandHelper.register("logsave", new LogSaveCommand());
         CommandHelper.register("purgeafter", new PurgeAfterCommand());
         CommandHelper.register("increment", "inc", new IncrementCommand());
         CommandHelper.register("oneword", new SentenceGameCommand());
@@ -139,57 +148,83 @@ public class Main {
         AudioSourceManagers.registerRemoteSources(playerManager);
         Statics.playerManager = playerManager;
 
-		final DiscordClient client = new DiscordClientBuilder(args[1]).build();
-		
-		Statics.client = client;
+        final DiscordClient client = new DiscordClientBuilder(args[1]).build();
+
+        Statics.client = client;
         StaticFunctions.load();
-		
-		EventDispatcher dispatcher = client.getEventDispatcher();
-		dispatcher.on(ReadyEvent.class).subscribe(ready -> {
-            System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id="+args[0]+"&scope=bot&permissions=8");
+
+        EventDispatcher dispatcher = client.getEventDispatcher();
+        dispatcher.on(ReadyEvent.class).subscribe(ready -> {
+            System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id=" + args[0]
+                    + "&scope=bot&permissions=8");
             client.updatePresence(Presence.online(Activity.watching("spiders make webs"))).subscribe();
-            Statics.musicChannels.forEach(ch->{
-                ch.join();
-            });
+            Statics.musicChannels.forEach(ch -> ch.join());
         });
-		
-		dispatcher.on(MessageCreateEvent.class).subscribe(messageevent -> {
+        dispatcher.on(ReconnectEvent.class).subscribe(ready -> Statics.musicChannels.forEach(ch -> ch.join()));
+
+        dispatcher.on(MessageCreateEvent.class).subscribe(messageevent -> {
             Message message = messageevent.getMessage();
             try {
-                if (!messageevent.getMember().isPresent()||messageevent.getMember().get().isBot()) return;
+                if (!messageevent.getMember().isPresent() || messageevent.getMember().get().isBot())
+                    return;
 
                 GuildObject guild = GuildHelper.getGuildData(message.getGuild());
-                
+
                 UserObject invoker = UserHelper.getUserData(guild, message.getAuthorAsMember());
-                invoker.money+=guild.chatmoney;
+                invoker.money += guild.chatmoney;
                 StaticFunctions.save();
 
                 ChannelCase.CASES special = ChannelCase.getSpecial(guild, message.getChannel().block());
-                if (special!=ChannelCase.CASES.NULL) {
-                    ChannelCase.execute(special, message); return;
+                if (special != ChannelCase.CASES.NULL) {
+                    ChannelCase.execute(special, message);
+                    return;
                 }
-                if (!(message.getType() == Type.DEFAULT)) {return;}
+                if (!(message.getType() == Type.DEFAULT)) {
+                    return;
+                }
                 String content = message.getContent().orElse("");
                 String prefix = GuildHelper.getGuildData(message.getGuild()).prefix;
                 if (content.startsWith(prefix)) {
                     String msg = StringUtil.sub(content, prefix.length());
                     int space = msg.indexOf(" ");
-                    if (space<=0) space=content.length();
-                    if (space<=0) space=1;
+                    if (space <= 0)
+                        space = content.length();
+                    if (space <= 0)
+                        space = 1;
                     String cmd = StringUtil.sub(msg, 0, space);
-                    String argstr = StringUtil.sub(msg, space+1, content.length());
-                    
+                    String argstr = StringUtil.sub(msg, space + 1, content.length());
+
                     ICommand exe = commands.getOrDefault(cmd, invalidCommand);
                     exe.execute(message, argstr);
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 try {
-                    MessageHelper.send(message.getChannel(), e.getClass().getSimpleName()+":"+e.getMessage(), true);
-                } catch(Exception e2) {e2.printStackTrace();}
+                    MessageHelper.send(message.getChannel(), e.getClass().getSimpleName() + ":" + e.getMessage(), true);
+                } catch (Exception e2) {
+                    e2.printStackTrace();
+                }
             }
         });
-        
+        dispatcher.on(MessageUpdateEvent.class).subscribe(messageevent -> {
+            Message message = messageevent.getMessage().block();
+            try {
+                GuildObject guild = GuildHelper.getGuildData(message.getGuild());
+
+                ChannelCase.CASES special = ChannelCase.getSpecial(guild, message.getChannel().block());
+                if (special == ChannelCase.CASES.CHATLINK) {
+                    ChatLinkChannelCaseData.send(message, true);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    MessageHelper.send(message.getChannel(), e.getClass().getSimpleName() + ":" + e.getMessage(), true);
+                } catch (Exception e2) {
+                    e2.printStackTrace();
+                }
+            }
+        });
+
         dispatcher.on(PresenceUpdateEvent.class).subscribe(e->{
             e.getMember().subscribe(member -> {
                 member.getPresence().subscribe(presence->{
