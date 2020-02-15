@@ -1,5 +1,6 @@
 package everyos.discord.exobot.commands;
 
+import java.net.URL;
 import java.util.LinkedList;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -18,6 +19,7 @@ import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.StringUtil;
 import everyos.discord.exobot.util.TimeUtil;
 import everyos.discord.exobot.util.UserHelper;
+import everyos.discord.exobot.util.YoutubeUtil;
 
 public class MusicCommand implements ICommand {
     @Override public void execute(Message message, String argument) {
@@ -40,8 +42,16 @@ public class MusicCommand implements ICommand {
 
             MusicObject music = getMusicChannel(guild, channel);
             if (music==null) return;
-
-            playTrack(music, channel, args[1]);
+            
+            String part2 = StringUtil.split2(argument, " ");
+            try {
+	            new URL(part2);
+            } catch (Exception e) {
+            	try {
+            		part2 = "https://youtube.com/watch?v="+YoutubeUtil.search(part2).getItems().get(0).getId().getVideoId();
+            	} catch (Exception e2) {e2.printStackTrace();}
+            }
+	        playTrack(music, channel, part2);
         } else if (args[0].equals("repeat")) {
         	if (args.length<2) {
                 channel.send("Subcommand expected one parameter", true); return;

@@ -10,3 +10,4 @@ bin
 #Ignore annoying files and config files
 .theia
 *.config
+src/main/resources/googleauth.json

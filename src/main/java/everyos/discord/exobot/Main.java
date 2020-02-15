@@ -67,6 +67,7 @@ import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.MessageHelper;
 import everyos.discord.exobot.util.StringUtil;
 import everyos.discord.exobot.util.UserHelper;
+import everyos.discord.exobot.util.YoutubeUtil;
 import everyos.discord.exobot.webserver.WebServer;
 
 public class Main {
