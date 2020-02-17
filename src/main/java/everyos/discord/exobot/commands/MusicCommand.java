@@ -16,6 +16,7 @@ import everyos.discord.exobot.objects.UserObject;
 import everyos.discord.exobot.objects.VoiceChannelObject;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.GuildHelper;
+import everyos.discord.exobot.util.MessageHelper;
 import everyos.discord.exobot.util.StringUtil;
 import everyos.discord.exobot.util.TimeUtil;
 import everyos.discord.exobot.util.UserHelper;
@@ -98,13 +99,13 @@ public class MusicCommand implements ICommand {
             AudioTrack np = queue.get(0);
             channel.send(embed->{
                 AudioTrackInfo info = np.getInfo();
-                embed.setAuthor(info.author, info.uri, null);
-                embed.setTitle(info.title);
+                embed.setAuthor(MessageHelper.filter(info.author), info.uri, null);
+                embed.setTitle(MessageHelper.filter(info.title));
                 embed.setDescription("Now playing");
                 embed.addField("Length", 
                     TimeUtil.formatTime(Math.floor(np.getPosition()/1000))+"/"+
                     TimeUtil.formatTime(Math.floor(info.length/1000))+" ("+
-                    Math.floor(((long)np.getPosition()/(long)info.length)*1000L)/10L+"%)", false);
+                    (Math.floor((np.getPosition()/info.length)*1000L)/10L)+"%)", false);
                 
             });
         } else if (args[0].equals("queue")) {
@@ -187,7 +188,7 @@ public class MusicCommand implements ICommand {
                     synchronized(playlist.playlist) {
                         for (int i=0; i<playlist.playlist.size(); i++) {
                             String track = playlist.playlist.get(i);
-                            embed.addField("Track "+(i+1), "**Title:** "+track, false);
+                            embed.addField("Track "+(i+1), "**Title:** "+MessageHelper.filter(track), false);
                         }
                     }
                 });
@@ -199,8 +200,8 @@ public class MusicCommand implements ICommand {
         music.play(uri, track->{
             channel.send(embed->{
                 AudioTrackInfo info = track.getInfo();
-                embed.setAuthor(info.author, info.uri, null);
-                embed.setTitle(info.title);
+                embed.setAuthor(MessageHelper.filter(info.author), info.uri, null);
+                embed.setTitle(MessageHelper.filter(info.title));
                 embed.setDescription("Song added to queue");
                 embed.addField("Length", TimeUtil.formatTime(Math.floor(info.length/1000)), false);
             });

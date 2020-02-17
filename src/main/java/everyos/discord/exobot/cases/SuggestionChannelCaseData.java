@@ -8,6 +8,7 @@ import everyos.discord.exobot.objects.ChannelObject;
 import everyos.discord.exobot.objects.GuildObject;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.GuildHelper;
+import everyos.discord.exobot.util.MessageHelper;
 import everyos.discord.exobot.util.SaveUtil.JSONObject;
 
 public class SuggestionChannelCaseData implements IChannelCaseData {
@@ -22,8 +23,8 @@ public class SuggestionChannelCaseData implements IChannelCaseData {
         ChannelObject voteChannel = ChannelHelper.getChannelData(guild,
                 ((SuggestionChannelCaseData) channel.data).voteChannel);
         Message sug = voteChannel.sendThen(embed -> {
-            embed.setTitle("Suggestion by " + message.getAuthor().get().getUsername());
-            embed.setDescription(msg);
+            embed.setTitle("Suggestion by " + MessageHelper.filter(message.getAuthor().get().getUsername()));
+            embed.setDescription(MessageHelper.filter(msg));
             embed.setFooter("Use the reactions to vote!", null);
         });
         voteChannel.sendThen(message.getAuthor().get().getMention(), true).delete().subscribe();

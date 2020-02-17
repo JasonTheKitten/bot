@@ -1,18 +1,333 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="bin/main" path="src/main/java">
+	<classpathentry output="bin/main" kind="src" path="src/main/java">
 		<attributes>
 			<attribute name="gradle_scope" value="main"/>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" output="bin/main" path="src/main/resources">
+	<classpathentry output="bin/main" kind="src" path="src/main/resources">
 		<attributes>
 			<attribute name="gradle_scope" value="main"/>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
-	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
+	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer" exported="true"/>
 	<classpathentry kind="output" path="bin/default"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/discord4j-core/3.0.11/85968ab8daa22fbc83a2847bc80dc6598cd5ed0a/discord4j-core-3.0.11-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/discord4j-core/3.0.11/5a707cc960e20e0cfe8432f3670e148bf59b7807/discord4j-core-3.0.11.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.8.6/1b9adea7bbe0b251818f42fde0bd2988d7e5f20a/gson-2.8.6-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.8.6/9180733b7df8542621dc12e21e87557e8c99b8cb/gson-2.8.6.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.sedmelluq/lavaplayer/1.3.34/ef4773fa619acf022505820d82bad8bd21271ec0/lavaplayer-1.3.34-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.sedmelluq/lavaplayer/1.3.34/f7fcdd37137ffd286dd67098dff48b72cf6a83f8/lavaplayer-1.3.34.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-nop/1.7.25/8430873817771a59854d573b48fed713d4b1cf56/slf4j-nop-1.7.25-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-nop/1.7.25/8c7708c79afec923de8957b7d4f90177628b9fcd/slf4j-nop-1.7.25.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.apis/google-api-services-youtube/v3-rev221-1.25.0/b0cfc38e46828ef4f1b33e26be839f29ca8e9a2f/google-api-services-youtube-v3-rev221-1.25.0-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.apis/google-api-services-youtube/v3-rev221-1.25.0/c6af6830e7919594fed8acedd35360151b80c43c/google-api-services-youtube-v3-rev221-1.25.0.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.api-client/google-api-client/1.30.5/ad7d9ec8f0c756dd28020a04469c1ffdb673689b/google-api-client-1.30.5-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.api-client/google-api-client/1.30.5/6f113170d74ad097499e111fa7799918e117b2e0/google-api-client-1.30.5.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.oauth-client/google-oauth-client-jetty/1.23.0/ef72587eb9cc0aabbb611d92bd39e88c76ac08bb/google-oauth-client-jetty-1.23.0-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.oauth-client/google-oauth-client-jetty/1.23.0/e0deaf34371e9ca09f9a04bcbaa854243283cae4/google-oauth-client-jetty-1.23.0.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/discord4j-rest/3.0.11/8fc52e3dea274ae103992dfcceb3c2eaa0275b85/discord4j-rest-3.0.11-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/discord4j-rest/3.0.11/adf54670e71ae5d9bd4af568c7f0c3c194e6ce72/discord4j-rest-3.0.11.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/discord4j-gateway/3.0.11/a6d05c3f5d504d36e60fc8151b9bc22719831d87/discord4j-gateway-3.0.11-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/discord4j-gateway/3.0.11/b114f6c6f84eb03de3fe568fc748fa864fbb3486/discord4j-gateway-3.0.11.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/discord4j-voice/3.0.11/85888a5bcd2bd2cca324c18a472319adebeafcca/discord4j-voice-3.0.11-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/discord4j-voice/3.0.11/957575ebffa312cb2962971d1ac26e68fed685da/discord4j-voice-3.0.11.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/stores-jdk/3.0.10/4129707912b25f8e11de903c691b209617cf5e20/stores-jdk-3.0.10-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/stores-jdk/3.0.10/1b28e09e25a496b8ddbf5031eee8b713b669537/stores-jdk-3.0.10.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.sedmelluq/lava-common/1.1.0/dd7fdaff9a228d9512508662d7363f2ff64660b2/lava-common-1.1.0-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.sedmelluq/lava-common/1.1.0/481b70bf2e57c9abb0fbe2f5d7c5fdb039fc3a01/lava-common-1.1.0.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.sedmelluq/lavaplayer-natives/1.3.13/2f664776fab7334ad045b3739286f882581867d5/lavaplayer-natives-1.3.13-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.sedmelluq/lavaplayer-natives/1.3.13/ddbbad9bca297cd4a0b3e8ca42a9659712004566/lavaplayer-natives-1.3.13.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.25/962153db4a9ea71b79d047dfd1b2a0d80d8f4739/slf4j-api-1.7.25-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.25/da76ca59f6a57ee3102f8f9bd9cee742973efa8a/slf4j-api-1.7.25.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.oauth-client/google-oauth-client-java6/1.23.0/bfb9061fa4870338c7d0f28acc6977f54b0a1b29/google-oauth-client-java6-1.23.0-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.oauth-client/google-oauth-client-java6/1.23.0/7acbddf56c4ad04efc9d3b48fe015e6250241bf0/google-oauth-client-java6-1.23.0.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.oauth-client/google-oauth-client/1.30.4/3ba0773508d512fc8e55b739fefd06bfdf9439f1/google-oauth-client-1.30.4-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.oauth-client/google-oauth-client/1.30.4/fba27a2e67311653d1d5c2d5711f001b849fff6e/google-oauth-client-1.30.4.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.http-client/google-http-client-jackson2/1.32.1/dbfe3da57918dbf7f26e07a5633d1e56fba5889f/google-http-client-jackson2-1.32.1-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.http-client/google-http-client-jackson2/1.32.1/9bae3bc3b295fa5f281f105e4ab41094f06e83d8/google-http-client-jackson2-1.32.1.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.http-client/google-http-client/1.32.1/259f006dd5a1740c66294b4271b458f5c59b03b7/google-http-client-1.32.1-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.http-client/google-http-client/1.32.1/cb8a04bb17bf49c388083449cffa25de7765ec76/google-http-client-1.32.1.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpclient/4.5.10/b88c634257720718f33caebc6fc6ec52e4cce190/httpclient-4.5.10-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpclient/4.5.10/7ca2e4276f4ef95e4db725a8cd4a1d1e7585b9e5/httpclient-4.5.10.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/commons-io/commons-io/2.6/2566800dc841d9d2c5a0d34d807e45d4107dbbdf/commons-io-2.6-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/commons-io/commons-io/2.6/815893df5f31da2ece4040fe0a12fd44b577afaf/commons-io-2.6.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/discord4j-common/3.0.11/ecc3185d1386c2581e049b84f0d72b874da07a32/discord4j-common-3.0.11-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/discord4j-common/3.0.11/a26982fb2c85ad80e2d328238373bd396d1d7a90/discord4j-common-3.0.11.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.10.1/e6c32eafff2562bcd1e5337038f242ac9096c071/jackson-datatype-jdk8-2.10.1-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.10.1/db9247b3eb6f07520ff6ff6d1070439edd6803c3/jackson-datatype-jdk8-2.10.1.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.10.1/ebb50922deb157028c54ff84bc9702804ae72545/jackson-databind-2.10.1-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.10.1/18eee15ffc662d27538d5b6ee84e4c92c0a9d03e/jackson-databind-2.10.1.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.10.1/a12ab35dd79cd21276603c0f43695774c4bfb23c/jackson-core-2.10.1-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.10.1/2c8b5e26ba40e5f91eb37a24075a2028b402c5f9/jackson-core-2.10.1.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.jsoup/jsoup/1.12.1/1ec738903bf781d7218455e314c6dc9831a2f9a6/jsoup-1.12.1-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.jsoup/jsoup/1.12.1/55819a28fc834c2f2bcf4dcdb278524dc3cf088f/jsoup-1.12.1.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/net.iharder/base64/2.3.9/f7aa9fa9bdb0c9d6ade1586c979d631cf71e8645/base64-2.3.9-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/net.iharder/base64/2.3.9/6c34d1c85141be8a21b0a957d84359894e2684b7/base64-2.3.9.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.opencensus/opencensus-contrib-http-util/0.24.0/bde318fc486d8655159d87cee8dfb2d43be2cf6/opencensus-contrib-http-util-0.24.0-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.opencensus/opencensus-contrib-http-util/0.24.0/6d96406c272d884038eb63b262458df75b5445/opencensus-contrib-http-util-0.24.0.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/28.1-android/9ac9044706a470997a815d740a2f21c06dc7274b/guava-28.1-android-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/28.1-android/c2526f8fad32a65a6d7032dd8e9524eb276b108b/guava-28.1-android.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.mortbay.jetty/jetty/6.1.26/9e275882f6d3400b05674c79e97014a255dfaf43/jetty-6.1.26-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.mortbay.jetty/jetty/6.1.26/2f546e289fddd5b1fab1d4199fbb6e9ef43ee4b0/jetty-6.1.26.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.projectreactor.addons/reactor-extra/3.2.3.RELEASE/c4d822d6fdbbb05cc1a813a4e602636fc716ca32/reactor-extra-3.2.3.RELEASE-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.projectreactor.addons/reactor-extra/3.2.3.RELEASE/88fdf0c35d2632f381ceee2e2ddbc928da9ed1d2/reactor-extra-3.2.3.RELEASE.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/simple-fsm/1.0.1/f92aaebabba377168a61a5bd2545b528265c8928/simple-fsm-1.0.1-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/simple-fsm/1.0.1/58cc3d3c4d25823eecb174a8e4807ba83299f36a/simple-fsm-1.0.1.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/stores-api/3.0.10/856a5ee2836e7ea31901be04f97f3f08365d54d9/stores-api-3.0.10-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.discord4j/stores-api/3.0.10/7aecb7d15bc5f6200fa48a92bf3bff2625cffde3/stores-api-3.0.10.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpcore/4.4.12/8b6f2545070a53107665c1e390e690a859bd2266/httpcore-4.4.12-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpcore/4.4.12/21ebaf6d532bc350ba95bd81938fa5f0e511c132/httpcore-4.4.12.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/commons-logging/commons-logging/1.2/ecf26c7507d67782a3bbd148d170b31dfad001aa/commons-logging-1.2-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/commons-logging/commons-logging/1.2/4bfc12adfe4842bf07b657f0369c4cb522955686/commons-logging-1.2.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.11/bce4ba84fd527950e35040b20a991c63e90e2850/commons-codec-1.11-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.11/3acb4705652e16236558f0f4f2192cc33c3bd189/commons-codec-1.11.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.10.1/44bc509b5f453f2848ac7f1c281f30649a9b6b81/jackson-annotations-2.10.1-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.10.1/54d72475c0d6819f2d0e9a09d25c3ed876a4972f/jackson-annotations-2.10.1.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.2/b19b5927c2c25b6c70f093767041e641ae0b1b35/jsr305-3.0.2-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.2/25ea2e8b0c338a877313bd4672d3fe056ea78f0d/jsr305-3.0.2.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.mortbay.jetty/jetty-util/6.1.26/ca704dfc9e26567bd69ee3f065a1337fa6d296f/jetty-util-6.1.26-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.mortbay.jetty/jetty-util/6.1.26/e5642fe0399814e1687d55a3862aa5a3417226a9/jetty-util-6.1.26.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.mortbay.jetty/servlet-api/2.5-20081211/b0b7c1931bcdbeb25c2aa4aec14d7b979b53dc51/servlet-api-2.5-20081211-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.mortbay.jetty/servlet-api/2.5-20081211/22bff70037e1e6fa7e6413149489552ee2064702/servlet-api-2.5-20081211.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.projectreactor.netty/reactor-netty/0.8.13.RELEASE/ffa0e0d1d8301276938c27d78d8c3d1f72f28c1d/reactor-netty-0.8.13.RELEASE-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.projectreactor.netty/reactor-netty/0.8.13.RELEASE/249648aeed981a0564f0c53c55cba227e9c36341/reactor-netty-0.8.13.RELEASE.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.projectreactor/reactor-core/3.2.12.RELEASE/88cec6f19f43e7646e0fa9ebeeaefda0fb53cab6/reactor-core-3.2.12.RELEASE-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.projectreactor/reactor-core/3.2.12.RELEASE/f059345790b56513fa40ef012dfa6f594684762e/reactor-core-3.2.12.RELEASE.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.austinv11.servicer/Servicer/1.0.0/2d20981ac7dffc4f44fed487f3ef30388bbc565c/Servicer-1.0.0-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.austinv11.servicer/Servicer/1.0.0/55e6948826f95144c65f8b8570f6ca1b64df766a/Servicer-1.0.0.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.1/1d064e61aad6c51cc77f9b59dc2cccc78e792f5a/failureaccess-1.0.1-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.1/1dcf1de382a0bf95a3d8b0849546c88bac1292c9/failureaccess-1.0.1.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/b421526c5f297295adef1c886e5246c39d4ac629/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.checkerframework/checker-compat-qual/2.5.5/54d4253d4d8723096a95b7551bd5639e7e2affba/checker-compat-qual-2.5.5-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.checkerframework/checker-compat-qual/2.5.5/435dc33e3019c9f019e15f01aa111de9d6b2b79c/checker-compat-qual-2.5.5.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.errorprone/error_prone_annotations/2.3.2/6e986bccd3d116d8bc1aaac8534d068ea8edd2ae/error_prone_annotations-2.3.2-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.errorprone/error_prone_annotations/2.3.2/d1a0c5032570e0f64be6b4d9c90cdeb103129029/error_prone_annotations-2.3.2.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.j2objc/j2objc-annotations/1.3/d26c56180205cbb50447c3eca98ecb617cf9f58b/j2objc-annotations-1.3-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/com.google.j2objc/j2objc-annotations/1.3/ba035118bc8bac37d7eff77700720999acd9986d/j2objc-annotations-1.3.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.codehaus.mojo/animal-sniffer-annotations/1.18/dff084acf1ff3ff9145b1708c566787d2c82dd0/animal-sniffer-annotations-1.18-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.codehaus.mojo/animal-sniffer-annotations/1.18/f7aa683ea79dc6681ee9fb95756c999acbb62f5d/animal-sniffer-annotations-1.18.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.opencensus/opencensus-api/0.24.0/41c65bc38d0225e9563491fcbe24d3a763450b7e/opencensus-api-0.24.0-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.opencensus/opencensus-api/0.24.0/f974451b19007ce820f433311ce8adb88e2b7d2c/opencensus-api-0.24.0.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-http2/4.1.43.Final/4ab5c62f9ac1ac34fe2faf26c4d27486f7f7a9d2/netty-codec-http2-4.1.43.Final-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-http2/4.1.43.Final/d859a766119d7845e4d10e64a1f846d3d26d5ff2/netty-codec-http2-4.1.43.Final.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-handler-proxy/4.1.43.Final/34f5a99a0b00e14d8da6ef6fc05fc8219ee04e07/netty-handler-proxy-4.1.43.Final-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-handler-proxy/4.1.43.Final/7ac025d4e0368487d08d01c35eb7f89cbc25464e/netty-handler-proxy-4.1.43.Final.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-http/4.1.43.Final/9caa0532c8f333f791f2c71e3fec2ecee195739a/netty-codec-http-4.1.43.Final-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-http/4.1.43.Final/7320f9db621dc51b79807a4e5094665f260432c/netty-codec-http-4.1.43.Final.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-handler/4.1.43.Final/ca56d32847fb3618df7c79cbc84d136274ce4a58/netty-handler-4.1.43.Final-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-handler/4.1.43.Final/f83ac0492d44057d07ec6d40cf79e8e2de949836/netty-handler-4.1.43.Final.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.1.43.Final/65b1ff107f900fe50a96926abdee03ea84295c4c/netty-transport-native-epoll-4.1.43.Final-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.1.43.Final/ab3836b204a1526bd8fc51efcf34d5ee77b58e28/netty-transport-native-epoll-4.1.43.Final-linux-x86_64.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.reactivestreams/reactive-streams/1.0.2/fb592a3d57b11e71eb7a6211dd12ba824c5dd037/reactive-streams-1.0.2-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/org.reactivestreams/reactive-streams/1.0.2/323964c36556eb0e6209f65c1cef72b53b461ab8/reactive-streams-1.0.2.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.grpc/grpc-context/1.22.1/7f751bfc4b40d578028113d842fcd275c589ccf4/grpc-context-1.22.1-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.grpc/grpc-context/1.22.1/1a074f9cf6f367b99c25e70dc68589f142f82d11/grpc-context-1.22.1.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-socks/4.1.43.Final/9c62c78ae1d7af51279291595618e60c52336fb7/netty-codec-socks-4.1.43.Final-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-socks/4.1.43.Final/a8358a537bbc778e5dfb17dddf5f2bdb6bdbc06c/netty-codec-socks-4.1.43.Final.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec/4.1.43.Final/5e4e33d1bb9d87d7a05574cfdf70feaf5c0ff838/netty-codec-4.1.43.Final-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec/4.1.43.Final/44731a5739c40a8434c43e1303e9196f23da67fa/netty-codec-4.1.43.Final.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-unix-common/4.1.43.Final/cb7312adb1108aa47a39073074ff554524b6e840/netty-transport-native-unix-common-4.1.43.Final-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-unix-common/4.1.43.Final/e9b1a4ff3824d29c8bc69287ba83a848057d757e/netty-transport-native-unix-common-4.1.43.Final.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport/4.1.43.Final/eaafd4c88502a699d9fadf4ddd11a88e266dcf99/netty-transport-4.1.43.Final-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport/4.1.43.Final/781cd7cfc1118bdfe1538f39cc1f4d07d6254094/netty-transport-4.1.43.Final.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-buffer/4.1.43.Final/4c5cb0a68413d5602d3dd135a7c1090dc36f8292/netty-buffer-4.1.43.Final-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-buffer/4.1.43.Final/c0d142260a32709523e3bcf0d015b193f2ff2df4/netty-buffer-4.1.43.Final.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-resolver/4.1.43.Final/1d6c79494160a63ef7d7d26d17904b0ae3310ec6/netty-resolver-4.1.43.Final-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-resolver/4.1.43.Final/94ae5a7e595fdc29dac254014e3159d3572d7e44/netty-resolver-4.1.43.Final.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-common/4.1.43.Final/7b0e8488dd99de7808b3dfac2b8b13567a6db386/netty-common-4.1.43.Final-sources.jar" kind="lib" path="C:/Users/jason/.gradle/caches/modules-2/files-2.1/io.netty/netty-common/4.1.43.Final/ccb6f627ded1bb2671a66a84506174d240c7bec8/netty-common-4.1.43.Final.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
 </classpath>

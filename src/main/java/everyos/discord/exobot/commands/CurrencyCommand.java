@@ -11,6 +11,7 @@ import everyos.discord.exobot.objects.GuildObject;
 import everyos.discord.exobot.objects.UserObject;
 import everyos.discord.exobot.util.ChannelHelper;
 import everyos.discord.exobot.util.GuildHelper;
+import everyos.discord.exobot.util.MessageHelper;
 import everyos.discord.exobot.util.StringUtil;
 import everyos.discord.exobot.util.UserHelper;
 
@@ -56,20 +57,20 @@ public class CurrencyCommand implements ICommand {
                 for (int i=0; i<((size<len)?size:len); i++) {
                     if (lboard.get(i).money==0) break;
                     UserObject user = lboard.get(i);
-                    embed.addField("#"+(i+1)+(user.id.equals(invoker.id)?" (You)":""), user.requireUser().user.getDisplayName()+": "+user.money+" feth", false);
+                    embed.addField("#"+(i+1)+(user.id.equals(invoker.id)?" (You)":""), MessageHelper.filter(user.requireUser().user.getDisplayName())+": "+user.money+" feth", false);
                 }
                 int pos = lboard.indexOf(invoker)+1;
                 if (pos-1>len) {
                     UserObject user = lboard.get(pos-2);
-                    embed.addField("#"+(pos-1), user.requireUser().user.getDisplayName()+": "+user.money+" feth", false);
+                    embed.addField("#"+(pos-1), MessageHelper.filter(user.requireUser().user.getDisplayName())+": "+user.money+" feth", false);
                 }
                 if (pos>len) {
                     UserObject user = lboard.get(pos-1);
-                    embed.addField("#"+pos+" (You)", user.requireUser().user.getDisplayName()+": "+user.money+" feth", false);
+                    embed.addField("#"+pos+" (You)", MessageHelper.filter(user.requireUser().user.getDisplayName())+": "+user.money+" feth", false);
                 }
                 if (pos+1>len) {
                     UserObject user = lboard.get(pos);
-                    embed.addField("#"+(pos+1), user.requireUser().user.getDisplayName()+": "+user.money+" feth", false);
+                    embed.addField("#"+(pos+1), MessageHelper.filter(user.requireUser().user.getDisplayName())+": "+user.money+" feth", false);
                 }
                 
                 embed.setFooter("You rank #"+pos, null);

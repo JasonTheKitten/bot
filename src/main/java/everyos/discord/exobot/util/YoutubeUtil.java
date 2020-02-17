@@ -17,13 +17,14 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow.
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
+
+import everyos.discord.exobot.StaticFunctions;
 
 public class YoutubeUtil {
 	private static final String CLIENT_SECRETS = "googleauth.json";
@@ -36,7 +37,7 @@ public class YoutubeUtil {
         InputStream in = ClassLoader.getSystemResourceAsStream(CLIENT_SECRETS);
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
         Builder builder = new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets, SCOPES);
-        builder.setCredentialDataStore(StoredCredential.getDefaultDataStore(new FileDataStoreFactory(new File("datastoredir"))));
+        builder.setCredentialDataStore(StoredCredential.getDefaultDataStore(new FileDataStoreFactory(new File(StaticFunctions.getAppData("youtube.config")))));
         builder.setAccessType("offline");
         GoogleAuthorizationCodeFlow flow = builder.build();
         Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");

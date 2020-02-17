@@ -78,7 +78,7 @@ public class UserObject {
 	public void kick() { kick(null); }
 
 	public boolean isHigherThan(UserObject user) {
-		return requireUser().user.isHigher(user.user).block();
+		return requireUser().user.isHigher(user.requireUser().user).block();
 	}
 	public boolean isHigherThan(Member user) {
 		return requireUser().user.isHigher(user).block();
