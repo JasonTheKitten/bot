@@ -17,6 +17,8 @@ import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.PresenceUpdateEvent;
+import discord4j.core.event.domain.guild.GuildCreateEvent;
+import discord4j.core.event.domain.guild.GuildDeleteEvent;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.lifecycle.ReconnectEvent;
@@ -67,7 +69,6 @@ import everyos.discord.exobot.util.GuildHelper;
 import everyos.discord.exobot.util.MessageHelper;
 import everyos.discord.exobot.util.StringUtil;
 import everyos.discord.exobot.util.UserHelper;
-import everyos.discord.exobot.util.YoutubeUtil;
 import everyos.discord.exobot.webserver.WebServer;
 
 public class Main {
@@ -158,10 +159,24 @@ public class Main {
         dispatcher.on(ReadyEvent.class).subscribe(ready -> {
             System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id=" + args[0]
                     + "&scope=bot&permissions=8");
-            client.updatePresence(Presence.online(Activity.watching("spiders make webs"))).subscribe();
             Statics.musicChannels.forEach(ch -> ch.join());
         });
-        dispatcher.on(ReconnectEvent.class).subscribe(ready -> Statics.musicChannels.forEach(ch -> ch.join()));
+        dispatcher.on(ReconnectEvent.class).subscribe(ready -> {
+        	Statics.musicChannels.forEach(ch -> ch.join());
+        	client.getGuilds().count().subscribe(c->{
+            	client.updatePresence(Presence.online(Activity.watching("spiders make webs ("+c+" servers)"))).subscribe();
+            });
+        });
+        dispatcher.on(GuildCreateEvent.class).subscribe(e->{
+        	client.getGuilds().count().subscribe(c->{
+            	client.updatePresence(Presence.online(Activity.watching("spiders make webs ("+c+" servers)"))).subscribe();
+            });
+        });
+        dispatcher.on(GuildDeleteEvent.class).subscribe(e->{
+        	client.getGuilds().count().subscribe(c->{
+            	client.updatePresence(Presence.online(Activity.watching("spiders make webs ("+c+" servers)"))).subscribe();
+            });
+        });
 
         dispatcher.on(MessageCreateEvent.class).subscribe(messageevent -> {
             Message message = messageevent.getMessage();

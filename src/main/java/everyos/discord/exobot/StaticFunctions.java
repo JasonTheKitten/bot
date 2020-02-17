@@ -14,9 +14,9 @@ public class StaticFunctions {
     static {
         String mdir;
         String OS = (System.getProperty("os.name")).toUpperCase();
-        if (OS.contains("win")) {
+        if (OS.contains("WIN")) {
             mdir =  new File(System.getenv("APPDATA")).getAbsolutePath();
-	    seper = "\\";
+            seper = "\\";
         } else {
             mdir = new File(System.getProperty("user.home")).getAbsolutePath();
         }
