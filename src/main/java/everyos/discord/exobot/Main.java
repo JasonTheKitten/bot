@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -72,8 +73,11 @@ import everyos.discord.exobot.util.UserHelper;
 import everyos.discord.exobot.webserver.WebServer;
 
 public class Main {
-    public static void main(String[] rargs) throws Exception {
+	private static DiscordClient client;
+
+	public static void main(String[] rargs) throws Exception {
         System.out.println("Command is running");
+        AtomicInteger servercount = new AtomicInteger();
 
         File keys = new File(StaticFunctions.getAppData("keys.config"));
 
@@ -151,31 +155,27 @@ public class Main {
         Statics.playerManager = playerManager;
 
         final DiscordClient client = new DiscordClientBuilder(args[1]).build();
+        Main.client = client;
 
         Statics.client = client;
         StaticFunctions.load();
 
         EventDispatcher dispatcher = client.getEventDispatcher();
         dispatcher.on(ReadyEvent.class).subscribe(ready -> {
-            System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id=" + args[0]
-                    + "&scope=bot&permissions=8");
+        	System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id=" +
+            		args[0] + "&scope=bot&permissions=8");
+        	servercount.set(0);
+        	onRecount(0);
             Statics.musicChannels.forEach(ch -> ch.join());
         });
         dispatcher.on(ReconnectEvent.class).subscribe(ready -> {
         	Statics.musicChannels.forEach(ch -> ch.join());
-        	client.getGuilds().count().subscribe(c->{
-            	client.updatePresence(Presence.online(Activity.watching("spiders make webs ("+c+" servers)"))).subscribe();
-            });
         });
-        dispatcher.on(GuildCreateEvent.class).subscribe(e->{
-        	client.getGuilds().count().subscribe(c->{
-            	client.updatePresence(Presence.online(Activity.watching("spiders make webs ("+c+" servers)"))).subscribe();
-            });
+        dispatcher.on(GuildCreateEvent.class).subscribe(e -> {
+        	onRecount(servercount.incrementAndGet());
         });
-        dispatcher.on(GuildDeleteEvent.class).subscribe(e->{
-        	client.getGuilds().count().subscribe(c->{
-            	client.updatePresence(Presence.online(Activity.watching("spiders make webs ("+c+" servers)"))).subscribe();
-            });
+        dispatcher.on(GuildDeleteEvent.class).subscribe(e -> {
+        	onRecount(servercount.decrementAndGet());
         });
 
         dispatcher.on(MessageCreateEvent.class).subscribe(messageevent -> {
@@ -287,4 +287,8 @@ public class Main {
 		
 		client.login().block();
 	}
+	
+	private static void onRecount(int c) {
+    	client.updatePresence(Presence.online(Activity.watching("spiders make webs ("+c+" server"+(c!=1?"s":"")+")"))).subscribe();
+    }
 }
