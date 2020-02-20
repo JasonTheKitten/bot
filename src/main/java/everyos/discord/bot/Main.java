@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
@@ -20,6 +21,7 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import everyos.discord.bot.adapter.ChannelAdapter;
+import everyos.discord.bot.adapter.MessageAdapter;
 import everyos.discord.bot.channelcase.DefaultChannelCase;
 import everyos.discord.bot.channelcase.IChannelCase;
 import everyos.discord.bot.util.FileUtil;
@@ -35,6 +37,8 @@ public class Main {
 
         String clientID;
         String clientSecret;
+        
+        AtomicInteger servercount = new AtomicInteger();
         File keys = new File(FileUtil.getAppData(Constants.keysFile));
         if (args.length >= 2) {
             clientID = args[0];
@@ -80,11 +84,17 @@ public class Main {
         
         EventDispatcher dispatcher = client.getEventDispatcher();
         dispatcher.on(ReadyEvent.class).subscribe(ready -> {
-            System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id=" + clientID  + "&scope=bot&permissions=8");
-            onRecount();
+			System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id=" +
+				clientID + "&scope=bot&permissions=8");
+		    servercount.set(0);
+		    onRecount(0); //TODO: Discord is rate limiting this, put on a timer
+		});
+        dispatcher.on(GuildCreateEvent.class).subscribe(e -> {
+        	onRecount(servercount.incrementAndGet());
         });
-        dispatcher.on(GuildCreateEvent.class).subscribe(e -> onRecount());
-        dispatcher.on(GuildDeleteEvent.class).subscribe(e -> onRecount());
+        dispatcher.on(GuildDeleteEvent.class).subscribe(e -> {
+        	onRecount(servercount.decrementAndGet());
+        });
 
         dispatcher.on(MessageCreateEvent.class).subscribe(messageevent->{
         	try {
@@ -94,9 +104,11 @@ public class Main {
 	            Message message = messageevent.getMessage();
 	            if (message.getType()!=Message.Type.DEFAULT) return;
 	            
+	            MessageAdapter madapter = MessageAdapter.of(message);
+	            if (madapter.shouldIgnoreUser()) return;
+	            
 	            message.getChannel().subscribe(channel->{
 	            	ObjectStore mode = new ObjectStore("default");
-		            ObjectStore adapter = new ObjectStore();
 	            	if (channel.getType()==Channel.Type.GUILD_TEXT) {
 			            messageevent.getGuildId().ifPresent(snowflake->{
 			                DBDocument guild = db.collection("guilds").getOrSet(snowflake.asString(), dbdoc->{});
@@ -108,21 +120,14 @@ public class Main {
 			            		usero.getObject().set("feth", usero.getObject().getOrDefaultInt("feth", 0)+1);
 			            		usero.save();
 			            	});
-			            	
-			            	adapter.object = new ChannelAdapter(Channel.Type.GUILD_TEXT, channel, snowflake);
 			            });
-			            if (adapter.object==null) return;
-	            	} else if (channel.getType()==Channel.Type.DM) {
-	            		adapter.object = new ChannelAdapter(Channel.Type.DM, channel);
-	            	} else if (channel.getType()==Channel.Type.GROUP_DM) {
-	            		adapter.object = new ChannelAdapter(Channel.Type.GROUP_DM, channel);
+	            	} else if (!(channel.getType()==Channel.Type.DM||channel.getType()==Channel.Type.GROUP_DM)) {
+	            		ChannelAdapter.of(channel);
 	            	} else return;
 	            	
-	            	if (((ChannelAdapter) adapter.object).shouldIgnoreUser()) return;
-		            
 	            	IChannelCase chcase = cases.get(mode.object);
 	            	if (chcase == null) return;
-	            	chcase.execute(message, (ChannelAdapter) adapter.object);
+	            	chcase.execute(message, madapter);
 	            });
         	} catch (Exception e) {
         		e.printStackTrace();
@@ -134,9 +139,7 @@ public class Main {
         client.login().block();
     }
     
-    private static void onRecount() {
-    	client.getGuilds().count().subscribe(c->{
-        	client.updatePresence(Presence.online(Activity.watching("spiders make webs ("+c+" server"+(c!=1?"s":"")+")"))).subscribe();
-        });
+    private static void onRecount(int c) {
+    	client.updatePresence(Presence.online(Activity.watching(c+" server"+(c!=1?"s":"")+" | WIP"))).subscribe();
     }
 }

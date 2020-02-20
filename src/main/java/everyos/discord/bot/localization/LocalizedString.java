@@ -1,5 +1,5 @@
 package everyos.discord.bot.localization;
 
 public enum LocalizedString {
-	HelpTitle, HelpCredits
+	HelpTitle, HelpCredits, NoSuchCommand, NoSuchGroup, ExtendedHelp, CommandHelp, NoSuchSubcommand
 }

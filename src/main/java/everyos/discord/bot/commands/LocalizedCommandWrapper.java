@@ -1,7 +1,7 @@
 package everyos.discord.bot.commands;
 
 import discord4j.core.object.entity.Message;
-import everyos.discord.bot.adapter.ChannelAdapter;
+import everyos.discord.bot.adapter.MessageAdapter;
 import everyos.discord.bot.localization.Localization;
 
 public class LocalizedCommandWrapper {
@@ -13,7 +13,8 @@ public class LocalizedCommandWrapper {
 		this.locale = locale;
 	}
 	
-	public void execute(Message message, ChannelAdapter adapter) {
-		command.execute(message, adapter, locale);
+	public void execute(Message message, MessageAdapter adapter, String argument) {
+        adapter.setTextLocale(locale);
+		command.execute(message, adapter, argument);
 	}
 }

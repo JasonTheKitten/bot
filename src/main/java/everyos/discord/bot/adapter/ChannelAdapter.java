@@ -1,19 +1,21 @@
 package everyos.discord.bot.adapter;
 
-import java.util.HashMap;
+import java.util.function.Consumer;
 
-import discord4j.core.object.entity.Channel.Type;
+import discord4j.core.object.entity.GuildChannel;
 import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.util.Snowflake;
+import discord4j.core.spec.EmbedCreateSpec;
 import everyos.discord.bot.Main;
 import everyos.discord.bot.filter.EveryoneFilter;
 import everyos.discord.bot.filter.Filter;
 import everyos.discord.bot.filter.FilterProvider;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizationProvider;
-import everyos.discord.bot.localization.LocalizedString;
+import everyos.discord.bot.standards.ChannelDocumentCreateStandard;
 import everyos.discord.bot.util.ObjectStore;
-import everyos.storage.database.functional.Procedure;
+import everyos.storage.database.DBCollection;
+import everyos.storage.database.OtherCase;
 
 public class ChannelAdapter {
 	private MessageChannel channel;
@@ -23,97 +25,154 @@ public class ChannelAdapter {
 	private Filter filter;
 	private String prefix;
 	
-	public ChannelAdapter(Type type, MessageChannel channel) {
-		this(type, channel, null);
-	}
-	public ChannelAdapter(Type type, MessageChannel channel, Snowflake snowflake) {
+	///
+	//These constructors should only be called by the "of" command, or internally
+	public ChannelAdapter(MessageChannel channel) {
+        this(channel.getId().asString());
 		this.channel = channel;
-		if (snowflake!=null) this.guildID = snowflake.asString();
-		this.channelID = channel.getId().asString();
-	}
+		onChannelSet();
+    }
+    public ChannelAdapter(String channelID) {
+        this.channelID = channelID;
+    }
+    ///
+
+    private void onChannelSet() {
+        if (channel instanceof GuildChannel) {
+            this.guildID = ((GuildChannel) channel).getGuildId().asString();
+        }
+    }
+
+    private void require(Consumer<ChannelAdapter> adapter) {
+        if (channel==null) {
+            Main.client.getChannelById(Snowflake.of(channelID)).subscribe(channel->{
+                this.channel = (MessageChannel) channel;
+                onChannelSet();
+                adapter.accept(this);
+            });
+            return;
+        }
+        adapter.accept(this);
+    }
+    
+    private void requireGuildID(Consumer<ChannelAdapter> adapter) {
+        if (guildID==null&&!(channel instanceof GuildChannel)) {
+            DBCollection collection = Main.db.collection("channels");
+            collection.getIfPresent(this.channelID, channelo->{
+                this.guildID = channelo.getObject().getOrDefaultString("guild", null);
+                if (this.guildID!=null) adapter.accept(this);
+                return this.guildID!=null;
+            }).elsedo(()->{
+                require(__->{
+                    if (this.guildID!=null)
+                        collection.getOrSet(this.channelID, ChannelDocumentCreateStandard.standard).getObject()
+                            .set("guild", this.guildID);
+                    adapter.accept(this);
+                });
+            });
+            return;
+        }
+        adapter.accept(this);
+    }
 	
-	public void send(String msg, Procedure after) {
-		channel.createMessage(msg).subscribe(message->{
+	public void send(String msg, Runnable after) {
+		require(adapter->adapter.channel.createMessage(msg).subscribe(message->{
 			if (after!=null) {
-				after.execute();
+				after.run();
 			}
-		});
+		}));
 	}
 	public void send(String msg) {
 		send(msg, null);
+    }
+    public void send(Consumer<? super EmbedCreateSpec> embed, Runnable after) {
+		require(adapter->adapter.channel.createEmbed(embed).subscribe(message->{
+			if (after!=null) {
+				after.run();
+			}
+		}));
+    }
+    public void send(Consumer<? super EmbedCreateSpec> embed) {
+		send(embed, null);
 	}
 	
-	public Filter getPreferredFilter() {
+	public OtherCase getPreferredFilter(Consumer<Filter> func) {
 		if (filter == null) {
-			Main.db.collection("channels").getIfPresent(channelID, channel -> {
-				String filterstr = channel.getObject().getOrDefaultString("filter", null);
-				if (filterstr!=null) filter = FilterProvider.of(filterstr);
+			return Main.db.collection("channels").getIfPresent(channelID, channel -> {
+                String filterstr = channel.getObject().getOrDefaultString("locale", null);
+                if (filter!=null) {
+                    filter = FilterProvider.of(filterstr);
+                    func.accept(filter);
+                }
 				return filter!=null;
-			}).elsedo(()->{
-				if (guildID!=null) {
-					Main.db.collection("guilds").getIfPresent(guildID, guildo->{
-						String filterstr = guildo.getObject().getOrDefaultString("filter", null);
-						if (filterstr!=null) filter = FilterProvider.of(filterstr);
-					});
-				}
-				return filter!=null;
-			}).elsedo(()->filter = EveryoneFilter.filter);
-		}
-		return this.filter;
-	}
+            });
+        }
+        func.accept(filter);
+        return new OtherCase(true);
+    }
 	
-	public String getPreferredPrefix() { //TODO: String[] getPreferredPrefixes() ?
-		if (filter == null) {
-			Main.db.collection("channels").getIfPresent(channelID, channel -> {
-				prefix = channel.getObject().getOrDefaultString("prefix", null);
+	public OtherCase getPreferredPrefix(Consumer<String> func) { //TODO: String[] getPreferredPrefixes() ?
+		if (prefix == null) {
+			return Main.db.collection("channels").getIfPresent(channelID, channel -> {
+				prefix = channel.getObject().getOrDefaultString("locale", null);
+                if (prefix!=null) func.accept(prefix);
 				return prefix!=null;
-			}).elsedo(()->{
-				if (guildID!=null) {
-					Main.db.collection("guilds").getIfPresent(guildID, guildo->{
-						prefix = guildo.getObject().getOrDefaultString("prefix", null);
-					});
-				}
-				return prefix!=null;
-			}).elsedo(()->prefix = "*");
-		}
-		return prefix;
+            });
+        }
+        func.accept(prefix);
+        return new OtherCase(true);
 	}
 	
-	public String formatTextLocale(LocalizedString label, HashMap<String, String> fillins) {
-		return formatTextLocale(getTextLocale(), label, fillins);
-	}
-	public String formatTextLocale(Localization locale, LocalizedString label, HashMap<String, String> fillins) {
-		ObjectStore rtn = new ObjectStore();
-		rtn.object = LocalizationProvider.localize(getTextLocale(), label);
-		fillins.forEach((k,v)->{
-			rtn.object = ((String) rtn.object).replace("${"+k+"}", v);
-		});
-		return ((String) rtn.object).replace("${#", "${"); //Just don't put hashtags in the fillin names
-	}
-	
-	public Localization getTextLocale() {
+	public OtherCase getTextLocale(Consumer<Localization> func) {
 		if (locale == null) {
-			Main.db.collection("channels").getIfPresent(channelID, channel -> {
+			return Main.db.collection("channels").getIfPresent(channelID, channel -> {
 				String localestr = channel.getObject().getOrDefaultString("locale", null);
-				if (localestr!=null) locale = LocalizationProvider.of(localestr);
+                if (localestr!=null) locale = LocalizationProvider.of(localestr);
+                if (locale!=null) func.accept(locale);
 				return locale!=null;
-			}).elsedo(()->{
-				if (guildID!=null) {
-					Main.db.collection("guilds").getIfPresent(guildID, guildo->{
-						String localestr = guildo.getObject().getOrDefaultString("locale", null);
-						if (localestr!=null) locale = LocalizationProvider.of(localestr);
-					});
-				}
-				return locale!=null;
-			}).elsedo(()->locale = Localization.en_US);
-		}
-		return this.locale;
+            });
+        }
+        func.accept(locale);
+        return new OtherCase(true);
 	}
 	public void setTextLocale(Localization locale) {
-		this.locale = locale;
+		this.locale = locale; //TODO: Save to Main.db
 	}
 	
 	public boolean shouldIgnoreUser() {
 		return false;
+    }
+    
+    public void getGuildAdapter(Consumer<GuildAdapter> func) {
+        requireGuildID(adapter->{
+            func.accept(GuildAdapter.of(guildID));
+        });
+    }
+	
+	public static ChannelAdapter of(MessageChannel channel) {
+		ObjectStore rtn = new ObjectStore();
+		Main.db.collection("channels").getIfPresent(channel.getId().asString(), channelo -> {
+			rtn.object = channelo.getMemoryOrNull("adapter");
+			return rtn.object!=null;
+		}).elsedo(()->{
+			rtn.object = Main.db.collection("channels").getOrSet(channel.getId().asString(), new ChannelDocumentCreateStandard(channel)).getMemoryOrNull("adapter");
+            //At this point, we assume ChannelDocumentCreateStandard has created an adapter for us
+            //If not, well...
+		});
+		
+		return (ChannelAdapter) rtn.object;
+	}
+	public static ChannelAdapter of(String channelID) {
+		ObjectStore rtn = new ObjectStore();
+		Main.db.collection("channels").getIfPresent(channelID, channelo -> {
+			rtn.object = channelo.getMemoryOrNull("adapter");
+			return rtn.object!=null;
+		}).elsedo(()->{
+            rtn.object = Main.db.collection("channels").getOrSet(channelID, ChannelDocumentCreateStandard.standard).getMemoryOrNull("adapter");
+            //At this point, we assume ChannelDocumentCreateStandard has created an adapter for us
+            //If not, well...
+		});
+		
+		return (ChannelAdapter) rtn.object;
 	}
 }

@@ -1,5 +1,5 @@
 # bot
-Bot (commonly nicknamed to Java Bot) is a Discord Bot written on the Discord4J framework.
+[New name to be revealed] is a Discord Bot written on the Discord4J framework.
 
 It provides a variety of features
 
@@ -9,7 +9,11 @@ It provides a variety of features
 
 * Basic moderation commands!
 
-* A currency system with daily currency and chat rewards!
+* Automoderation!
+
+* A currency system with daily rewards and chat rewards!
+
+* Internationalization!
 
 * One word sentence! Makes managing one word sentence games easy!
 
