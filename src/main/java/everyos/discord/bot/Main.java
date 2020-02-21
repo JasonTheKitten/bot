@@ -24,6 +24,8 @@ import everyos.discord.bot.adapter.ChannelAdapter;
 import everyos.discord.bot.adapter.MessageAdapter;
 import everyos.discord.bot.channelcase.DefaultChannelCase;
 import everyos.discord.bot.channelcase.IChannelCase;
+import everyos.discord.bot.standards.GuildDocumentCreateStandard;
+import everyos.discord.bot.standards.MemberDocumentCreateStandard;
 import everyos.discord.bot.util.FileUtil;
 import everyos.discord.bot.util.ObjectStore;
 import everyos.storage.database.DBDocument;
@@ -105,19 +107,18 @@ public class Main {
 	            if (message.getType()!=Message.Type.DEFAULT) return;
 	            
 	            MessageAdapter madapter = MessageAdapter.of(message);
-	            if (madapter.shouldIgnoreUser()) return;
 	            
 	            message.getChannel().subscribe(channel->{
 	            	ObjectStore mode = new ObjectStore("default");
 	            	if (channel.getType()==Channel.Type.GUILD_TEXT) {
 			            messageevent.getGuildId().ifPresent(snowflake->{
-			                DBDocument guild = db.collection("guilds").getOrSet(snowflake.asString(), dbdoc->{});
+			                DBDocument guild = db.collection("guilds").getOrSet(snowflake.asString(), GuildDocumentCreateStandard.standard);
 			            	db.collection("channels").getIfPresent(message.getChannelId().asString(), channelo->{
 			            		mode.object = channelo.getObject().getOrDefaultString("type", (String) mode.object);
 			            	});
 			            	message.getAuthor().ifPresent(user->{
-			            		DBDocument usero = guild.subcollection("users").getOrSet(user.getId().asString(), dbdoc->{});
-			            		usero.getObject().set("feth", usero.getObject().getOrDefaultInt("feth", 0)+1);
+			            		DBDocument usero = guild.subcollection("members").getOrSet(user.getId().asString(), MemberDocumentCreateStandard.standard);
+			            		usero.getObject().set("feth", usero.getObject().getOrDefaultInt("feth", 0)+5);
 			            		usero.save();
 			            	});
 			            });

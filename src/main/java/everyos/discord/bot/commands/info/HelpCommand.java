@@ -19,6 +19,7 @@ public class HelpCommand implements ICommand {
         defHelpCommand.def = true;
     }
 
+    @SuppressWarnings("unused")
     private boolean def = false;
 
     @Override public void execute(Message message, MessageAdapter adapter, final String argument) {

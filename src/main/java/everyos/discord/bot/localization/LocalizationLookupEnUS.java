@@ -17,6 +17,15 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
                 return "${command} - Extended Help";
             case CommandHelp:
                 return "help";
+            case CurrentBalance:
+                return "Your current balance is ${feth} feth, uwu";
+            case ZeroBalance:
+                return "Your wallet is empty, --- sad ):";
+            case ReceivedDaily:
+                return "You got ${feth} feth uwu";
+            case NoDaily:
+                return "It's not quite time, --- sad ):\n"+
+                    "Just another ${h} hours, ${m} minutes, and ${s} seconds though!";
         }
         return "???";
 	}
