@@ -14,10 +14,11 @@ import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.guild.GuildCreateEvent;
 import discord4j.core.event.domain.guild.GuildDeleteEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
+import discord4j.core.event.domain.lifecycle.ReconnectEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Channel;
-import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.User;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import everyos.discord.bot.adapter.ChannelAdapter;
@@ -34,13 +35,17 @@ import everyos.storage.database.Database;
 public class Main {
 	public static DiscordClient client;
 	public static Database db;
+	public static long uptime = System.currentTimeMillis();
+	public static long cuptime = 0;
     public static void main(String[] args) {
+    	//TODO: Cut back on nesting some
         System.out.println("Command is running");
 
         String clientID;
         String clientSecret;
         
         AtomicInteger servercount = new AtomicInteger();
+        System.out.println(FileUtil.getAppData(Constants.keysFile));
         File keys = new File(FileUtil.getAppData(Constants.keysFile));
         if (args.length >= 2) {
             clientID = args[0];
@@ -58,6 +63,7 @@ public class Main {
                 clientSecret = s.next();
                 s.close();
             } catch (Exception e) {
+            	e.printStackTrace();
                 System.out.println("Credentials prompt failed");
                 return;
             }
@@ -90,7 +96,11 @@ public class Main {
 				clientID + "&scope=bot&permissions=8");
 		    servercount.set(0);
 		    onRecount(0); //TODO: Discord is rate limiting this, put on a timer
+		    cuptime = System.currentTimeMillis();
 		});
+        dispatcher.on(ReconnectEvent.class).subscribe(e -> {
+        	cuptime = System.currentTimeMillis();
+        });
         dispatcher.on(GuildCreateEvent.class).subscribe(e -> {
         	onRecount(servercount.incrementAndGet());
         });
@@ -100,14 +110,14 @@ public class Main {
 
         dispatcher.on(MessageCreateEvent.class).subscribe(messageevent->{
         	try {
-	            Member invoker = messageevent.getMember().get();
-	            if (invoker==null||invoker.isBot()) return;
-	            
-	            Message message = messageevent.getMessage();
-	            if (message.getType()!=Message.Type.DEFAULT) return;
+                Message message = messageevent.getMessage();
+                if (message.getType()!=Message.Type.DEFAULT) return;
+                
+                User invoker = message.getAuthor().orElse(null);
+                if (invoker==null||invoker.isBot()) return;
 	            
 	            MessageAdapter madapter = MessageAdapter.of(message);
-	            
+                
 	            message.getChannel().subscribe(channel->{
 	            	ObjectStore mode = new ObjectStore("default");
 	            	if (channel.getType()==Channel.Type.GUILD_TEXT) {
@@ -122,12 +132,12 @@ public class Main {
 			            		usero.save();
 			            	});
 			            });
-	            	} else if (!(channel.getType()==Channel.Type.DM||channel.getType()==Channel.Type.GROUP_DM)) {
+	            	} else if (channel.getType()==Channel.Type.DM||channel.getType()==Channel.Type.GROUP_DM) {
 	            		ChannelAdapter.of(channel);
 	            	} else return;
 	            	
-	            	IChannelCase chcase = cases.get(mode.object);
-	            	if (chcase == null) return;
+                    IChannelCase chcase = cases.get(mode.object);
+                    if (chcase == null) return;
 	            	chcase.execute(message, madapter);
 	            });
         	} catch (Exception e) {
@@ -136,7 +146,6 @@ public class Main {
         });
 
         Runtime.getRuntime().addShutdownHook(new Thread(()->client.logout().subscribe()));
-        
         client.login().block();
     }
     

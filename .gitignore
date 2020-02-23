@@ -10,4 +10,5 @@ bin
 #Ignore annoying files and config files
 .theia
 *.config
+.vscode
 src/main/resources/googleauth.json

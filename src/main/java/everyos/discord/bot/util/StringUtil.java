@@ -46,6 +46,6 @@ public class StringUtil {
     public static String split2(@Nonnull String str, @Nonnull String spl) {
         str = str.replaceAll(spl+"+", spl);
         if (str.indexOf(spl)==-1) return "";
-        return sub(str, str.indexOf(spl)+1);
+        return sub(str, str.indexOf(spl)+1, str.length());
     }
 }

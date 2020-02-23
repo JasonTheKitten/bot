@@ -15,7 +15,7 @@ import everyos.storage.database.DBDocument;
 import everyos.storage.database.OtherCase;
 
 public class GuildAdapter implements IAdapter {
-    private String guildID;
+    String guildID;
     private Guild guild;
     private Localization locale;
     private Filter filter;

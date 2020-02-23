@@ -5,7 +5,9 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 
+import discord4j.core.object.entity.GuildChannel;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Snowflake;
 import everyos.discord.bot.Main;
 import everyos.discord.bot.localization.Localization;
@@ -18,8 +20,8 @@ public class MessageAdapter implements IAdapter {
     public String messageID;
 
     private String channelID;
-    private String guildID;
     private Message message;
+    private String guildID;
     private Localization locale;
 
     private MessageAdapter(Message message) {
@@ -42,7 +44,16 @@ public class MessageAdapter implements IAdapter {
     }
 
     private void getGuildAdapter(Consumer<GuildAdapter> func) {
-        require(adapter -> func.accept(GuildAdapter.of(adapter.guildID)));
+    	if (guildID!=null) {
+    		func.accept(GuildAdapter.of(guildID)); return;
+    	}
+        require(adapter -> {
+    		message.getChannel().subscribe(channel->{
+    			if (channel instanceof GuildChannel) {
+	        		func.accept(GuildAdapter.of(((GuildChannel) channel).getGuildId().asString()));
+    			} else func.accept(null);
+        	});
+        });
     }
 
     private void require(Consumer<MessageAdapter> after) {
@@ -53,6 +64,17 @@ public class MessageAdapter implements IAdapter {
             after.accept(this);
         });
     };
+    
+    public void getSenderID(Consumer<String> func) {
+    	require(madapter->{
+    		User author = message.getAuthor().get();
+    		if (author == null) {
+    			func.accept("");
+    		} else {
+    			func.accept(author.getId().asString());
+    		}
+    	});
+    }
 
     public static MessageAdapter of(Message message) {
         return new MessageAdapter(message);
@@ -67,6 +89,7 @@ public class MessageAdapter implements IAdapter {
     }
 
     public void getTextLocale(@Nonnull Consumer<Localization> func) {
+    	//TODO: Users should have their own text locales?
         if (locale != null) {
             func.accept(locale);
             return;
@@ -76,6 +99,11 @@ public class MessageAdapter implements IAdapter {
                 func.accept(locale);
             }).elsedo(() -> {
                 getGuildAdapter(gadapter -> {
+                	if (gadapter==null) {
+                		locale = Localization.en_US;
+                        func.accept(locale);
+                        return;
+                	}
                     gadapter.getTextLocale(locale -> {
                         func.accept(locale);
                     }).elsedo(() -> {
@@ -92,11 +120,9 @@ public class MessageAdapter implements IAdapter {
             func.accept(formatTextLocale(locale, label, fillins));
         });
     }
-
     public void formatTextLocale(LocalizedString label, Consumer<String> func) {
         formatTextLocale(label, null, func);
     }
-
     public String formatTextLocale(Localization locale, @Nonnull LocalizedString label, HashMap<String, String> fillins) {
         ObjectStore rtn = new ObjectStore();
         rtn.object = LocalizationProvider.localize(locale, label);
@@ -106,7 +132,7 @@ public class MessageAdapter implements IAdapter {
             });
         return ((String) rtn.object).replace("${#", "${"); // Just don't put hashtags in the fillin names
     }
-
+    
     public void getUserAdapter(Consumer<UserAdapter> func) {
         require(adapter->{
             adapter.message.getAuthor().ifPresent(author->{
@@ -114,7 +140,23 @@ public class MessageAdapter implements IAdapter {
             });
         });
     }
-
+    public void getMemberAdapter(Consumer<MemberAdapter> func) {
+    	getUserAdapter(uadapter->
+    		getTopEntityAdapter(gsadapter->
+    			func.accept(MemberAdapter.of(gsadapter, uadapter))));
+	}
+    public void getTopEntityAdapter(Consumer<IAdapter> func) {
+    	getUserAdapter(uadapter->{
+	    	getGuildAdapter(gadapter->{
+	    		if (gadapter == null) {
+	    			getChannelAdapter(cadapter->func.accept(cadapter));
+	    			return;
+	    		}
+	    		func.accept(gadapter);
+	    	});
+    	});
+    }
+    
     @Override public DBDocument getDocument() {
         return null; //Messages don't (currently) have an attached document
     }

@@ -23,12 +23,14 @@ public class DBDocument {
     private String name;
     private JsonObject json;
     private DBObject dbobject;
+    private HashMap<String, DBCollection> cache;
     private HashMap<String, Object> memory;
 
     protected DBDocument(String name, String path) {
         this.path = path;
         this.file = path + ".json";
         this.name = name;
+        this.cache = new HashMap<String, DBCollection>();
 
         File fo = new File(file);
         if (fo.exists()) {
@@ -46,7 +48,8 @@ public class DBDocument {
     }
 
     public DBCollection subcollection(@Nonnull String collection) {
-        return new DBCollection(FileUtil.join(path, collection));
+        if (!cache.containsKey(collection)) cache.put(collection, new DBCollection(FileUtil.join(path, collection)));
+        return cache.get(collection);
     }
 
     public DBObject getObject() {

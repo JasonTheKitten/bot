@@ -1,5 +1,9 @@
 package everyos.discord.bot.adapter;
 
+import java.util.function.Consumer;
+
+import discord4j.core.object.entity.User;
+import discord4j.core.object.util.Snowflake;
 import everyos.discord.bot.Main;
 import everyos.discord.bot.standards.UserDocumentCreateStandard;
 import everyos.discord.bot.util.ObjectStore;
@@ -8,13 +12,34 @@ import everyos.storage.database.DBDocument;
 
 public class UserAdapter implements IAdapter {
     String uid;
+    User user;
 
+    public UserAdapter(User user) {
+    	this(user.getId().asString());
+        this.user = user;
+    }
     public UserAdapter(String uid) {
         this.uid = uid;
     }
+    
+    public void require(Consumer<UserAdapter> func) {
+    	if (this.user==null) {
+    		Main.client.getUserById(Snowflake.of(uid)).subscribe(user->{
+    			this.user = user;
+    			func.accept(this);
+    		});
+    		return;
+    	}
+		func.accept(this);
+	}
 
-    @Override
-    public DBDocument getDocument() {
+    public void getUsername(Consumer<String> func) {
+    	require(uadapter->{
+    		func.accept(user.getUsername());
+    	});
+    }
+    
+    @Override public DBDocument getDocument() {
         return Main.db.collection("users").getOrSet(uid, UserDocumentCreateStandard.standard);
     }
 
