@@ -46,7 +46,7 @@ public class CurrencyCommand implements ICommand {
         
 	    adapter.getChannelAdapter(cadapter -> {
 	        adapter.getTextLocale(locale->{
-	        	ICommand command = lcommands.get(locale).get(cmd);
+	        	ICommand command = getSubcommands(locale).get(cmd);
 	            if (command==null) {
 	                adapter.formatTextLocale(LocalizedString.NoSuchSubcommand, str->cadapter.send(str));
 	                return;

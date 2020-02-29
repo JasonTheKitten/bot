@@ -1,6 +1,7 @@
 package everyos.storage.database;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
@@ -16,6 +17,9 @@ public class DBObject {
 	JsonObject json;
 	protected DBObject(JsonObject json) {
 		this.json = json;
+	}
+	public DBObject() {
+		this.json = new JsonObject();
 	}
 	
 	public String getOrDefaultString(@Nonnull String name, String def) {
@@ -95,6 +99,32 @@ public class DBObject {
     	if (!json.has(name)) json.addProperty(name, def.getAsBoolean());
     	return json.get(name).getAsBoolean();
     }
+	
+	public DBObject getOrDefaultObject(@Nonnull String name, DBObject def) {
+    	if (json.has(name)) return new DBObject(json.get(name).getAsJsonObject());
+    	return def;
+    }
+	public DBObject getOrSetObject(@Nonnull String name, DBObject def) {
+    	if (!json.has(name)) json.add(name, def.json);
+    	return new DBObject(json.get(name).getAsJsonObject());
+    }
+	public DBObject getOrCreateObject(@Nonnull String name, Supplier<DBObject> def) {
+    	if (!json.has(name)) json.add(name, def.get().json);
+    	return new DBObject(json.get(name).getAsJsonObject());
+    }
+	
+	public DBArray getOrDefaultArray(@Nonnull String name, DBArray def) {
+    	if (json.has(name)) return new DBArray(json.get(name).getAsJsonArray());
+    	return def;
+    }
+	public DBArray getOrSetArray(@Nonnull String name, DBArray def) {
+    	if (!json.has(name)) json.add(name, def.json);
+    	return new DBArray(json.get(name).getAsJsonArray());
+    }
+	public DBArray getOrCreateArray(@Nonnull String name, Supplier<DBArray> def) {
+    	if (!json.has(name)) json.add(name, def.get().json);
+    	return new DBArray(json.get(name).getAsJsonArray());
+    }
 
 	public void set(String key, Number i) {
 		json.addProperty(key, i);
@@ -104,5 +134,22 @@ public class DBObject {
 	}
 	public void set(String key, boolean bool) {
 		json.addProperty(key, bool);
+	}
+	
+	public DBObject createObject(String key, Consumer<DBObject> func) {
+		DBObject obj = new DBObject();
+		func.accept(obj);
+		json.add(key, obj.json);
+		return obj;
+	}
+	public DBArray createArray(String key, Consumer<DBArray> func) {
+		DBArray arr = new DBArray();
+		func.accept(arr);
+		json.add(key, arr.json);
+		return arr;
+	}
+	
+	public boolean has(String key) {
+		return json.has(key);
 	}
 }

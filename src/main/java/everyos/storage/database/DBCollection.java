@@ -1,6 +1,7 @@
 package everyos.storage.database;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -77,4 +78,16 @@ public class DBCollection {
     	if (collectionfi.exists()) collectionfi.delete();
     	cache.remove(document);
     }
+
+	public DBDocument[] query(Function<DBDocument, Boolean> func) {
+		ArrayList<DBDocument> matches = new ArrayList<DBDocument>();
+		File f = new File(path);
+		for (String n:f.list()) {
+			if (n.endsWith(".json")) {
+				DBDocument doc = getOrNull(n.substring(0, n.length()-5));
+				if (doc!=null&&func.apply(doc)) matches.add(doc);
+			}
+		}
+		return matches.toArray(new DBDocument[matches.size()]);
+	}
 }

@@ -18,6 +18,8 @@ dependencies {
     implementation 'com.google.api-client:google-api-client:1.30.5'
     implementation 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
     implementation 'com.google.apis:google-api-services-youtube:v3-rev221-1.25.0'
+    implementation 'com.google.cloud:google-cloud-vision:1.99.1'
+    implementation 'xyz.downgoon:snowflake:1.0.0'
 }
 
 apply plugin: 'com.github.johnrengelman.shadow'

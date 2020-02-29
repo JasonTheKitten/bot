@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import discord4j.core.DiscordClient;
@@ -23,6 +24,7 @@ import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import everyos.discord.bot.adapter.ChannelAdapter;
 import everyos.discord.bot.adapter.MessageAdapter;
+import everyos.discord.bot.channelcase.ChatLinkChannelCase;
 import everyos.discord.bot.channelcase.DefaultChannelCase;
 import everyos.discord.bot.channelcase.IChannelCase;
 import everyos.discord.bot.standards.GuildDocumentCreateStandard;
@@ -45,11 +47,12 @@ public class Main {
         String clientSecret;
         
         AtomicInteger servercount = new AtomicInteger();
+        AtomicBoolean shutdown = new AtomicBoolean();
         System.out.println(FileUtil.getAppData(Constants.keysFile));
         File keys = new File(FileUtil.getAppData(Constants.keysFile));
         if (args.length >= 2) {
             clientID = args[0];
-            clientSecret = args[0];
+            clientSecret = args[1];
         } else {
             args = new String[2];
 
@@ -85,7 +88,20 @@ public class Main {
         
         HashMap<String, IChannelCase> cases = new HashMap<String, IChannelCase>();
         cases.put("default", new DefaultChannelCase());
-
+        cases.put("chatlink", new ChatLinkChannelCase());
+        
+        new Thread(()->{
+    		int oldRecount = 0;
+        	while (!shutdown.get()) {
+        		try {
+        			Thread.sleep(5000); //TODO: Use System.currentTimeMillis instead
+        		} catch (Exception e) {e.printStackTrace();}
+        		if (oldRecount!=servercount.get()) {
+        			oldRecount = servercount.get();
+        			onRecount(oldRecount);
+        		}
+        	}
+        }).start();
 
         final DiscordClient client = new DiscordClientBuilder(clientSecret).build();
         Main.client = client;
@@ -95,17 +111,17 @@ public class Main {
 			System.out.println("Bot running at https://discordapp.com/oauth2/authorize?&client_id=" +
 				clientID + "&scope=bot&permissions=8");
 		    servercount.set(0);
-		    onRecount(0); //TODO: Discord is rate limiting this, put on a timer
+		    onWakeup();
 		    cuptime = System.currentTimeMillis();
 		});
         dispatcher.on(ReconnectEvent.class).subscribe(e -> {
         	cuptime = System.currentTimeMillis();
         });
         dispatcher.on(GuildCreateEvent.class).subscribe(e -> {
-        	onRecount(servercount.incrementAndGet());
+        	servercount.incrementAndGet();
         });
         dispatcher.on(GuildDeleteEvent.class).subscribe(e -> {
-        	onRecount(servercount.decrementAndGet());
+        	servercount.decrementAndGet();
         });
 
         dispatcher.on(MessageCreateEvent.class).subscribe(messageevent->{
@@ -145,11 +161,17 @@ public class Main {
         	}
         });
 
-        Runtime.getRuntime().addShutdownHook(new Thread(()->client.logout().subscribe()));
+        Runtime.getRuntime().addShutdownHook(new Thread(()->{
+        	client.logout().subscribe();
+        	shutdown.set(true);
+        }));
         client.login().block();
     }
     
+    private static void onWakeup() {
+    	client.updatePresence(Presence.online(Activity.playing("sleepyhead"))).subscribe();
+    }
     private static void onRecount(int c) {
-    	client.updatePresence(Presence.online(Activity.watching(c+" server"+(c!=1?"s":"")+" | WIP"))).subscribe();
+    	client.updatePresence(Presence.online(Activity.watching(c+" server"+(c!=1?"s":"")+" | --- help | ---!"))).subscribe();
     }
 }

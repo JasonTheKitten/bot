@@ -23,7 +23,6 @@ public class MemberDocumentCreateStandard implements Consumer<DBDocument> {
     	padapter.getDocument().subcollection("members").getIfPresent(memberID, gdoc->{
     		func.accept(MemberAdapter.of(padapter, memberID));
     	}).elsedo(()->{
-    		System.out.println(memberID);
     		Mono<User> mono = Main.client.getUserById(Snowflake.of(memberID));
     		mono.subscribe(user->{
     			func.accept(MemberAdapter.of(padapter, memberID));

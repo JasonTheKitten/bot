@@ -52,11 +52,11 @@ public class HelpCommand implements ICommand {
 		                return;
 		            }
 		        } else if (commands == null) {
-		            cadapter.send(embed->{
+		            cadapter.sendEmbed(embed->{
 		                embed.setTitle(adapter.formatTextLocale(locale, LocalizedString.ExtendedHelp, FillinUtil.of("command", argument)));
 		            });
 		        } else {
-		            cadapter.send(embed->{
+		            cadapter.sendEmbed(embed->{
 		                embed.setTitle(adapter.formatTextLocale(locale, LocalizedString.CommandHelp, FillinUtil.of("command", argument)));
 		            });
 		        }

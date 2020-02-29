@@ -6,7 +6,9 @@ import discord4j.core.object.entity.Message;
 import everyos.discord.bot.adapter.MessageAdapter;
 import everyos.discord.bot.commands.ICommand;
 import everyos.discord.bot.commands.LocalizedCommandWrapper;
+import everyos.discord.bot.commands.channels.ChatLinkCommand;
 import everyos.discord.bot.commands.fun.CurrencyCommand;
+import everyos.discord.bot.commands.info.PingCommand;
 import everyos.discord.bot.commands.info.UptimeCommand;
 import everyos.discord.bot.commands.moderation.BanCommand;
 import everyos.discord.bot.commands.moderation.KickCommand;
@@ -20,12 +22,16 @@ public class DefaultChannelCase implements IChannelCase {
 		ICommand banCommand = new BanCommand();
 		ICommand kickCommand = new KickCommand();
 		ICommand uptimeCommand = new UptimeCommand();
+		ICommand chatlinkCommand = new ChatLinkCommand();
+		ICommand pingCommand = new PingCommand();
 		
 		commands = new HashMap<String, LocalizedCommandWrapper>();
 		commands.put("feth", new LocalizedCommandWrapper(currencyCommand, Localization.en_US));
 		commands.put("ban", new LocalizedCommandWrapper(banCommand, Localization.en_US));
 		commands.put("kick", new LocalizedCommandWrapper(kickCommand, Localization.en_US));
 		commands.put("uptime", new LocalizedCommandWrapper(uptimeCommand, Localization.en_US));
+		commands.put("link", new LocalizedCommandWrapper(chatlinkCommand, Localization.en_US));
+		commands.put("ping", new LocalizedCommandWrapper(pingCommand, Localization.en_US));
 	}
 	
 	@Override public void execute(Message message, MessageAdapter adapter) {

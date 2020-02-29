@@ -46,6 +46,20 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 			case Uptime:
 				return "Total uptime is ${h} hours, ${m} minutes, and ${s} seconds\n"+
 					"Connection uptime is ${ch} hours, ${cm} minutes, and ${cs} seconds";
+			case ChannelAlreadyInUse:
+				return "Warning: This channel is already in use";
+			case RatedImage:
+				return "Posted an innapropriate image";
+			case Ping:
+				return "Ping!\n2-way bot latency is ${ping}ms";
+			case Info:
+				return "Info";
+			case ChatLinkCreate:
+				return "Created a new chatlink group.\nRun `link ${id}` in another server to connect.";
+			case ChatLinkOOBE:
+				return "Placeholder text here";
+			case UnfinishedChatLinkConnection:
+				return "Please accept the chat link connection as a chat link admin!";
         }
         return "???";
 	}

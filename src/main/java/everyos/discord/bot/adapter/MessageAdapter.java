@@ -132,6 +132,9 @@ public class MessageAdapter implements IAdapter {
             });
         return ((String) rtn.object).replace("${#", "${"); // Just don't put hashtags in the fillin names
     }
+    public String formatTextLocale(Localization locale, @Nonnull LocalizedString label) {
+    	return formatTextLocale(locale, label, null);
+    }
     
     public void getUserAdapter(Consumer<UserAdapter> func) {
         require(adapter->{

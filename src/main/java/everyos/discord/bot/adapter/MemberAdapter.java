@@ -58,7 +58,7 @@ public class MemberAdapter implements IAdapter {
         func.accept(UserAdapter.of(uid));
     }
     
-    public void hasPermission(Permission permission, Consumer<Boolean> func, Runnable onerror) {
+    public void hasPermission(Permission permission, Consumer<Boolean> func) {
     	if (padapter instanceof ChannelAdapter) {
     		func.accept(true); return;
     	}
@@ -68,13 +68,18 @@ public class MemberAdapter implements IAdapter {
 	    			func.accept(true);
 	    		} else {
 	    			//TODO: Internal permissions system HERE
-	    			System.out.println("d");
 	    			func.accept(false);
 	    		}
 	    	});
     	});
     }
-    public boolean canCalculatePermissions() {return true;}
+    public void checkHigherThan(MemberAdapter member, Consumer<Boolean> func) {
+    	require(madapter->{
+    		member.require(memadapter->{
+    			madapter.member.isHigher(memadapter.member).subscribe(func);
+    		});
+    	});
+    }
 
     @Override public DBDocument getDocument() {
         return padapter.getDocument().subcollection("members").getOrSet(uid, MemberDocumentCreateStandard.standard);
@@ -108,9 +113,9 @@ public class MemberAdapter implements IAdapter {
 	}
 
 	public void ban(Consumer<Boolean> func) {
-		member.ban(spec->{}).subscribe(voi->func.accept(true), thro->func.accept(false));
+		require(madapter->member.ban(spec->{}).subscribe(voi->func.accept(true), thro->func.accept(false)));
 	}
 	public void kick(Consumer<Boolean> func) {
-		member.kick().subscribe(voi->func.accept(true), thro->func.accept(false));
+		require(madapter->member.kick().subscribe(voi->func.accept(true), thro->func.accept(false)));
 	}
 }

@@ -3,9 +3,11 @@ package everyos.discord.bot.adapter;
 import java.util.function.Consumer;
 
 import discord4j.core.object.entity.GuildChannel;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.core.spec.MessageCreateSpec;
 import everyos.discord.bot.Main;
 import everyos.discord.bot.filter.Filter;
 import everyos.discord.bot.filter.FilterProvider;
@@ -77,20 +79,24 @@ public class ChannelAdapter implements IAdapter {
         }
         adapter.accept(this);
     }
+    
+    public String getID() {
+		return channelID;
+	}
 
     public void send(String msg, Runnable after) {
-        require(adapter -> adapter.channel.createMessage(msg).subscribe(message -> {
-            if (after != null) {
-                after.run();
-            }
-        }));
+        require(adapter -> adapter.channel.createMessage(msg).subscribe(message -> after.run()));
+    }
+    
+    public void send(String msg, Consumer<Message> after) {
+        require(adapter -> adapter.channel.createMessage(msg).subscribe(message -> after.accept(message)));
     }
 
     public void send(String msg) {
-        send(msg, null);
+        send(msg, ()->{});
     }
 
-    public void send(Consumer<? super EmbedCreateSpec> embed, Runnable after) {
+    public void sendEmbed(Consumer<EmbedCreateSpec> embed, Runnable after) {
         require(adapter -> adapter.channel.createEmbed(embed).subscribe(message -> {
             if (after != null) {
                 after.run();
@@ -98,9 +104,20 @@ public class ChannelAdapter implements IAdapter {
         }));
     }
 
-    public void send(Consumer<? super EmbedCreateSpec> embed) {
-        send(embed, null);
+    public void sendEmbed(Consumer<EmbedCreateSpec> embed) {
+        sendEmbed(embed, null);
     }
+    
+    public void send(Consumer<MessageCreateSpec> mcs, Runnable after) {
+    	require(adapter -> adapter.channel.createMessage(mcs).subscribe(message -> {
+            if (after != null) {
+                after.run();
+            }
+        }));
+	}
+    public void send(Consumer<MessageCreateSpec> mcs) {
+		send(mcs, null);
+	}
 
     public OtherCase getPreferredFilter(Consumer<Filter> func) {
         if (filter == null) {

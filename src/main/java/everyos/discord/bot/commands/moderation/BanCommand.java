@@ -50,9 +50,16 @@ public class BanCommand implements ICommand {
 					adapter.getTopEntityAdapter(teadapter->
 						ids.forEach(v->{
 							MemberDocumentCreateStandard.ifExists(teadapter, v, bmadapter->{
-								bmadapter.ban(successb->{
-									success.object = ((Boolean) success.object)&&successb;
-									promise.resolve();
+								madapter.checkHigherThan(madapter, ht->{
+									if (!ht) {
+										success.object = false;
+										promise.resolve();
+										return;
+									}
+									bmadapter.ban(successb->{
+										success.object = ((Boolean) success.object)&&successb;
+										promise.resolve();
+									});
 								});
 							}, ()->{
 								success.object = false;
@@ -60,7 +67,7 @@ public class BanCommand implements ICommand {
 							});
 						})
 					);
-				}, ()->{});
+				});
 			})
 		);
 	}
