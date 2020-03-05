@@ -14,5 +14,8 @@ public class Promise {
     	resolvers--;
         if (resolvers<=0&&ready) runnable.run();
     }
-    public void ready(){ready=true;}
+    public void ready(){
+        ready=true;
+        if (resolvers<=0) runnable.run();
+    }
 }

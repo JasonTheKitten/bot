@@ -35,7 +35,7 @@ public class MemberAdapter implements IAdapter {
     	Main.client.getMemberById(Snowflake.of(((GuildAdapter) padapter).guildID), Snowflake.of(uid)).subscribe(member->{
     		this.member = member;
     		func.accept(this);
-    	});
+    	}, e->{func.accept(this);});
     }
     
     public String getUserID() {

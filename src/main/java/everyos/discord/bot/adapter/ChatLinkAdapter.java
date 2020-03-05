@@ -17,13 +17,17 @@ public class ChatLinkAdapter implements IAdapter {
 	public void forward(String cid, String msg) {
 		DBArray arr = getDocument().getObject().getOrCreateArray("links", ()->new DBArray());
 		arr.forEach(i->{
-			ChannelAdapter.of(arr.getString(i)).send(msg);
+			String fcid = arr.getString(i);
+            if (!fcid.equals(cid))
+			    ChannelAdapter.of(fcid).send(msg);
 		});
 	}
 	public void forward(String cid, Consumer<MessageCreateSpec> mcs) {
-		DBArray arr = getDocument().getObject().getOrCreateArray("links", ()->new DBArray());
+        DBArray arr = getDocument().getObject().getOrCreateArray("links", ()->new DBArray());
 		arr.forEach(i->{
-			ChannelAdapter.of(arr.getString(i)).send(mcs);
+            String fcid = arr.getString(i);
+            if (!fcid.equals(cid))
+			    ChannelAdapter.of(fcid).send(mcs);
 		});
 	}
 

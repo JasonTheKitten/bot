@@ -6,6 +6,7 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 
 import discord4j.core.object.util.Snowflake;
+import everyos.discord.bot.Main;
 import everyos.discord.bot.util.StringUtil;
 import everyos.storage.database.OtherCase;
 
@@ -77,10 +78,26 @@ public class ArgumentParser {
     }
 	public boolean isEmpty() {
 		return argument.trim().isEmpty();
-	}
+    }
+    
+    public String toString() { return argument; }
 	
-	
+    
+    private static String getFromPing(@Nonnull String entry) {
+        ArgumentParser ap = new ArgumentParser(entry);
+        if (ap.couldBeUserID()) {
+            String id = ap.eatUserID();
+            if (id.equals(Main.clientID)) return ap.toString();
+        }
+        return null;
+    }
+    public static boolean isDirectPing(@Nonnull String entry) {
+        String res = getFromPing(entry);
+        return res!=null&&res.isEmpty();
+    }
 	public static String getIfPrefix(@Nonnull String entry, @Nonnull String[] prefixes) {
+        String fromPing = getFromPing(entry);
+        if (fromPing!=null) return fromPing;
 		for (int i=0; i<prefixes.length; i++) {
 			String prefix = prefixes[i];
 			if (entry.startsWith(prefix)) return StringUtil.sub(entry, prefix.length());

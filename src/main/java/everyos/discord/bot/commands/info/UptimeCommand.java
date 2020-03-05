@@ -14,11 +14,9 @@ import everyos.discord.bot.util.TimeUtil;
 
 public class UptimeCommand implements ICommand {
 	@Override public void execute(Message message, MessageAdapter adapter, String argument) {
-		String pt1; String pt2;
-		
 		long m = System.currentTimeMillis();
 		long uptime = m - Main.uptime;
-		long cuptime = m - Main.cuptime;
+		long cuptime = m - Main.cuptime.get();
 		
 		String hours = String.valueOf(TimeUtil.getHours(uptime, false));
     	String minutes = String.valueOf(TimeUtil.getMinutes(uptime, true));
@@ -30,7 +28,7 @@ public class UptimeCommand implements ICommand {
     	
     	adapter.getChannelAdapter(cadapter->
     		adapter.formatTextLocale(LocalizedString.Uptime, 
-    			FillinUtil.of("h", hours, "m", minutes, "s", seconds, "ch", chours, "cm", minutes, "cs", cseconds), 
+    			FillinUtil.of("h", hours, "m", minutes, "s", seconds, "ch", chours, "cm", cminutes, "cs", cseconds), 
     			str->cadapter.send(str))
     	);
 	}

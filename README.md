@@ -1,7 +1,7 @@
 # bot
 [New name to be revealed] is a Discord Bot written on the Discord4J framework.
 
-It provides a variety of features
+Still rewriting, but it will provide a variety of features
 
 * Chat Linking: Link chat channels across multiple servers!
 
@@ -11,15 +11,13 @@ It provides a variety of features
 
 * Automoderation!
 
-* A currency system with daily rewards and chat rewards!
+* A currency system with daily rewards, chat rewards, and vote rewards!
 
 * Internationalization!
 
 * One word sentence! Makes managing one word sentence games easy!
 
 * Suggestion channels! Converts a suggestion to an embed with voting reactions!
-
-* Style roles! Once enabled, users can add their own colored roles!
 
 The following features are planned:
 

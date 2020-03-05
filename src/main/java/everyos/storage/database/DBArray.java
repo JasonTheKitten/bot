@@ -5,11 +5,12 @@ import java.util.function.IntConsumer;
 import javax.annotation.Nonnull;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonPrimitive;
 
 public class DBArray {
 	protected JsonArray json;
 	protected DBArray(JsonArray json) {
-		this.json = json;
+        this.json = json;
 	}
 	public DBArray() {
 		this(new JsonArray());
@@ -18,7 +19,7 @@ public class DBArray {
 	public int getLength() {
 		return json.size();
 	}
-	public void forEach(IntConsumer func) {
+    public void forEach(IntConsumer func) {
 		for (int i=0; i<getLength(); i++) {
 			func.accept(i);
 		}
@@ -75,6 +76,10 @@ public class DBArray {
 	}
 	
 	public void remove(int i) {
-		this.json.remove(i);
+		json.remove(i);
+	}
+	
+	public boolean contains(String str) {
+		return json.contains(new JsonPrimitive(str));
 	}
 }

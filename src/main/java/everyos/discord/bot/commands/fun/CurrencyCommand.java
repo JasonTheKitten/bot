@@ -1,15 +1,20 @@
 package everyos.discord.bot.commands.fun;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import discord4j.core.object.entity.Message;
+import everyos.discord.bot.adapter.IAdapter;
 import everyos.discord.bot.adapter.MemberAdapter;
 import everyos.discord.bot.adapter.MessageAdapter;
 import everyos.discord.bot.commands.ICommand;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.object.CategoryEnum;
+import everyos.discord.bot.object.Promise;
 import everyos.discord.bot.parser.ArgumentParser;
 import everyos.discord.bot.standards.MemberDocumentCreateStandard;
 import everyos.discord.bot.util.FillinUtil;
@@ -28,6 +33,7 @@ public class CurrencyCommand implements ICommand {
         ICommand balanceCommand = new CurrencyBalanceCommand();
         ICommand dailyCommand = new CurrencyDailyCommand();
         ICommand giveCommand = new CurrencyGiveCommand();
+        ICommand leaderboardCommand = new CurrencyTopCommand();
 
         //en_US
         commands = new HashMap<String, ICommand>();
@@ -35,6 +41,7 @@ public class CurrencyCommand implements ICommand {
         commands.put("bal", balanceCommand);
         commands.put("daily", dailyCommand);
         commands.put("give", giveCommand);
+        commands.put("top", leaderboardCommand);
         lcommands.put(Localization.en_US, commands);
     }
 
@@ -125,7 +132,7 @@ class CurrencyBalanceCommand implements ICommand {
     }
 
     @Override public CategoryEnum getCategory() {
-        return CategoryEnum.Fun;
+        return null;
     }
 }
 
@@ -163,7 +170,7 @@ class CurrencyDailyCommand implements ICommand {
     }
 
     @Override public CategoryEnum getCategory() {
-        return CategoryEnum.Fun;
+        return null;
     }
 }
 
@@ -175,6 +182,7 @@ class CurrencyGiveCommand implements ICommand {
         	if (parser.couldBeUserID()) {
         		adapter.getTopEntityAdapter(teadapter->{
 	        		MemberDocumentCreateStandard.ifExists(teadapter, parser.eatUserID(), madapter->{
+                        //Should I continue to allow sending money to users who have left?
 	                    if (parser.isNumerical()) {
 	                        int amount = (int) parser.eatNumerical();
 	                        adapter.getMemberAdapter(invoker->{
@@ -182,7 +190,8 @@ class CurrencyGiveCommand implements ICommand {
 	                            DBDocument doc2 = madapter.getDocument();
 	                            int ifeth = doc.getObject().getOrDefaultInt("feth", 0);
 	                            if (ifeth<amount) {
-	                                adapter.formatTextLocale(LocalizedString.NotEnoughCurrency, str->cadapter.send(str));
+                                    adapter.formatTextLocale(LocalizedString.NotEnoughCurrency, str->cadapter.send(str));
+                                    return;
 	                            }
 	                            doc.getObject().set("feth", ifeth-amount);
 	                            doc.save();
@@ -215,6 +224,101 @@ class CurrencyGiveCommand implements ICommand {
     }
 
     @Override public CategoryEnum getCategory() {
-        return CategoryEnum.Fun;
+        return null;
     }
 }
+
+class CurrencyTopCommand implements ICommand {
+	@Override public void execute(Message message, MessageAdapter adapter, String argument) {
+        adapter.getChannelAdapter(cadapter->{
+            adapter.getTopEntityAdapter(teadapter->{
+                adapter.getMemberAdapter(madapter->{
+                    int len = 5;
+                    LinkedList<DBDocument> lboard = new LinkedList<DBDocument>();
+                    AtomicInteger c = new AtomicInteger(0);
+                    
+                    DBDocument[] members = teadapter.getDocument().subcollection("members").all();
+                    for (DBDocument member: members) {
+                        //TODO: O(n) execution time
+                        int money = member.getObject().getOrDefaultInt("feth", 0);
+                        for (int i=0; i<c.incrementAndGet(); i++) {
+                            if (i==lboard.size()||lboard.get(i).getObject().getOrDefaultInt("feth", 0)<money) {
+                                lboard.add(i, member); break;
+                            }
+                        }
+                    };
+
+                    int pos = lboard.indexOf(madapter.getDocument());
+
+                    ArrayList<EmbedFieldEntry> boardusers = new ArrayList<EmbedFieldEntry>();
+                    Promise promise = new Promise(()->{
+                        cadapter.sendEmbed(embed->{
+                            embed.setTitle("Currency Leaderboard");
+                            boardusers.forEach(embedinfo->{
+                                embed.addField(embedinfo.title, embedinfo.content, false);
+                            });
+                            if (lboard.contains(madapter.getDocument())) //TODO: Don't rely on a consistent doc
+                                embed.setFooter("You rank #"+(pos+1), null);
+                        });
+                    });
+
+                    int size = lboard.size();
+
+                    for (int i=0; i<((size<len)?size:len); i++) addToLeaderboard(i, size, lboard, boardusers, promise, teadapter, madapter);
+                    if (pos-1 >= len) addToLeaderboard(pos-1, size, lboard, boardusers, promise, teadapter, madapter);
+                    if (pos >= len)   addToLeaderboard(pos  , size, lboard, boardusers, promise, teadapter, madapter);
+                    if (pos+1 >= len) addToLeaderboard(pos+1, size, lboard, boardusers, promise, teadapter, madapter);
+
+                    promise.ready();
+                });
+            });
+        });
+    }
+    
+    private void addToLeaderboard(int i, int size, LinkedList<DBDocument> lboard, ArrayList<EmbedFieldEntry> boardusers, Promise promise, IAdapter teadapter, MemberAdapter invoker) {
+        if (i>=size) return;
+        promise.createResolver();
+        MemberAdapter user = MemberAdapter.of(teadapter, lboard.get(i).getName());
+        int feth = user.getDocument().getObject().getOrDefaultInt("feth", 0);
+        if (feth<=0&&!(user==invoker)) return;
+        user.getDisplayName(name->{
+            boardusers.add(new EmbedFieldEntry("#"+(i+1)+(user==invoker?" (You)":""), name+": "+feth+" feth")); //TODO: Filter
+            promise.resolve();
+        });
+    }
+
+	@Override public HashMap<String, ICommand> getSubcommands(Localization locale) { return null; }
+	@Override public String getBasicUsage(Localization locale) { return null; }
+	@Override public String getExtendedUsage(Localization locale) { return null; }
+	@Override public CategoryEnum getCategory() { return null; }
+}
+
+class EmbedFieldEntry {
+    public String title;
+    public String content;
+    public EmbedFieldEntry(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
+}
+
+/*for (int i=0; i<((size<len)?size:len); i++) {
+    if (lboard.get(i).money==0) break;
+    DBDocument user = lboard.get(i);
+    embed.addField("#"+(i+1)+(user.id.equals(invoker.id)?" (You)":""), MessageHelper.filter(user.requireUser().user.getDisplayName())+": "+user.money+" feth", false);
+}
+int pos = lboard.indexOf(invoker)+1;
+if (pos-1>len) {
+    DBDocument user = lboard.get(pos-2);
+    embed.addField("#"+(pos-1), adapter.filter(user.requireUser().user.getDisplayName())+": "+user.money+" feth", false);
+}
+if (pos>len) {
+    DBDocument user = lboard.get(pos-1);
+    embed.addField("#"+pos+" (You)", MessageHelper.filter(user.requireUser().user.getDisplayName())+": "+user.money+" feth", false);
+}
+if (pos+1>len) {
+    DBDocument user = lboard.get(pos);
+    embed.addField("#"+(pos+1), MessageHelper.filter(user.requireUser().user.getDisplayName())+": "+user.money+" feth", false);
+}
+
+embed.setFooter("You rank #"+pos, null);*/

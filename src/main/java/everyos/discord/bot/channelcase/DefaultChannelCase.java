@@ -7,6 +7,7 @@ import everyos.discord.bot.adapter.MessageAdapter;
 import everyos.discord.bot.commands.ICommand;
 import everyos.discord.bot.commands.LocalizedCommandWrapper;
 import everyos.discord.bot.commands.channels.ChatLinkCommand;
+import everyos.discord.bot.commands.channels.SuggestionsCommand;
 import everyos.discord.bot.commands.fun.CurrencyCommand;
 import everyos.discord.bot.commands.info.PingCommand;
 import everyos.discord.bot.commands.info.UptimeCommand;
@@ -23,15 +24,18 @@ public class DefaultChannelCase implements IChannelCase {
 		ICommand kickCommand = new KickCommand();
 		ICommand uptimeCommand = new UptimeCommand();
 		ICommand chatlinkCommand = new ChatLinkCommand();
-		ICommand pingCommand = new PingCommand();
+        ICommand pingCommand = new PingCommand();
+        ICommand suggestionsCommand = new SuggestionsCommand();
 		
-		commands = new HashMap<String, LocalizedCommandWrapper>();
+        commands = new HashMap<String, LocalizedCommandWrapper>();
+        //TODO: Make new CommandAlias class which implements ICommand, use that instead
 		commands.put("feth", new LocalizedCommandWrapper(currencyCommand, Localization.en_US));
 		commands.put("ban", new LocalizedCommandWrapper(banCommand, Localization.en_US));
 		commands.put("kick", new LocalizedCommandWrapper(kickCommand, Localization.en_US));
 		commands.put("uptime", new LocalizedCommandWrapper(uptimeCommand, Localization.en_US));
 		commands.put("link", new LocalizedCommandWrapper(chatlinkCommand, Localization.en_US));
-		commands.put("ping", new LocalizedCommandWrapper(pingCommand, Localization.en_US));
+        commands.put("ping", new LocalizedCommandWrapper(pingCommand, Localization.en_US));
+        commands.put("suggestions", new LocalizedCommandWrapper(suggestionsCommand, Localization.en_US));
 	}
 	
 	@Override public void execute(Message message, MessageAdapter adapter) {

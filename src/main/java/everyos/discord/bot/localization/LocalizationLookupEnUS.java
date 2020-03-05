@@ -31,7 +31,7 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
             case UnrecognizedUser:
                 return "--- sad because --- can't find that user!";
             case NotEnoughCurrency:
-                return "TODO";
+                return "--- sad because you don't have that much currency.";
             case MoneySent:
                 return "Sent the money to the user, uwu";
             case KickFail:
@@ -54,12 +54,30 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 				return "Ping!\n2-way bot latency is ${ping}ms";
 			case Info:
 				return "Info";
-			case ChatLinkCreate:
-				return "Created a new chatlink group.\nRun `link ${id}` in another server to connect.";
 			case ChatLinkOOBE:
-				return "Placeholder text here";
+                return "Chatlink created.\n"+
+                    "To connect from another channel or server, please run `${ping} link join ${id}`\n"+
+                    "To accept an incoming connection, run the command from joining a link\n"+
+                    "To locally mute a user, use search history to look up their ID, then run `${ping} link mute <id>\n"+
+                    "To globally mute a user, use search history to look up their ID, then run `${ping} link gmute <id>`";
 			case UnfinishedChatLinkConnection:
-				return "Please accept the chat link connection as a chat link admin!";
+                return "Please accept the chat link connection as a chat link admin!";
+            case UnrecognizedChatLink:
+                return "--- doesn't recognize that chat link group, so --- sad!";
+            case AcceptChatLinkPrompt:
+                return "Please accept this chatlink by having a chatlink administrator run `link accept ${id}` in the other server.";
+            case ChannelNotAwaitingChatlink:
+                return "Please join the chatlink from that channel using the pinned message!";
+            case ChatLinkAccepted:
+                return "The chat link has been accepted, ---!";
+            case ChannelsSet:
+                return "The channels have been set, ---";
+            case SuggestionBy:
+                return "Suggestion by ${user}";
+            case SuggestionFooter:
+                return "User ID: ${id}\nUse the reactions to vote!";
+            case OnPing:
+                return "--- at your service!";
         }
         return "???";
 	}

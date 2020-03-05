@@ -72,8 +72,7 @@ public class HelpCommand implements ICommand {
         return null;
     }
 
-    @Override
-    public CategoryEnum getCategory() {
+    @Override public CategoryEnum getCategory() {
         return CategoryEnum.Info;
     }
 

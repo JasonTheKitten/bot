@@ -30,9 +30,9 @@ public class DBCollection {
         if (cache.containsKey(document))
             return cache.get(document);
 
-        File collectionfi = new File(FileUtil.join(path, document));
+        File collectionfi = new File(FileUtil.join(path, document + ".json"));
         DBDocument dbdocument = cache.get(document);
-        if (dbdocument == null && collectionfi.exists()) {
+        if (dbdocument == null && collectionfi.exists()) { // TODO: Should be .json?
             dbdocument = new DBDocument(document, FileUtil.join(path, document));
             cache.put(document, dbdocument);
         }
@@ -48,46 +48,56 @@ public class DBCollection {
             func.accept(dbdocument);
             cache.put(document, dbdocument);
         }
-        
+
         return dbdocument;
-	}
-	public OtherCase getIfPresent(@Nonnull String document, @Nonnull Function<DBDocument, Boolean> func) {
-		DBDocument dbobj = getOrNull(document);
-		OtherCase elsedo = new OtherCase();
-		if (dbobj!=null) {
-			elsedo.complete = func.apply(dbobj);
-		}
-		return elsedo;
-	}
-	public OtherCase getIfPresent(@Nonnull String document, @Nonnull Consumer<DBDocument> func) {
-		DBDocument dbobj = getOrNull(document);
-		OtherCase elsedo = new OtherCase();
-		if (dbobj!=null) {
-			func.accept(dbobj);
-			elsedo.complete = true;
-		}
-		return elsedo;
-	}
-	public void ifNotPresent(@Nonnull String document, @Nonnull Consumer<DBDocument> func) {
-		DBDocument dbobj = getOrNull(document);
-		if (dbobj==null) func.accept(dbobj);
-	}
-	
-	public void delete(@Nonnull String document) {
-    	File collectionfi = new File(FileUtil.join(path, document));
-    	if (collectionfi.exists()) collectionfi.delete();
-    	cache.remove(document);
     }
 
-	public DBDocument[] query(Function<DBDocument, Boolean> func) {
-		ArrayList<DBDocument> matches = new ArrayList<DBDocument>();
-		File f = new File(path);
-		for (String n:f.list()) {
-			if (n.endsWith(".json")) {
-				DBDocument doc = getOrNull(n.substring(0, n.length()-5));
-				if (doc!=null&&func.apply(doc)) matches.add(doc);
-			}
-		}
-		return matches.toArray(new DBDocument[matches.size()]);
-	}
+    public OtherCase getIfPresent(@Nonnull String document, @Nonnull Function<DBDocument, Boolean> func) {
+        DBDocument dbobj = getOrNull(document);
+        OtherCase elsedo = new OtherCase();
+        if (dbobj != null) {
+            elsedo.complete = func.apply(dbobj);
+        }
+        return elsedo;
+    }
+
+    public OtherCase getIfPresent(@Nonnull String document, @Nonnull Consumer<DBDocument> func) {
+        DBDocument dbobj = getOrNull(document);
+        OtherCase elsedo = new OtherCase();
+        if (dbobj != null) {
+            func.accept(dbobj);
+            elsedo.complete = true;
+        }
+        return elsedo;
+    }
+
+    public void ifNotPresent(@Nonnull String document, @Nonnull Consumer<DBDocument> func) {
+        DBDocument dbobj = getOrNull(document);
+        if (dbobj == null)
+            func.accept(dbobj);
+    }
+
+    public void delete(@Nonnull String document) {
+        File collectionfi = new File(FileUtil.join(path, document));
+        if (collectionfi.exists())
+            collectionfi.delete();
+        cache.remove(document);
+    }
+
+    public DBDocument[] query(Function<DBDocument, Boolean> func) {
+        ArrayList<DBDocument> matches = new ArrayList<DBDocument>();
+        File f = new File(path);
+        for (String n : f.list()) {
+            if (n.endsWith(".json")) {
+                DBDocument doc = getOrNull(n.substring(0, n.length() - 5));
+                if (doc != null && func.apply(doc))
+                    matches.add(doc);
+            }
+        }
+        return matches.toArray(new DBDocument[matches.size()]);
+    }
+
+    public DBDocument[] all() {
+        return query(doc->true);
+    }
 }

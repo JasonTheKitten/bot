@@ -19,7 +19,7 @@ public class ChatLinkDocumentCreateStandard implements Consumer<DBDocument> {
     	Main.db.collection("chatlinks").getIfPresent(clID, cldoc->{
     		func.accept(ChatLinkAdapter.of(clID));
     	}).elsedo(()->{
-    		orelse.run();
+    		orelse.run(); //Um, why didn't I just return the OtherCase?
     	});
     }
 }

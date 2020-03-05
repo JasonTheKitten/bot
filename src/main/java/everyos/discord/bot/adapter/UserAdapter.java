@@ -27,7 +27,7 @@ public class UserAdapter implements IAdapter {
     		Main.client.getUserById(Snowflake.of(uid)).subscribe(user->{
     			this.user = user;
     			func.accept(this);
-    		});
+    		}, e->func.accept(this));
     		return;
     	}
 		func.accept(this);
@@ -35,6 +35,10 @@ public class UserAdapter implements IAdapter {
 
     public void getUsername(Consumer<String> func) {
     	require(uadapter->{
+            if (user == null) {
+                func.accept("<Uknown User>");
+                return;
+            }
     		func.accept(user.getUsername());
     	});
     }

@@ -96,14 +96,13 @@ public class ChannelAdapter implements IAdapter {
         send(msg, ()->{});
     }
 
-    public void sendEmbed(Consumer<EmbedCreateSpec> embed, Runnable after) {
+    public void sendEmbed(Consumer<EmbedCreateSpec> embed, Consumer<Message> after) {
         require(adapter -> adapter.channel.createEmbed(embed).subscribe(message -> {
             if (after != null) {
-                after.run();
+                after.accept(message);
             }
         }));
     }
-
     public void sendEmbed(Consumer<EmbedCreateSpec> embed) {
         sendEmbed(embed, null);
     }
