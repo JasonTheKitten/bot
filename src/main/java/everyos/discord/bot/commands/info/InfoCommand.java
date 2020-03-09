@@ -12,9 +12,10 @@ import everyos.discord.bot.object.CategoryEnum;
 public class InfoCommand implements ICommand {
 	@Override public void execute(Message message, MessageAdapter adapter, String argument) {
 		adapter.getChannelAdapter(cadapter->{
-			adapter.formatTextLocale(LocalizedString.Info, info->{
-				cadapter.send(embed->{
-					
+			adapter.getTextLocale(locale->{
+				cadapter.sendEmbed(embed->{
+                    embed.setTitle(adapter.formatTextLocale(locale, LocalizedString.Info));
+                    embed.setDescription(adapter.formatTextLocale(locale, LocalizedString.InfoDescription));
 				});
 			});
 		});

@@ -171,7 +171,14 @@ public class ChannelAdapter implements IAdapter {
 
     public void getGuildAdapter(Consumer<GuildAdapter> func) {
         requireGuildID(adapter -> {
-            func.accept(GuildAdapter.of(guildID));
+            func.accept(GuildAdapter.of(guildID)); //TODO
+        });
+    }
+
+    public void getPeerChannel(String cid, Consumer<ChannelAdapter> func) {
+        getGuildAdapter(gadapter->{
+            if (gadapter == null) func.accept(null);
+            gadapter.getChannel(cid, func);
         });
     }
 

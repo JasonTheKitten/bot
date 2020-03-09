@@ -42,7 +42,7 @@ public class SuggestionChannelCase implements IChannelCase {
 	        message.delete().subscribe();
 	        //TODO: Allow moderation commands?
 	        //TODO: Filter
-	        adapter.getChannelAdapter(cadapter->{
+	        adapter.getChannelAdapter(cadapter->{ //TODO: Obey voteChannel
 	            adapter.getTextLocale(locale-> {
 	                cadapter.sendEmbed(embed -> {
 	                    User usr = message.getAuthor().orElse(null);

@@ -53,13 +53,19 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 			case Ping:
 				return "Ping!\n2-way bot latency is ${ping}ms";
 			case Info:
-				return "Info";
+                return "Info";
+            case InfoDescription:
+                return "--- is a Discord bot written by EveryOS in the year of 2020.\n"+
+                    "**Support server:** ${support_server}\n"+
+                    "**GitHub repo:** ${gh_repo}\n"+
+                    "**DBL Page:** ${dbl_page}\n"+
+                    "Be sure to star the bot on GitHub and vote for it on DBL!";
 			case ChatLinkOOBE:
                 return "Chatlink created.\n"+
-                    "To connect from another channel or server, please run `${ping} link join ${id}`\n"+
+                    "To connect from another channel or server, please run `<@${ping}> link join ${id}`\n"+
                     "To accept an incoming connection, run the command from joining a link\n"+
-                    "To locally mute a user, use search history to look up their ID, then run `${ping} link mute <id>\n"+
-                    "To globally mute a user, use search history to look up their ID, then run `${ping} link gmute <id>`";
+                    "To locally mute a user, use search history to look up their ID, then run `<@${ping}> link mute <id>\n"+
+                    "To globally mute a user, use search history to look up their ID, then run `<@${ping}> link gmute <id>`";
 			case UnfinishedChatLinkConnection:
                 return "Please accept the chat link connection as a chat link admin!";
             case UnrecognizedChatLink:
@@ -72,12 +78,16 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
                 return "The chat link has been accepted, ---!";
             case ChannelsSet:
                 return "The channels have been set, ---";
+            case UnrecognizedChannel:
+                return "--- does not recognize that channel, so --- sad!";
             case SuggestionBy:
                 return "Suggestion by ${user}";
             case SuggestionFooter:
                 return "User ID: ${id}\nUse the reactions to vote!";
             case OnPing:
                 return "--- at your service!";
+            case CurrencyStealing:
+                return "That would be stealing!";
         }
         return "???";
 	}

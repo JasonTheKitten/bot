@@ -27,7 +27,7 @@ public class SuggestionsCommand implements ICommand {
                         ArgumentParser parser = new ArgumentParser(argument);
                         DBDocument cdoc = cadapter.getDocument();
                         DBObject cobj = cdoc.getObject();
-                        cobj.createObject("casedata", obj->{
+                        cobj.createObject("casedata", obj->{ //TODO: Only allow channels in same guild
                             if (parser.couldBeChannelID()) {
                                 obj.set("votechannel", cadapter.getID());
                             } else if (!parser.isEmpty()) {

@@ -3,6 +3,7 @@ package everyos.discord.bot.adapter;
 import java.util.function.Consumer;
 
 import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.util.Snowflake;
 import everyos.discord.bot.Main;
 import everyos.discord.bot.filter.Filter;
@@ -99,6 +100,22 @@ public class GuildAdapter implements IAdapter {
 
     public boolean shouldIgnoreUser() {
         return false;
+    }
+
+    public void getChannel(String id, Consumer<ChannelAdapter> func) {
+        require(gadapter->{
+            guild.getChannelById(Snowflake.of(id)).subscribe(channel->{
+                func.accept(ChannelAdapter.of((MessageChannel) channel));
+            }, e->func.accept(null));
+        });
+    }
+
+    public void createChannel(String name, Consumer<ChannelAdapter> func) {
+        require(gadapter->{
+            guild.createTextChannel(channel->{
+                channel.setName(name);
+            }).subscribe(channel->func.accept(ChannelAdapter.of(channel)), e->func.accept(null));
+        });
     }
 
     public static GuildAdapter of(Guild guild) {

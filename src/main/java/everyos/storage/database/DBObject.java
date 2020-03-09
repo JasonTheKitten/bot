@@ -134,6 +134,9 @@ public class DBObject {
 	}
 	public void set(String key, boolean bool) {
 		json.addProperty(key, bool);
+    }
+    public void remove(String key) {
+		json.remove(key);
 	}
 	
 	public DBObject createObject(String key, Consumer<DBObject> func) {

@@ -3,7 +3,6 @@ package everyos.discord.bot.commands.info;
 import java.util.HashMap;
 
 import discord4j.core.object.entity.Message;
-import everyos.discord.bot.Main;
 import everyos.discord.bot.adapter.MessageAdapter;
 import everyos.discord.bot.commands.ICommand;
 import everyos.discord.bot.localization.Localization;
@@ -16,7 +15,7 @@ public class PingCommand implements ICommand {
 		adapter.getChannelAdapter(cadapter->{
 			adapter.formatTextLocale(
 				LocalizedString.Ping, 
-				FillinUtil.of("ping", String.valueOf(Main.client.getResponseTime())), 
+				FillinUtil.of("ping", String.valueOf(message.getClient().getResponseTime())), 
 				text->cadapter.send(text));
 		});
 	}

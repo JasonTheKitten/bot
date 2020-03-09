@@ -7,8 +7,10 @@ import everyos.discord.bot.adapter.MessageAdapter;
 import everyos.discord.bot.commands.ICommand;
 import everyos.discord.bot.commands.LocalizedCommandWrapper;
 import everyos.discord.bot.commands.channels.ChatLinkCommand;
+import everyos.discord.bot.commands.channels.ResetCommand;
 import everyos.discord.bot.commands.channels.SuggestionsCommand;
 import everyos.discord.bot.commands.fun.CurrencyCommand;
+import everyos.discord.bot.commands.info.InfoCommand;
 import everyos.discord.bot.commands.info.PingCommand;
 import everyos.discord.bot.commands.info.UptimeCommand;
 import everyos.discord.bot.commands.moderation.BanCommand;
@@ -26,6 +28,8 @@ public class DefaultChannelCase implements IChannelCase {
 		ICommand chatlinkCommand = new ChatLinkCommand();
         ICommand pingCommand = new PingCommand();
         ICommand suggestionsCommand = new SuggestionsCommand();
+        ICommand infoCommand = new InfoCommand();
+        ICommand resetCommand = new ResetCommand();
 		
         commands = new HashMap<String, LocalizedCommandWrapper>();
         //TODO: Make new CommandAlias class which implements ICommand, use that instead
@@ -36,6 +40,8 @@ public class DefaultChannelCase implements IChannelCase {
 		commands.put("link", new LocalizedCommandWrapper(chatlinkCommand, Localization.en_US));
         commands.put("ping", new LocalizedCommandWrapper(pingCommand, Localization.en_US));
         commands.put("suggestions", new LocalizedCommandWrapper(suggestionsCommand, Localization.en_US));
+        commands.put("info", new LocalizedCommandWrapper(infoCommand, Localization.en_US));
+        commands.put("reset", new LocalizedCommandWrapper(resetCommand, Localization.en_US));
 	}
 	
 	@Override public void execute(Message message, MessageAdapter adapter) {

@@ -141,8 +141,7 @@ class ChatLinkCreateCommand implements ICommand {
                 links.add(cadapter.getID());
                 cldoc.save();
                 
-                String ping = "<@"+Main.clientID+">";
-                cadapter.send(adapter.formatTextLocale(locale, LocalizedString.ChatLinkOOBE, FillinUtil.of("id", id, "ping", ping)), msg->{
+                cadapter.send(adapter.formatTextLocale(locale, LocalizedString.ChatLinkOOBE, FillinUtil.of("id", id, "ping", Main.clientID)), msg->{
                     msg.pin().subscribe();
                 });
 			});

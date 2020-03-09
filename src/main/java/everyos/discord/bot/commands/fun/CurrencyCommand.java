@@ -188,7 +188,11 @@ class CurrencyGiveCommand implements ICommand {
 	                        adapter.getMemberAdapter(invoker->{
 	                            DBDocument doc = invoker.getDocument();
 	                            DBDocument doc2 = madapter.getDocument();
-	                            int ifeth = doc.getObject().getOrDefaultInt("feth", 0);
+                                int ifeth = doc.getObject().getOrDefaultInt("feth", 0);
+                                if (amount<0) {
+                                    adapter.formatTextLocale(LocalizedString.CurrencyStealing, str->cadapter.send(str));
+                                    return;
+                                }
 	                            if (ifeth<amount) {
                                     adapter.formatTextLocale(LocalizedString.NotEnoughCurrency, str->cadapter.send(str));
                                     return;
@@ -301,24 +305,3 @@ class EmbedFieldEntry {
         this.content = content;
     }
 }
-
-/*for (int i=0; i<((size<len)?size:len); i++) {
-    if (lboard.get(i).money==0) break;
-    DBDocument user = lboard.get(i);
-    embed.addField("#"+(i+1)+(user.id.equals(invoker.id)?" (You)":""), MessageHelper.filter(user.requireUser().user.getDisplayName())+": "+user.money+" feth", false);
-}
-int pos = lboard.indexOf(invoker)+1;
-if (pos-1>len) {
-    DBDocument user = lboard.get(pos-2);
-    embed.addField("#"+(pos-1), adapter.filter(user.requireUser().user.getDisplayName())+": "+user.money+" feth", false);
-}
-if (pos>len) {
-    DBDocument user = lboard.get(pos-1);
-    embed.addField("#"+pos+" (You)", MessageHelper.filter(user.requireUser().user.getDisplayName())+": "+user.money+" feth", false);
-}
-if (pos+1>len) {
-    DBDocument user = lboard.get(pos);
-    embed.addField("#"+(pos+1), MessageHelper.filter(user.requireUser().user.getDisplayName())+": "+user.money+" feth", false);
-}
-
-embed.setFooter("You rank #"+pos, null);*/
