@@ -1,0 +1,16 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+bin
+.settings
+.project
+
+#Ignore annoying files and config files
+.theia
+*.config
+.vscode
+src/main/resources/googleauth.json
+
+somepath
