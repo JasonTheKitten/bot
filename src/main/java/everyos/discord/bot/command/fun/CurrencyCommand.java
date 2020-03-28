@@ -13,6 +13,7 @@ import everyos.discord.bot.adapter.MemberAdapter;
 import everyos.discord.bot.adapter.TopEntityAdapter;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
@@ -23,7 +24,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 //TODO: Localize more
-public class CurrencyCommand implements ICommand {
+public class CurrencyCommand implements IGroupCommand {
     private HashMap<Localization, HashMap<String, ICommand>> lcommands;
 
     public CurrencyCommand() {
@@ -168,7 +169,7 @@ class CurrencyGiveCommand implements ICommand {
 	                            pobj.set("feth", ifeth-amount);
 	                            pdoc.save();
 	                            
-	                            tobj.set("feth",  tobj.getOrDefaultInt("feth", 0)+amount);
+	                            tobj.set("feth", tobj.getOrDefaultInt("feth", 0)+amount);
 	                            tdoc.save();
 	                            reference.set(channel.createMessage(data.locale.localize(LocalizedString.MoneySent)));
                             });

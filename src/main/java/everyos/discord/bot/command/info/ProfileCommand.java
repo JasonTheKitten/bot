@@ -6,12 +6,14 @@ import discord4j.core.object.util.Image.Format;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.adapter.MemberAdapter;
 import everyos.discord.bot.adapter.TopEntityAdapter;
+import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import reactor.core.publisher.Mono;
 
+@Help(help=LocalizedString.ProfileCommandHelp, ehelp=LocalizedString.ProfileCommandExtendedHelp)
 public class ProfileCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
@@ -35,8 +37,9 @@ public class ProfileCommand implements ICommand {
 						embed.setTitle("Profile - "+user.getUsername()+"#"+user.getDiscriminator()); //TODO: Localize & Filter
 						embed.setDescription("User information");
 						embed.addField("Nickname", user.getDisplayName(), true);
-						//embed.addField("Joined", user.getJoinTime()., inline)
+						//TODO: embed.addField("Joined", user.getJoinTime()., inline)
 						invoker.getAvatarUrl(Format.PNG).ifPresent(url->embed.setAuthor(invoker.getUsername()+"#"+invoker.getDiscriminator(), null, url));
+						//TODO: Balanace and level
 						user.getAvatarUrl(Format.PNG).ifPresent(url->embed.setImage(url));
 					});
 				});

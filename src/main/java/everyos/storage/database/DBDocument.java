@@ -1,12 +1,14 @@
 package everyos.storage.database;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -35,7 +37,7 @@ public class DBDocument {
         File fo = new File(file);
         if (fo.exists()) {
             try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fo)));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fo), StandardCharsets.UTF_8));
                 this.json = JsonParser.parseReader(reader).getAsJsonObject();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -71,8 +73,8 @@ public class DBDocument {
                 fi.createNewFile();
             }
 
-            BufferedOutputStream file = new BufferedOutputStream(new FileOutputStream(this.file));
-            file.write(json.toString().getBytes());
+            BufferedWriter file = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8));
+            file.write(json.toString());
             file.close();
         } catch (IOException e) {
             e.printStackTrace(); // TODO: On error

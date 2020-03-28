@@ -78,6 +78,15 @@ public class DBArray {
 	public void remove(int i) {
 		json.remove(i);
 	}
+	public void removeFirst(String s) {
+		json.remove(new JsonPrimitive(s));
+	}
+	public void removeFirst(Number n) {
+		json.remove(new JsonPrimitive(n));
+	}
+	public void removeFirst(Boolean b) {
+		json.remove(new JsonPrimitive(b));
+	}
 	
 	public boolean contains(String str) {
 		return json.contains(new JsonPrimitive(str));

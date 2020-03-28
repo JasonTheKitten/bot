@@ -39,8 +39,9 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 			case BanFail:
 				return "--- had troubles banning the users";
 			case KickSuccess:
+				return "302 Found";
 			case BanSuccess:
-				return "The users - gone";
+				return "410 Gone";
 			case InsufficientPermissions:
 				return "No";
 			case Uptime:
@@ -88,7 +89,76 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
                 return "--- at your service!";
             case CurrencyStealing:
                 return "That would be stealing!";
+			case AutoDelete:
+				return "This message will automatically be deleted";
+			case MessagesPurged:
+				return "Messages purged!";
+			case MusicPaused:
+				return "Music paused!";
+			case MusicStopped:
+				return "The queue has been cleared, and the music stopped. Bye!";
+			case MusicUnpaused:
+				return "Unpaused your music!";
+			case NoGiphyKey:
+				return "Missing necessary configurations: Please contact the bot owner.";
+			case NoTrackPlaying:
+				return "Nothing seems to be playing. Why don't you start some music!?";
+			case ProfileCommandExtendedHelp:
+				break;
+			case ProfileCommandHelp:
+				break;
+			case QueueShuffled:
+				return "The queue has been shuffled.";
+			case TrackSkipped:
+				return "At your command";
+			case Undocumented:
+				return " Undocumented";
+			case GiveawayPrompt:
+				return "**Hosted by:** ${host}\n"+
+					"**Ends at:** ${end}\n"+
+					"**Winners:** ${winners}\n"+
+					"**Prize:** ${prize}";
+			case MusicRepeatSet:
+				return "The music is now set to repeat";
+			case MusicRepeatUnset:
+				return "The music is no longer set to repeat";
+			case MustBeInServer:
+				return "Sorry, but this command only works in servers!";
+			case TicketCreated:
+				return "The ticket has been created!";
+			case WelcomeMessageSet:
+				return "The welcome message has been set!";
+			case DefaultTicketMessage:
+				return "Ticket opened by ${user.mention}. Our staff will be with you shortly.";
+			case TicketMessageSet:
+				return "The message for future tickets has been set.";
+			case GiveawayTitle:
+				return "Giveaway!";
+			case NoSuchRole:
+				return "No such role exists";
+			case RoleAlreadyExists:
+				return "That role already exists!";
+			case RoleCreated:
+				return "The role has been created";
+			case RoleGiven:
+				return "You have been given the role!";
+			case Donate:
+				return "We are very grateful for donations. You can donate to our paypal at ${url}. Thanks!";
+			case RoleRemoved:
+				return "Removed the role!";
+			case SupportServer:
+				return "My support server is at <${url}>!";
+			case ConfigurationReset:
+				return "The configuration has been reset!";
+			case DBLVote:
+				return "You can vote for --- on DBL at <${url}>!";
+			case LeaveMessageSet:
+				return "The leave message has been set!";
+			case RoleAdded:
+				return "The role has been added!";
+			case TooManyRoles:
+				return "Too many roles already exist here - try removing one";
         }
-        return "???";
+        return "This text should not appear";
 	}
 }

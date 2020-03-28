@@ -8,21 +8,26 @@ import discord4j.core.object.util.Snowflake;
 import everyos.discord.bot.adapter.ChannelAdapter;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.command.IGroupCommand;
+import everyos.discord.bot.command.moderation.BanCommand;
+import everyos.discord.bot.command.moderation.KickCommand;
 import everyos.discord.bot.command.utility.SuggestCommand;
 import everyos.discord.bot.parser.ArgumentParser;
 import reactor.core.publisher.Mono;
 
-public class SuggestionsChannelCase implements ICommand {
+public class SuggestionsChannelCase implements IGroupCommand {
     private HashMap<String, ICommand> commands;
     public SuggestionsChannelCase() {
         commands = new HashMap<String, ICommand>();
         commands.put("suggest", new SuggestCommand());
+        commands.put("ban", new BanCommand());
+        commands.put("kick", new KickCommand());
     }
 
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
         String content = message.getContent().orElse("");
         String trunc = ArgumentParser.getIfPrefix(content, 
-            new String[]{"---", "*", "<@"+data.bot.clientID+">", "<@!"+data.bot.clientID+">"});
+            new String[] {"---", "*", "<@"+data.bot.clientID+">", "<@!"+data.bot.clientID+">"});
 
         if (!(trunc == null)) {
             String command = ArgumentParser.getCommand(trunc);

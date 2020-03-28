@@ -3,6 +3,7 @@ package everyos.discord.bot.localization;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+//What would be cool is per-server localization overrides
 public class LocalizationProvider {
     private ILocalizationLookup lookup;
     public Localization locale;

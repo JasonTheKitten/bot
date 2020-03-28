@@ -61,13 +61,11 @@ public class Google {
     }
 
     private static Credential authorize() throws IOException, GeneralSecurityException {
-        if (credentials != null)
-            return credentials;
-        InputStream in = ClassLoader.getSystemResourceAsStream(CLIENT_SECRETS);
+        if (credentials != null) return credentials;
+        InputStream in = new FileInputStream(new File(FileUtil.getAppData(CLIENT_SECRETS)));
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
         Builder builder = new GoogleAuthorizationCodeFlow.Builder(transport, JSON_FACTORY, clientSecrets, SCOPES);
-        builder.setCredentialDataStore(StoredCredential
-                .getDefaultDataStore(new FileDataStoreFactory(new File(FileUtil.getAppData("youtube.config")))));
+        builder.setCredentialDataStore(StoredCredential.getDefaultDataStore(new FileDataStoreFactory(new File(FileUtil.getAppData(".")))));
         builder.setAccessType("offline");
         GoogleAuthorizationCodeFlow flow = builder.build();
         credentials = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");

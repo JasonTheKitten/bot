@@ -13,4 +13,4 @@ bin
 .vscode
 src/main/resources/googleauth.json
 
-somepath
+snippets.txt

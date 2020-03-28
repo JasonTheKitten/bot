@@ -40,12 +40,14 @@ public class StringUtil {
     }
     public static String split1(@Nonnull String str, @Nonnull String spl) {
         str = str.replaceAll(spl+"+", spl);
+        if (str.startsWith(spl)) str = sub(str, spl.length());
         if (str.indexOf(spl)==-1) return str;
         return sub(str, 0, str.indexOf(spl));
     }
     public static String split2(@Nonnull String str, @Nonnull String spl) {
         str = str.replaceAll(spl+"+", spl);
+        if (str.startsWith(spl)) str = sub(str, spl.length());
         if (str.indexOf(spl)==-1) return "";
-        return sub(str, str.indexOf(spl)+1, str.length());
+        return sub(str, str.indexOf(spl)+1);
     }
 }

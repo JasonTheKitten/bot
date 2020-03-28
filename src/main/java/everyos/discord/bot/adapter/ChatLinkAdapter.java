@@ -26,6 +26,7 @@ public class ChatLinkAdapter implements IAdapter {
 		getDocument().getObject((obj, doc) -> {
             DBArray arr = obj.getOrCreateArray("links", ()->new DBArray());
             arr.forEach(i->{
+            	if (arr.getString(i).equals(cid)) return;
                 Mono<?> mono = shard.client.getChannelById(Snowflake.of(arr.getString(i)))
                 	.flatMap(c->((MessageChannel) c).createMessage(mcs))
                 	.onErrorResume(e->{ return Mono.empty();});
@@ -33,7 +34,7 @@ public class ChatLinkAdapter implements IAdapter {
                 monos.add(mono);
             });
         });
-		return Flux.just(monos.toArray());
+		return Flux.just(monos.toArray()).flatMap(m->(Mono<?>) m);
 	}
 
 	@Override public DBDocument getDocument() {

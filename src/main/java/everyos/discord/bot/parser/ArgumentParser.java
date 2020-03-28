@@ -26,14 +26,10 @@ public class ArgumentParser {
         String token = next();
         if (token.startsWith("<@") && token.endsWith(">")) {
             token = token.substring(2, token.length() - 1);
-            if (token.startsWith("!")) {
-                token = token.substring(1, token.length());
-            } else if (token.startsWith("&"))
-                token = token.substring(1, token.length());
+            if (token.startsWith("!")) token = token.substring(1, token.length());
         }
         try {
-            Snowflake.of(token);
-            return true;
+            Snowflake.of(token); return true;
         } catch (NumberFormatException e) {
             return false;
         }
@@ -43,10 +39,7 @@ public class ArgumentParser {
         String token = eat();
         if (token.startsWith("<@") && token.endsWith(">")) {
             token = token.substring(2, token.length() - 1);
-            if (token.startsWith("!")) {
-                token = token.substring(1, token.length());
-            } else if (token.startsWith("&"))
-                token = token.substring(1, token.length());
+            if (token.startsWith("!")) token = token.substring(1, token.length());
         }
         return token;
     }
@@ -56,8 +49,7 @@ public class ArgumentParser {
         if (token.startsWith("<#") && token.endsWith(">"))
             token = token.substring(2, token.length() - 1);
         try {
-            Snowflake.of(token);
-            return true;
+            Snowflake.of(token); return true;
         } catch (NumberFormatException e) {
             return false;
         }
@@ -69,9 +61,45 @@ public class ArgumentParser {
             token = token.substring(2, token.length() - 1);
         return token;
     }
+    
+    public boolean couldBeRoleID() {
+        String token = next();
+        if (token.startsWith("<@&") && token.endsWith(">")) {
+            token = token.substring(3, token.length() - 1);
+        }
+        try {
+            Snowflake.of(token); return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 
-    public boolean couldBeID() {
-        return couldBeChannelID() || couldBeUserID();
+    public String eatRoleID() {
+        String token = eat();
+        if (token.startsWith("<@&") && token.endsWith(">")) {
+            token = token.substring(3, token.length() - 1);
+        }
+        return token;
+    }
+    
+    public boolean couldBeEmojiID() {
+        String token = next();
+        if (token.startsWith("<:") && token.endsWith(">")) {
+            token = token.substring(token.lastIndexOf(':')+1, token.length() - 1);
+        }
+        try {
+            Snowflake.of(token); return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public String eatEmojiID() {
+        String token = eat();
+        if (token.startsWith("<:") && token.endsWith(">")) {
+            token = token.substring(token.lastIndexOf(':')+1, token.length() - 1);
+        }
+        return token;
     }
 
     public boolean isNumerical() {
@@ -96,9 +124,8 @@ public class ArgumentParser {
     }
 
     public static String getIfPrefix(@Nonnull String entry, @Nonnull String[] prefixes) {
-        for (int i=0; i<prefixes.length; i++) {
-            String prefix = prefixes[i];
-            if (entry.startsWith(prefix)) return StringUtil.sub(entry, prefix.length());
+        for (String prefix: prefixes) {
+            if (entry.startsWith(prefix)) return StringUtil.sub(entry, prefix.length()).trim();
         }
         return null;
 	}

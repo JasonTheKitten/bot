@@ -1,11 +1,7 @@
 package everyos.discord.bot.adapter;
 
-import java.util.HashMap;
-
 import everyos.discord.bot.ShardInstance;
-import everyos.discord.bot.localization.LocalizedString;
 import everyos.storage.database.DBDocument;
-import reactor.core.publisher.Mono;
 
 public class ChannelAdapter implements IAdapter {
     private ShardInstance instance;
@@ -22,9 +18,5 @@ public class ChannelAdapter implements IAdapter {
 
     @Override public DBDocument getDocument() {
         return instance.db.collection("channels").getOrSet(id, doc->{});
-    }
-
-    public Mono<? extends Object> send(LocalizedString ping, HashMap<String, String> of) {
-        return null;
     }
 }

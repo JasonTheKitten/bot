@@ -8,6 +8,7 @@ import everyos.discord.bot.adapter.ChannelAdapter;
 import everyos.discord.bot.adapter.ChatLinkAdapter;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.command.InvalidSubcommand;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
@@ -18,7 +19,7 @@ import everyos.storage.database.DBArray;
 import reactor.core.publisher.Mono;
 import xyz.downgoon.snowflake.Snowflake;
 
-public class ChatLinkCommand implements ICommand {
+public class ChatLinkCommand implements IGroupCommand {
     public HashMap<Localization, HashMap<String, ICommand>> commands;
     public ChatLinkCommand() {
         commands = new HashMap<Localization, HashMap<String, ICommand>>();
@@ -40,7 +41,7 @@ public class ChatLinkCommand implements ICommand {
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
         return message.getChannel().flatMap(channel->{
             return message.getAuthorAsMember()
-                .flatMap(member->member.getBasePermissions())
+                .flatMap(member->member.getBasePermissions()) //TODO: Support "fake" permissions
                 .flatMap(perms->{
                     if (!(perms.contains(Permission.ADMINISTRATOR)||perms.contains(Permission.MANAGE_CHANNELS)))
                         return channel.createMessage(data.locale.localize(LocalizedString.InsufficientPermissions));
