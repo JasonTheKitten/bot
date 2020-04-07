@@ -1,6 +1,10 @@
 package everyos.discord.bot.adapter;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -21,6 +25,7 @@ import discord4j.core.object.util.Snowflake;
 import discord4j.voice.AudioProvider;
 import discord4j.voice.VoiceConnection;
 import everyos.discord.bot.ShardInstance;
+import everyos.discord.bot.util.MusicUtil;
 import everyos.storage.database.DBDocument;
 import reactor.core.publisher.Mono;
 
@@ -84,19 +89,19 @@ public class MusicAdapter implements IAdapter { //TODO: Get guild ID, cache by g
     public AudioProvider getProvider() {
     	return provider;
     }
+    
+    private Mono<VoiceConnection> connect() {
+    	Mono<VoiceConnection> vcm;
+		if (scheduler.connection == null) {
+			Mono<VoiceChannel> mono = channel==null?instance.client.getChannelById(Snowflake.of(id)).cast(VoiceChannel.class):Mono.just(channel);
+			vcm = mono.flatMap(channel->channel.join(spec->spec.setProvider(getProvider())));
+		} else vcm = Mono.just(scheduler.connection);
+		return vcm.doOnNext(vc->scheduler.setConnection(vc));
+    }
 
 	public Mono<?> queue(AudioTrack track, int i) {
 		synchronized(scheduler) {
-			Mono<VoiceConnection> vcm;
-			if (scheduler.connection == null) {
-				Mono<VoiceChannel> mono = channel==null?instance.client.getChannelById(Snowflake.of(id)).cast(VoiceChannel.class):Mono.just(channel);
-				vcm = mono.flatMap(channel->channel.join(spec->spec.setProvider(getProvider())));
-			} else vcm = Mono.just(scheduler.connection);
-			
-			return vcm.doOnNext(vc->{
-				scheduler.setConnection(vc);
-				scheduler.queue(track, i);
-			});
+			return connect().doOnNext(vc->scheduler.queue(track, i));
 		}
 	}
 	
@@ -123,6 +128,19 @@ public class MusicAdapter implements IAdapter { //TODO: Get guild ID, cache by g
 	public void setRepeat(boolean r) {
 		synchronized(scheduler) {scheduler.setRepeat(r);}
 	}
+
+	public AudioTrack[] getQueue() {
+		synchronized(scheduler) { return scheduler.getQueue();}
+	}
+
+	public boolean getRadio() {
+		synchronized(scheduler) {return scheduler.getRadio();}
+	}
+	public Mono<?> setRadio(boolean r) {
+		synchronized(scheduler) {
+			return connect().doOnNext(vc->scheduler.setRadio(r));
+		}
+	}
 }
 
 class TrackScheduler extends AudioEventAdapter { //TODO: Sync everything
@@ -132,10 +150,25 @@ class TrackScheduler extends AudioEventAdapter { //TODO: Sync everything
 	private LinkedList<AudioTrack> queue;
 	private boolean repeat;
 	private AudioTrack playingTrack;
+	private boolean playingRadio;
+	private String[] radio;
 
 	public TrackScheduler(AudioPlayer player) {
 		this.player = player;
 		this.queue = new LinkedList<AudioTrack>();
+		
+		try {
+            InputStream in = ClassLoader.getSystemResourceAsStream("radio.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            ArrayList<String> radio = new ArrayList<String>();
+            reader.lines().forEach(line->radio.add(line));
+            reader.close();
+            this.radio = radio.toArray(new String[radio.size()]);
+        } catch (Exception e) { e.printStackTrace(); }
+	}
+
+	public AudioTrack[] getQueue() {
+		return this.queue.toArray(new AudioTrack[this.queue.size()]);
 	}
 
 	public void setConnection(VoiceConnection vc) {
@@ -153,15 +186,27 @@ class TrackScheduler extends AudioEventAdapter { //TODO: Sync everything
 	}
 	
 	public void playNext() {
-		if (queue.isEmpty()) {
-			leave();
-			return;
+		synchronized(this) {
+			if (queue.isEmpty()&&playingRadio) {
+				playingTrack = null;
+				
+				MusicUtil.lookup(player, radio[(int) Math.round(Math.random()*(radio.length-1))]).doOnNext(track->{
+					queue.add(track);
+					if (playingTrack==null) playNext();
+				}).subscribe();
+				return;
+			}
+			
+			if (queue.isEmpty()) {
+				leave();
+				return;
+			}
+			
+			playingTrack = queue.get(0);
+			queue.remove(0);
+			if (repeat) queue.add(playingTrack.makeClone());
+			player.playTrack(playingTrack);
 		}
-		
-		playingTrack = queue.get(0);
-		queue.remove(0);
-		if (repeat) queue.add(playingTrack.makeClone());
-		player.playTrack(playingTrack);
 	}
 	
 	public void leave() {
@@ -171,9 +216,11 @@ class TrackScheduler extends AudioEventAdapter { //TODO: Sync everything
 	}
 
 	@Override public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
-	    playingTrack = playingTrack.makeClone();
-	    playingTrack.setPosition(track.getPosition());
-	    player.playTrack(playingTrack);
+		synchronized(this) {
+		    playingTrack = playingTrack.makeClone();
+		    playingTrack.setPosition(track.getPosition());
+		    player.playTrack(playingTrack);
+		}
 	}
 
 	public void skip(int pos) {
@@ -187,6 +234,8 @@ class TrackScheduler extends AudioEventAdapter { //TODO: Sync everything
 
 	public void stop() {
 		queue.clear();
+		setRepeat(false);
+		setRadio(false);
 		player.stopTrack();
 		leave();
 	}
@@ -212,9 +261,17 @@ class TrackScheduler extends AudioEventAdapter { //TODO: Sync everything
 	public boolean getRepeat() {
 		return repeat;
 	}
-	
 	public void setRepeat(boolean r) {
-		repeat=r;
+		repeat = r;
+	}
+	
+	public boolean getRadio() {
+		return playingRadio;
+	}
+	public void setRadio(boolean r) {
+		playingRadio = r;
+		if (r) repeat = false;
+		if (r&&queue.size()==0&&playingTrack==null) playNext();
 	}
 }
 

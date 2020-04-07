@@ -135,6 +135,10 @@ public class DBObject {
 	public void set(String key, boolean bool) {
 		json.addProperty(key, bool);
     }
+	public void set(String key, DBObject obj) {
+		json.add(key, obj.json);
+	}
+	
     public void remove(String key) {
 		json.remove(key);
 	}

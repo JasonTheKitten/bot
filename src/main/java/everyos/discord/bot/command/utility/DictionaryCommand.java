@@ -2,12 +2,18 @@ package everyos.discord.bot.command.utility;
 
 import java.util.ArrayList;
 
+import com.google.gson.JsonParser;
+
 import discord4j.core.object.entity.Message;
+import everyos.discord.bot.annotation.Help;
+import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.util.UnirestUtil;
 import reactor.core.publisher.Mono;
 
+@Help(help=LocalizedString.DictionaryCommandHelp, ehelp = LocalizedString.DictionaryCommandExtendedHelp, category=CategoryEnum.Utility)
 public class DictionaryCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
@@ -18,7 +24,7 @@ public class DictionaryCommand implements ICommand {
 			})
 			.map(resp->resp.getBody())
 			.flatMap(resp->{
-				String defraw = resp.getObject().getString("definition");
+				String defraw = JsonParser.parseString(resp).getAsJsonObject().get("definition").getAsString();
 				StringBuilder msg = new StringBuilder("**"+argument+" - Definition**\n");
 				Definition[] entries = parse(defraw, argument.toLowerCase());
 				if (entries.length==0) return channel.createMessage("I can't find that word!");

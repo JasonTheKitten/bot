@@ -11,6 +11,7 @@ import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.command.channel.ChatLinkCommand;
 import everyos.discord.bot.command.moderation.BanCommand;
 import everyos.discord.bot.command.moderation.KickCommand;
+import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.parser.ArgumentParser;
 import reactor.core.publisher.Mono;
 
@@ -36,13 +37,11 @@ public class ChatLinkChannelCase implements IGroupCommand {
             if (commands.containsKey(command)) return commands.get(command).execute(message, data, arg);
         }
 
-        return Mono.create(sink->{
-            String fromID = message.getChannelId().asString();
-            ChannelAdapter.of(data.shard, fromID).getDocument().getObject(obj->{
-                if (obj.has("data")&&obj.getOrDefaultObject("data", null).has("chatlinkid")) {
-                    sink.success(obj.getOrDefaultObject("data", null).getOrDefaultString("chatlinkid", null));
-                } else sink.error(new Exception("An exception has occured!"));
-            });
+        String fromID = message.getChannelId().asString();
+        return ChannelAdapter.of(data.shard, fromID).getData(obj->{
+            if (obj.has("data")&&obj.getOrDefaultObject("data", null).has("chatlinkid")) 
+                return Mono.just(obj.getOrDefaultObject("data", null).getOrDefaultString("chatlinkid", null));
+            return Mono.error(new Exception("An exception has occured!"));
         })
         .map(s->ChatLinkAdapter.of(data.shard, (String) s))
         .flatMapMany(cla->{
@@ -53,4 +52,6 @@ public class ChatLinkChannelCase implements IGroupCommand {
         })
         .last();
     }
+    
+    @Override public HashMap<String, ICommand> getCommands(Localization locale) { return commands; }
 }

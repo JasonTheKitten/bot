@@ -5,6 +5,8 @@ import java.util.HashMap;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.reaction.ReactionEmoji.Unicode;
+import everyos.discord.bot.annotation.Help;
+import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
@@ -13,6 +15,7 @@ import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import reactor.core.publisher.Mono;
 
+@Help(help=LocalizedString.GiveawayCommandHelp, ehelp = LocalizedString.GiveawayCommandExtendedHelp, category=CategoryEnum.Utility)
 public class GiveawayCommand implements IGroupCommand {
 	private HashMap<Localization, HashMap<String, ICommand>> lcommands;
 
@@ -42,13 +45,15 @@ public class GiveawayCommand implements IGroupCommand {
 
 		return command.execute(message, data, arg);
 	}
+
+	@Override public HashMap<String, ICommand> getCommands(Localization locale) { return lcommands.get(locale); }
 }
 
 class GiveawayCreateCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
 			if (argument.isEmpty()) {
-				
+				return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
 			}
 			
 			int feth = -1;
@@ -87,14 +92,10 @@ class GiveawayCreateCommand implements ICommand {
 					} else return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
 				} else if (parser.next().equals("--boost")||parser.next().equals("-b")) {
 					parser.eat();
-					if (parser.isNumerical()) {
-						server = parser.eat();
-					} else return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
+					reqboost = true;
 				} else if (parser.next().equals("--newboost")||parser.next().equals("-nb")) {
 					parser.eat();
-					if (parser.isNumerical()) {
-						server = parser.eat();
-					} else return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
+					boostMustBeNew = true;
 				} else if (parser.next().equals("--jointime")||parser.next().equals("-jt")) {
 					parser.eat();
 					//TODO
@@ -105,17 +106,32 @@ class GiveawayCreateCommand implements ICommand {
 			if (level==-1) level=0;
 			if (messages==-1) messages=0;
 			
-			return null;
+			GiveawayFormat format = new GiveawayFormat();
+			format.feth = feth;
+			format.messages = messages;
+			format.level = level;
+			
+			return sendGiveaway(channel, data, new GiveawayFormat());
 		});
 	}
 	
-	public Mono<?> sendGiveaway(MessageChannel channel, CommandData data, int feth, int level, int messages, String server, String req, boolean reqBoost,
-			boolean boostMustBeNew, long joinTime, long endTime) { //I dunno, maybe we should just make an object
+	public Mono<?> sendGiveaway(MessageChannel channel, CommandData data, GiveawayFormat format) {
 		return channel.createEmbed(embed->{
 			embed.setTitle(data.localize(LocalizedString.GiveawayTitle)); //TODO: Localize
 			embed.setDescription(data.localize(LocalizedString.GiveawayPrompt));
 		}).flatMap(embed->{
 			return embed.addReaction(Unicode.unicode("\uD83C\uDF89"));
 		});
+	}
+	
+	public class GiveawayFormat {
+		public int feth;
+		public int level;
+		public int messages;
+		public String server;
+		public String[] req;
+		public boolean reqBoost;
+		public long joinTime;
+		public long endTime;
 	}
 }

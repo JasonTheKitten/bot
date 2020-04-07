@@ -10,5 +10,21 @@ public enum LocalizedString {
     NoGiphyKey, MusicStopped, TrackSkipped, QueueShuffled, MusicPaused, MusicUnpaused, NoTrackPlaying, AutoDelete, 
     MessagesPurged, WelcomeMessageSet, GiveawayPrompt, MustBeInServer, MusicRepeatSet, MusicRepeatUnset, TicketCreated, 
     TicketMessageSet, DefaultTicketMessage, GiveawayTitle, RoleAlreadyExists, RoleCreated, NoSuchRole, RoleGiven, RoleRemoved,
-    Donate, SupportServer, ConfigurationReset, LeaveMessageSet, RoleAdded, TooManyRoles, DBLVote, StarboardSet, ActionCancelled
+    Donate, SupportServer, ConfigurationReset, LeaveMessageSet, RoleAdded, TooManyRoles, DBLVote, StarboardSet, ActionCancelled,
+    AutomodCommandHelp, AutomodCommandExtendedHelp, DisableCommandHelp, DisableCommandExtendedHelp, FilterCommandHelp,
+    FilterCommandExtendedHelp, IgnoreCommandHelp, IgnoreCommandExtendedHelp, MessageCommandHelp, MessageCommandExtendedHelp,
+    OneWordCommandHelp, OneWordCommandExtendedHelp, AdventureCommandHelp, AdventureCommandExtendedHelp, AkinatorCommandHelp,
+    AkinatorCommandExtendedHelp, CurrencyCommandHelp, CurrencyCommandExtendedHelp, GiphyCommandHelp, GiphyCommandExtendedHelp,
+    HugCommandHelp, HugCommandExtendedHelp, LevelCommandHelp, LevelCommandExtendedHelp, MusicCommandHelp, MusicCommandExtendedHelp,
+    UptimeCommandHelp, UptimeCommandExtendedHelp, DBLVoteCommandHelp, DBLVoteCommandExtendedHelp, DonateCommandHelp, DonateCommandExtendedHelp,
+    HelpCommandHelp, HelpCommandExtendedHelp, InfoCommandHelp, InfoCommandExtendedHelp, PingCommandHelp, PingCommandExtendedHelp,
+    SupportCommandHelp, SupportCommandExtendedHelp, AnnounceCommandHelp, AnnounceCommandExtendedHelp, BanCommandHelp, BanCommandExtendedHelp,
+    KickCommandHelp, KickCommandExtendedHelp, MuteCommandHelp, MuteCommandExtendedHelp, OWMCommandHelp, OWMCommandExtendedHelp, PurgeCommandHelp,
+    PurgeCommandExtendedHelp, UnmuteCommandHelp, UnmuteCommandExtendedHelp, AutoRoleCommandHelp, AutoRoleCommandExtendedHelp, CancelCommandHelp,
+    CancelCommandExtendedHelp, DictionaryCommandHelp, DictionaryCommandExtendedHelp, GiveawayCommandHelp, GiveawayCommandExtendedHelp,
+    LMSGCommandHelp, LMSGCommandExtendedHelp, ReactionCommandHelp, ReactionCommandExtendedHelp, RemindCommandHelp, RemindCommandExtendedHelp,
+    RemindIntervalCommandHelp, RemindIntervalCommandExtendedHelp, RoleCommandHelp, RoleCommandExtendedHelp, SuggestCommandHelp, SuggestCommandExtendedHelp,
+    TicketCommandHelp, TicketCommandExtendedHelp, TranslateCommandHelp, TranslateCommandExtendedHelp, TicketManagerCommandHelp, TicketManagerCommandExtendedHelp,
+    WMSGCommandHelp, WMSGCommandExtendedHelp, StarboardCommandHelp, StarboardCommandExtendedHelp, SuggestionsCommandHelp, SuggestionsCommandExtendedHelp,
+    TicketAlreadyExists, MusicRadioSet, MusicRadioUnset
 }

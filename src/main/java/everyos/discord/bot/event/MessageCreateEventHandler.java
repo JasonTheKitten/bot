@@ -10,7 +10,7 @@ import everyos.discord.bot.adapter.ChannelUserAdapter;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.adapter.MemberAdapter;
 import everyos.discord.bot.command.CommandData;
-import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizationProvider;
 import everyos.discord.bot.usercase.DefaultUserCase;
@@ -20,13 +20,13 @@ import reactor.core.publisher.Mono;
 
 public class MessageCreateEventHandler {
 	private ShardInstance shard = null;
-	private HashMap<String, ICommand> channels;
+	private HashMap<String, IGroupCommand> usercase;
 	public MessageCreateEventHandler(ShardInstance shard) {
 		this.shard = shard;
 		
-		channels = new HashMap<String, ICommand>();
-		channels.put("default", new DefaultUserCase(shard));
-		channels.put("ignore", new IgnoreUserCase(shard)); //NOTE: User cases are per-channel, while ignore is guild-wide. Must handle
+		usercase = new HashMap<String, IGroupCommand>();
+		usercase.put("default", new DefaultUserCase(shard));
+		usercase.put("ignore", new IgnoreUserCase(shard)); //NOTE: User cases are per-channel, while ignore is guild-wide. Must handle
 	}
 	
 	public Flux<?> handle(MessageCreateEvent event) {
@@ -36,7 +36,7 @@ public class MessageCreateEventHandler {
                 message
                     .getChannel()
                     .doOnError(e->e.printStackTrace())
-                    .flatMap(channel->GuildAdapter.of(shard, channel))
+                    .map(channel->GuildAdapter.of(shard, channel))
                     .doOnNext(adapter->{
                         String uid = message.getAuthor().get().getId().asString();
                         MemberAdapter.of(adapter, uid).getDocument().getObject((object, document)->{
@@ -72,10 +72,10 @@ public class MessageCreateEventHandler {
 	                
 	                LocalizationProvider provider = new LocalizationProvider(Localization.en_US);
 	                CommandData data = new CommandData(provider, shard);
+	                
+	                data.usercase = usercase.getOrDefault(cmode.get(), usercase.get("default"));
 	
-	                return
-	                    channels.getOrDefault(cmode.get(), channels.get("default"))
-	                        .execute(message, data, message.getContent().orElse(""))
+	                return data.usercase.execute(message, data, message.getContent().orElse(""))
 	                    .onErrorResume(e->{e.printStackTrace(); return Mono.empty();});
             	});
             })

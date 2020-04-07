@@ -104,9 +104,9 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 			case NoTrackPlaying:
 				return "Nothing seems to be playing. Why don't you start some music!?";
 			case ProfileCommandExtendedHelp:
-				break;
+				return "**[user]** The user to view. The default is yourself";
 			case ProfileCommandHelp:
-				break;
+				return "[user] Displays a variety of info about a user";
 			case QueueShuffled:
 				return "The queue has been shuffled.";
 			case TrackSkipped:
@@ -158,6 +158,190 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 				return "The role has been added!";
 			case TooManyRoles:
 				return "Too many roles already exist here - try removing one";
+			case ActionCancelled:
+				return "The ongoing operation has been cancelled!;";
+			case StarboardSet:
+				return "Created the starboard!";
+			case AdventureCommandExtendedHelp:
+				break;
+			case AdventureCommandHelp:
+				break;
+			case AkinatorCommandExtendedHelp:
+				break;
+			case AkinatorCommandHelp:
+				break;
+			case AnnounceCommandExtendedHelp:
+				return "**[text]** text not to process;";
+			case AnnounceCommandHelp:
+				return "[text] Ignores the text";
+			case AutoRoleCommandExtendedHelp:
+				break;
+			case AutoRoleCommandHelp:
+				break;
+			case AutomodCommandExtendedHelp:
+				break;
+			case AutomodCommandHelp:
+				break;
+			case BanCommandExtendedHelp:
+				return "**<user>** The user to be banned";
+			case BanCommandHelp:
+				return "<user> Bans the specified user";
+			case CancelCommandExtendedHelp:
+				break;
+			case CancelCommandHelp:
+				break;
+			case CurrencyCommandExtendedHelp:
+				break;
+			case CurrencyCommandHelp:
+				break;
+			case DBLVoteCommandExtendedHelp:
+				break;
+			case DBLVoteCommandHelp:
+				break;
+			case DictionaryCommandExtendedHelp:
+				break;
+			case DictionaryCommandHelp:
+				break;
+			case DisableCommandExtendedHelp:
+				break;
+			case DisableCommandHelp:
+				break;
+			case DonateCommandExtendedHelp:
+				break;
+			case DonateCommandHelp:
+				break;
+			case FilterCommandExtendedHelp:
+				break;
+			case FilterCommandHelp:
+				break;
+			case GiphyCommandExtendedHelp:
+				return "**[query]** The type of image to search. Defaults to *cat*";
+			case GiphyCommandHelp:
+				return "[query] Search an image via giphy";
+			case GiveawayCommandExtendedHelp:
+				break;
+			case GiveawayCommandHelp:
+				break;
+			case HelpCommandExtendedHelp:
+				return "**[command/group]** The command and/or group to show help for. Defaults to primary commands for the current channel.";
+			case HelpCommandHelp:
+				return "[command/group] Displays the help screen";
+			case HugCommandExtendedHelp:
+				return "**[user]** The user to hug. Default is yourself";
+			case HugCommandHelp:
+				return "[user] Hug a user!";
+			case IgnoreCommandExtendedHelp:
+				break;
+			case IgnoreCommandHelp:
+				break;
+			case InfoCommandExtendedHelp:
+				return "Shows GH url, dbl url, etc";
+			case InfoCommandHelp:
+				return "Displays a variety of neat little info blurbs";
+			case KickCommandExtendedHelp:
+				return "**<user>** The user to kick";
+			case KickCommandHelp:
+				return "<user> Kicks the specified user";
+			case LMSGCommandExtendedHelp:
+				return "**<channel>** The channel to send messages to\n" +
+					"**[message]** The message to be sent upon user leave";
+			case LMSGCommandHelp:
+				return "<channel> [message] Set a message to be sent when users leave";
+			case LevelCommandExtendedHelp:
+				break;
+			case LevelCommandHelp:
+				break;
+			case MessageCommandExtendedHelp:
+				break;
+			case MessageCommandHelp:
+				break;
+			case MusicCommandExtendedHelp:
+				break;
+			case MusicCommandHelp:
+				break;
+			case MuteCommandExtendedHelp:
+				break;
+			case MuteCommandHelp:
+				break;
+			case OWMCommandExtendedHelp:
+				break;
+			case OWMCommandHelp:
+				break;
+			case OneWordCommandExtendedHelp:
+				return "No additional usage details";
+			case OneWordCommandHelp:
+				return "Creates a new one-word game channel";
+			case PingCommandExtendedHelp:
+				return "Returns the two-way latency in millis";
+			case PingCommandHelp:
+				return "Check the bot's ping time";
+			case PurgeCommandExtendedHelp:
+				return
+					"**<messages>** Can be 'all', 'after [mid]', or an amount. Deletes a number of messages\n"+
+					"**[arguments...] Can be a user id to specify users whose messages should be deleted (default is all users) "+
+						"or a channel id to specify channels to include in the purge (default is current channel only)\n"+
+					"This command can only purge up to two weeks of messages";
+			case PurgeCommandHelp:
+				return "<messages> [arguments...] Deletes multiple messages at once";
+			case ReactionCommandExtendedHelp:
+				break;
+			case ReactionCommandHelp:
+				break;
+			case RemindCommandExtendedHelp:
+				break;
+			case RemindCommandHelp:
+				break;
+			case RemindIntervalCommandExtendedHelp:
+				break;
+			case RemindIntervalCommandHelp:
+				break;
+			case RoleCommandExtendedHelp:
+				break;
+			case RoleCommandHelp:
+				break;
+			case SuggestCommandExtendedHelp:
+				return "**<suggestion>** The content of the suggestion";
+			case SuggestCommandHelp:
+				return "<suggestion> Create a new suggestion with voting reactions in the current channel";
+			case SupportCommandExtendedHelp:
+				break;
+			case SupportCommandHelp:
+				break;
+			case TicketCommandExtendedHelp:
+				return "No additional usage";
+			case TicketCommandHelp:
+				return "Creates a new ticket";
+			case TicketManagerCommandExtendedHelp:
+				break;
+			case TicketManagerCommandHelp:
+				break;
+			case TranslateCommandExtendedHelp:
+				break;
+			case TranslateCommandHelp:
+				break;
+			case UnmuteCommandExtendedHelp:
+				break;
+			case UnmuteCommandHelp:
+				break;
+			case UptimeCommandExtendedHelp:
+				return "Total uptime is time since the bot was initially booted\nConnection uptime is time connected to gateway";
+			case UptimeCommandHelp:
+				return "Displays the bot's uptime";
+			case WMSGCommandExtendedHelp:
+				return "**<channel>** The channel to send messages to\n" +
+					"**[message]** The message to be sent upon user join";
+			case WMSGCommandHelp:
+				return "<channel> [message] Set a message to be sent when users join";
+			case StarboardCommandExtendedHelp:
+				break;
+			case StarboardCommandHelp:
+				break;
+			case SuggestionsCommandExtendedHelp:
+				break;
+			case SuggestionsCommandHelp:
+				break;
+			case TicketAlreadyExists:
+				break;
         }
         return "This text should not appear";
 	}

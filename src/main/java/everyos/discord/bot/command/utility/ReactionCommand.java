@@ -8,6 +8,8 @@ import discord4j.core.object.reaction.ReactionEmoji.Unicode;
 import discord4j.core.object.util.Permission;
 import discord4j.core.object.util.Snowflake;
 import everyos.discord.bot.adapter.MessageAdapter;
+import everyos.discord.bot.annotation.Help;
+import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
@@ -15,10 +17,10 @@ import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import everyos.discord.bot.util.PermissionUtil;
-import everyos.storage.database.DBDocument;
 import everyos.storage.database.DBObject;
 import reactor.core.publisher.Mono;
 
+@Help(help=LocalizedString.ReactionCommandHelp, ehelp = LocalizedString.ReactionCommandExtendedHelp, category=CategoryEnum.Utility)
 public class ReactionCommand implements IGroupCommand {
 	private HashMap<Localization, HashMap<String, ICommand>> lcommands;
 
@@ -46,6 +48,8 @@ public class ReactionCommand implements IGroupCommand {
 
 		return command.execute(message, data, arg);
 	}
+	
+	@Override public HashMap<String, ICommand> getCommands(Localization locale) { return lcommands.get(locale); }
 }
 
 class ReactionAddCommand implements ICommand {
@@ -65,22 +69,19 @@ class ReactionAddCommand implements ICommand {
 					String messageID = parser.eat();
 					//TODO: Unrecognized Usage
 					
-					DBDocument doc = MessageAdapter.of(data.shard, channel, messageID).getDocument();
-					doc.getObject(obj->{
+					return MessageAdapter.of(data.shard, channel, messageID).getData((obj, doc)->{
 						//TODO: Limits, for the sanity of my disk
 						//TODO: Finish
 						if (obj.getOrDefaultObject("roles", new DBObject()).has(reactID)) {
-							result.set(channel.createMessage(data.localize(LocalizedString.RoleAlreadyExists))); return;
+							return channel.createMessage(data.localize(LocalizedString.RoleAlreadyExists));
 						}
-						result.set(channel.getMessageById(Snowflake.of(messageID)).flatMap(msg->{
+						return channel.getMessageById(Snowflake.of(messageID)).flatMap(msg->{
 							obj.getOrCreateObject("roles", ()->new DBObject()).set(reactID, roleID);
 							doc.save();
 							
 							return msg.addReaction(Unicode.of(isID?Long.valueOf(reactID):null, reactID, true)).then(message.delete());
-						}));
+						});
 					});
-					
-					return result.get();
 				});
 		});
 	}

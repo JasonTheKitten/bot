@@ -4,12 +4,15 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.object.util.Permission;
 import discord4j.core.object.util.Snowflake;
 import everyos.discord.bot.adapter.ChannelAdapter;
+import everyos.discord.bot.annotation.Help;
+import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import reactor.core.publisher.Mono;
 
+@Help(help=LocalizedString.SuggestionsCommandHelp, ehelp=LocalizedString.SuggestionsCommandExtendedHelp, category=CategoryEnum.Channel)
 public class SuggestionsCommand implements ICommand {
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
         return message.getChannel().flatMap(channel->{
@@ -44,7 +47,7 @@ public class SuggestionsCommand implements ICommand {
                             .onErrorResume(e->channel.createMessage(
                                 data.locale.localize(LocalizedString.UnrecognizedChannel)).flatMap(m->Mono.empty()));
                     }).flatMap(c->{
-                        ChannelAdapter.of(data.shard, fromID).getDocument().getObject((obj, doc)->{
+                        ChannelAdapter.of(data.shard, fromID).getData((obj, doc)->{
                             obj.set("type", "suggestions");
                             obj.createObject("data", obj2->obj2.set("out", toID));
                             doc.save();

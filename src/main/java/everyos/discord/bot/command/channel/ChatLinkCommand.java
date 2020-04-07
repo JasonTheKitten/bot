@@ -20,10 +20,10 @@ import reactor.core.publisher.Mono;
 import xyz.downgoon.snowflake.Snowflake;
 
 public class ChatLinkCommand implements IGroupCommand {
-    public HashMap<Localization, HashMap<String, ICommand>> commands;
+    public HashMap<Localization, HashMap<String, ICommand>> lcommands;
     public ChatLinkCommand() {
-        commands = new HashMap<Localization, HashMap<String, ICommand>>();
-        HashMap<String, ICommand> lcommands;
+        lcommands = new HashMap<Localization, HashMap<String, ICommand>>();
+        HashMap<String, ICommand> commands;
 
         //Commands
         ICommand createCommand = new ChatLinkCreateCommand();
@@ -31,11 +31,11 @@ public class ChatLinkCommand implements IGroupCommand {
         ICommand acceptCommand = new ChatLinkAcceptCommand();
 
         //en_US
-        lcommands = new HashMap<String, ICommand>();
-        lcommands.put("create", createCommand);
-        lcommands.put("join", joinCommand);
-        lcommands.put("accept", acceptCommand);
-        commands.put(Localization.en_US, lcommands);
+        commands = new HashMap<String, ICommand>();
+        commands.put("create", createCommand);
+        commands.put("join", joinCommand);
+        commands.put("accept", acceptCommand);
+        lcommands.put(Localization.en_US, commands);
     }
 
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
@@ -49,10 +49,12 @@ public class ChatLinkCommand implements IGroupCommand {
                     String cmd = ArgumentParser.getCommand(argument);
 					String arg = ArgumentParser.getArgument(argument);
 
-                    return commands.get(data.locale.locale).getOrDefault(cmd, new InvalidSubcommand()).execute(message, data, arg);
+                    return lcommands.get(data.locale.locale).getOrDefault(cmd, new InvalidSubcommand()).execute(message, data, arg);
                 });
         });
     }
+    
+    @Override public HashMap<String, ICommand> getCommands(Localization locale) { return lcommands.get(locale); }
 }
 
 class ChatLinkCreateCommand implements ICommand {
@@ -81,7 +83,7 @@ class ChatLinkCreateCommand implements ICommand {
                     });
                 }).flatMap(clID->{
                 	String cid = channel.getId().asString();
-                    ChatLinkAdapter.of(data.shard, (String) clID).getDocument().getObject((clobj, cldoc)->{
+                    ChatLinkAdapter.of(data.shard, (String) clID).getData((clobj, cldoc)->{
                         clobj.createArray("admins", arr->{
                             arr.add(cid);
                         });

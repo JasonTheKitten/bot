@@ -12,6 +12,8 @@ public class CommandData {
     public LocalizationProvider locale;
     public ShardInstance shard;
     public BotInstance bot;
+	public IGroupCommand usercase;
+	public IGroupCommand channelcase;
 
     public CommandData(LocalizationProvider locale, ShardInstance shard) {
         this.locale = locale;

@@ -1,11 +1,12 @@
 package everyos.discord.bot.command.utility;
 
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.util.Permission;
 import everyos.discord.bot.adapter.GuildAdapter;
+import everyos.discord.bot.annotation.Help;
+import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
@@ -16,6 +17,7 @@ import everyos.discord.bot.util.PermissionUtil;
 import everyos.storage.database.DBArray;
 import reactor.core.publisher.Mono;
 
+@Help(help=LocalizedString.AutoRoleCommandHelp, ehelp = LocalizedString.AutoRoleCommandExtendedHelp, category=CategoryEnum.Utility)
 public class AutoRoleCommand implements IGroupCommand {
 	private HashMap<Localization, HashMap<String, ICommand>> lcommands;
 
@@ -47,6 +49,10 @@ public class AutoRoleCommand implements IGroupCommand {
 
 		return command.execute(message, data, arg);
 	}
+
+	@Override public HashMap<String, ICommand> getCommands(Localization locale) {
+		return lcommands.get(locale);
+	}
 }
 
 class AutoRoleAddCommand implements ICommand {
@@ -60,22 +66,18 @@ class AutoRoleAddCommand implements ICommand {
 					
 					if (!parser.couldBeRoleID()) return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage)).then(Mono.empty());
 					
-					AtomicReference<Mono<?>> completion = new AtomicReference<Mono<?>>();
-					completion.set(channel.createMessage(data.localize(LocalizedString.RoleAdded)));
-					
-					GuildAdapter.of(data.shard, guild).getDocument().getObject((obj, doc)->{
+					return GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
 						DBArray array = obj.getOrCreateArray("aroles", ()->new DBArray());
 						if (array.getLength()>=3) {
-							completion.set(channel.createMessage(data.localize(LocalizedString.TooManyRoles)));
-							return;
+							return channel.createMessage(data.localize(LocalizedString.TooManyRoles));
 						}
 						
 						array.add(parser.eatRoleID());
 						
 						doc.save();
+						
+						return channel.createMessage(data.localize(LocalizedString.RoleAdded));
 					});
-					
-					return completion.get();
 				});
 		});
 	}
@@ -92,7 +94,7 @@ class AutoRoleRemoveCommand implements ICommand {
 					
 					if (!parser.couldBeRoleID()) return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage)).then(Mono.empty());
 					
-					GuildAdapter.of(data.shard, guild).getDocument().getObject((obj, doc)->{
+					GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
 						DBArray array = obj.getOrDefaultArray("aroles", new DBArray());
 						array.removeFirst(parser.eatRoleID());
 						

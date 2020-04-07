@@ -3,14 +3,14 @@ package everyos.discord.bot.command.fun;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import discord4j.core.object.entity.Message;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.adapter.MemberAdapter;
 import everyos.discord.bot.adapter.TopEntityAdapter;
+import everyos.discord.bot.annotation.Help;
+import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
@@ -24,6 +24,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 //TODO: Localize more
+@Help(help=LocalizedString.CurrencyCommandHelp, ehelp = LocalizedString.CurrencyCommandExtendedHelp, category=CategoryEnum.Fun)
 public class CurrencyCommand implements IGroupCommand {
     private HashMap<Localization, HashMap<String, ICommand>> lcommands;
 
@@ -60,6 +61,8 @@ public class CurrencyCommand implements IGroupCommand {
 	    
         return command.execute(message, data, arg);
     }
+    
+    @Override public HashMap<String, ICommand> getCommands(Localization locale) { return lcommands.get(locale); }
 }
 
 class CurrencyBalanceCommand implements ICommand {
@@ -90,9 +93,8 @@ class CurrencyBalanceCommand implements ICommand {
             		String targetname = targetnameraw+"'s";
             		if (member.getId().asString().equals(fuid)) targetname = "Your";
             		
-            		AtomicInteger feth = new AtomicInteger();
-                    madapter.getDocument().getObject(obj->feth.set(obj.getOrDefaultInt("feth", 0)));
-                    if (feth.get() == 0) {
+            		int feth = madapter.getData(obj->obj.getOrDefaultInt("feth", 0));
+                    if (feth == 0) {
                         return channel.createMessage(data.locale.localize(LocalizedString.ZeroBalance,
                         	FillinUtil.of("feth", String.valueOf(feth), "target", targetname))); 
                         //I don't think this is actually reachable under normal use
@@ -111,25 +113,22 @@ class CurrencyDailyCommand implements ICommand {
         	TopEntityAdapter teadapter = TopEntityAdapter.of(data.shard, channel);
         	if (!teadapter.isOfGuild()) return Mono.empty();
         	GuildAdapter gadapter = (GuildAdapter) teadapter.getPrimaryAdapter();
-        	return Mono.create(sink->{
-	            MemberAdapter.of(gadapter, message.getAuthor().orElse(null).getId().asString()).getDocument().getObject((obj, doc)->{
-	            	long curtime = System.currentTimeMillis();
-	                long time = obj.getOrDefaultLong("fethdaily", 0);
-	                long timeleft = time-curtime;
-	                if (timeleft<=0) {
-	                	obj.set("fethdaily", System.currentTimeMillis()+(24*60*60*1000));
-	                    obj.set("feth",  obj.getOrDefaultInt("feth", 0)+100);
-	                    doc.save();
-	                    sink.success(channel.createMessage(data.locale.localize(LocalizedString.ReceivedDaily, FillinUtil.of("feth", "100"))));
-	                } else {
-	                	String hours = String.valueOf(TimeUtil.getHours(timeleft, false));
-	                	String minutes = String.valueOf(TimeUtil.getMinutes(timeleft, true));
-	                	String seconds = String.valueOf(TimeUtil.getSeconds(timeleft, true));
-	                	sink.success(channel.createMessage(data.locale.localize(LocalizedString.NoDaily,
-	                		FillinUtil.of("h", hours, "m", minutes, "s", seconds))));
-	                }
-	            });
-        	}).flatMap(m->(Mono<?>) m);
+            return MemberAdapter.of(gadapter, message.getAuthor().orElse(null).getId().asString()).getData((obj, doc)->{
+            	long curtime = System.currentTimeMillis();
+                long time = obj.getOrDefaultLong("fethdaily", 0);
+                long timeleft = time-curtime;
+                if (timeleft<=0) {
+                	obj.set("fethdaily", System.currentTimeMillis()+(24*60*60*1000));
+                    obj.set("feth",  obj.getOrDefaultInt("feth", 0)+100);
+                    doc.save();
+                    return channel.createMessage(data.locale.localize(LocalizedString.ReceivedDaily, FillinUtil.of("feth", "100")));
+                } else {
+                	String hours = String.valueOf(TimeUtil.getHours(timeleft, false));
+                	String minutes = String.valueOf(TimeUtil.getMinutes(timeleft, true));
+                	String seconds = String.valueOf(TimeUtil.getSeconds(timeleft, true));
+                	return channel.createMessage(data.locale.localize(LocalizedString.NoDaily, FillinUtil.of("h", hours, "m", minutes, "s", seconds)));
+                }
+            });
         });
     }
 }
@@ -153,29 +152,23 @@ class CurrencyGiveCommand implements ICommand {
                         int amount = (int) parser.eatNumerical();
                         MemberAdapter invoker = MemberAdapter.of(gadapter, uid);
                         
-                        AtomicReference<Mono<Message>> reference = new AtomicReference<Mono<Message>>();
-                        
-                        invoker.getDocument().getObject((pobj, pdoc)->{
+                        return invoker.getData((pobj, pdoc)->{
                         	int ifeth = pobj.getOrDefaultInt("feth", 0);
                             if (amount<0) {
-                            	reference.set(channel.createMessage(data.locale.localize(LocalizedString.CurrencyStealing)));
-                            	return;
+                            	return channel.createMessage(data.locale.localize(LocalizedString.CurrencyStealing));
                             }
                             if (ifeth<amount) {
-                            	reference.set(channel.createMessage(data.locale.localize(LocalizedString.NotEnoughCurrency)));
-                            	return;
+                            	return channel.createMessage(data.locale.localize(LocalizedString.NotEnoughCurrency));
                             }
-                            madapter.getDocument().getObject((tobj, tdoc)->{
+                            return madapter.getData((tobj, tdoc)->{
 	                            pobj.set("feth", ifeth-amount);
 	                            pdoc.save();
 	                            
 	                            tobj.set("feth", tobj.getOrDefaultInt("feth", 0)+amount);
 	                            tdoc.save();
-	                            reference.set(channel.createMessage(data.locale.localize(LocalizedString.MoneySent)));
+	                            return channel.createMessage(data.locale.localize(LocalizedString.MoneySent));
                             });
                         });
-                        
-                        return reference.get();
                     } else {
                         return channel.createMessage(data.locale.localize(LocalizedString.UnrecognizedUsage));
                     }
@@ -211,14 +204,13 @@ class CurrencyTopCommand implements ICommand {
 	                            lboard.add(i, member); break;
 	                        } else {
 	                        	int ic = i;
-	                        	AtomicBoolean doBreak = new AtomicBoolean(false);
-	                        	lboard.get(i).getObject(obj2->{
+	                        	if (lboard.get(i).getObject(obj2->{
 	                        		if (obj2.getOrDefaultInt("feth", 0)<money) {
 	                        			lboard.add(ic, member);
-	                        			doBreak.set(true);
+	                        			return true;
 	                        		}
-	                        	});
-	                        	if (doBreak.get()) break;
+	                        		return false;
+	                        	})) break;
 	                        }
 	                    }
                     });
@@ -254,14 +246,16 @@ class CurrencyTopCommand implements ICommand {
     private void addToLeaderboard(int i, int size, LinkedList<DBDocument> lboard, ArrayList<Mono<?>> monos, ArrayList<EmbedFieldEntry> boardusers, GuildAdapter gadapter, MemberAdapter invoker) {
         if (i>=size) return;
         MemberAdapter user = MemberAdapter.of(gadapter, lboard.get(i).getName());
-        user.getDocument().getObject(obj->{
+        user.getData(obj->{
 	        int feth = obj.getOrDefaultInt("feth", 0);
-	        if (feth<=0&&!(user==invoker)) return;
+	        if (feth<=0&&!(user==invoker)) return null;
 	        Mono<?> mono = user.getMember()
 	        	.doOnNext(m->{
 	        		boardusers.add(new EmbedFieldEntry("#"+(i+1)+(user.equals(invoker)?" (You)":""), m.getDisplayName()+": "+feth+" feth")); //TODO: Filter
 	        	});
 	        monos.add(mono);
+	        
+	        return null;
         });
     }
 }

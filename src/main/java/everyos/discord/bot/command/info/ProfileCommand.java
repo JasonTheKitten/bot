@@ -1,5 +1,8 @@
 package everyos.discord.bot.command.info;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.util.Image.Format;
@@ -7,13 +10,14 @@ import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.adapter.MemberAdapter;
 import everyos.discord.bot.adapter.TopEntityAdapter;
 import everyos.discord.bot.annotation.Help;
+import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import reactor.core.publisher.Mono;
 
-@Help(help=LocalizedString.ProfileCommandHelp, ehelp=LocalizedString.ProfileCommandExtendedHelp)
+@Help(help=LocalizedString.ProfileCommandHelp, ehelp=LocalizedString.ProfileCommandExtendedHelp, category=CategoryEnum.Utility)
 public class ProfileCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
@@ -37,7 +41,8 @@ public class ProfileCommand implements ICommand {
 						embed.setTitle("Profile - "+user.getUsername()+"#"+user.getDiscriminator()); //TODO: Localize & Filter
 						embed.setDescription("User information");
 						embed.addField("Nickname", user.getDisplayName(), true);
-						//TODO: embed.addField("Joined", user.getJoinTime()., inline)
+						ZonedDateTime sdate = user.getJoinTime().atZone(ZoneId.of("GMT"));
+						embed.addField("Joined Server", sdate.getMonthValue()+"/"+sdate.getDayOfMonth()+"/"+sdate.getYear(), false);
 						invoker.getAvatarUrl(Format.PNG).ifPresent(url->embed.setAuthor(invoker.getUsername()+"#"+invoker.getDiscriminator(), null, url));
 						//TODO: Balanace and level
 						user.getAvatarUrl(Format.PNG).ifPresent(url->embed.setImage(url));

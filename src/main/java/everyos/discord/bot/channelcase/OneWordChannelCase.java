@@ -14,6 +14,7 @@ import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.command.moderation.OneWordModerationCommand;
+import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import everyos.storage.database.DBObject;
@@ -51,7 +52,7 @@ public class OneWordChannelCase implements IGroupCommand {
         return message.getChannel().flatMap(channel->{
 	        return Mono.create(sink->{
 	            String fromID = message.getChannelId().asString();
-	            ChannelAdapter.of(data.shard, fromID).getDocument().getObject((obj, doc)->{
+	            ChannelAdapter.of(data.shard, fromID).getData((obj, doc)->{
 	                if (obj.has("data")) {
 	                	//TODO: Check user ID
 	                	if (!words.has(content.toLowerCase())) {
@@ -84,4 +85,6 @@ public class OneWordChannelCase implements IGroupCommand {
 	        .flatMap(mono->(Mono<?>) mono);
        });
     }
+    
+    @Override public HashMap<String, ICommand> getCommands(Localization locale) { return commands; }
 }

@@ -2,22 +2,27 @@ package everyos.discord.bot.command.utility;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.concurrent.atomic.AtomicReference;
 
 import discord4j.core.object.PermissionOverwrite;
 import discord4j.core.object.entity.GuildMessageChannel;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.util.Permission;
 import discord4j.core.object.util.PermissionSet;
 import everyos.discord.bot.adapter.ChannelAdapter;
 import everyos.discord.bot.adapter.GuildAdapter;
+import everyos.discord.bot.adapter.MemberAdapter;
+import everyos.discord.bot.annotation.Help;
+import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
+import everyos.discord.bot.util.PermissionUtil;
 import reactor.core.publisher.Mono;
 
+@Help(help=LocalizedString.TicketCommandHelp, ehelp = LocalizedString.TicketCommandExtendedHelp, category=CategoryEnum.Utility)
 public class TicketCommand implements IGroupCommand {
 	private HashMap<Localization, HashMap<String, ICommand>> lcommands;
 
@@ -33,6 +38,7 @@ public class TicketCommand implements IGroupCommand {
 	    commands = new HashMap<String, ICommand>();
 	    commands.put("create", createCommand);
 	    commands.put("setmessage", setMessageCommand);
+	    //TODO: Reaction command
 	    lcommands.put(Localization.en_US, commands);
 	}
 	
@@ -55,12 +61,25 @@ public class TicketCommand implements IGroupCommand {
 			return command.execute(message, data, arg);
 		});
 	}
+	
+	@Override public HashMap<String, ICommand> getCommands(Localization locale) { return lcommands.get(locale); }
 }
 
 class TicketCreateCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
-		//TODO: Users should only be able to open one ticket per guild at a time
 		return message.getGuild().flatMap(guild->{
+			boolean ticketAlreadyExists = MemberAdapter.of(data.shard, guild, message.getAuthor().get()).getData((obj, doc)->{
+				Boolean tae = obj.getOrDefaultBoolean("ticket", false);
+				obj.set("ticket", true);
+				
+				doc.save();
+				return tae;
+			});
+			
+			if (ticketAlreadyExists) return message.getChannel()
+				.flatMap(c->c.createMessage(data.localize(LocalizedString.TicketAlreadyExists)))
+				.then(Mono.empty());
+			
 			return guild.createTextChannel(channel->{
 				channel.setName("Ticket-x");
 				channel.setReason("Opened by user "+message.getAuthor().get().getId().asString());
@@ -82,20 +101,20 @@ class TicketCreateCommand implements ICommand {
 				channel.setPermissionOverwrites(set);
 			})
 			.flatMap(channel->{
-				ChannelAdapter.of(data.shard, channel.getId().asString()).getDocument().getObject((obj, doc)->{
+				ChannelAdapter.of(data.shard, channel.getId().asString()).getData((obj, doc)->{
 					obj.set("type", "ticket");
 					obj.createObject("data", dataobj->{});
 					
 					doc.save();
 				});
+				//TODO: Store ticket ID in user info
 				
-				AtomicReference<String> reason = new AtomicReference<String>();
-				GuildAdapter.of(data.shard, guild).getDocument().getObject(obj->{
-					reason.set(obj.getOrDefaultString("message", data.localize(LocalizedString.DefaultTicketMessage)));
-					//TODO: A class to format this stuff. Also, localize
+				String reason = GuildAdapter.of(data.shard, guild).getDocument().getObject(obj->{
+					return obj.getOrDefaultString("message", data.localize(LocalizedString.DefaultTicketMessage));
+					//TODO: A class to format this stuff.
 				});
 				
-				return channel.createMessage(reason.get());
+				return channel.createMessage(reason);
 			})
 			.flatMap(o->message.getChannel())
 			.flatMap(channel->channel.createMessage(data.localize(LocalizedString.TicketCreated)));
@@ -106,14 +125,14 @@ class TicketCreateCommand implements ICommand {
 class SetMessageCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
-			return message.getGuild().map(guild->{
-				//TODO: Permissions
-				GuildAdapter.of(data.shard, guild).getDocument().getObject((obj, doc)->{
-					obj.set("message", argument); doc.save();
+			return message.getAuthorAsMember().flatMap(m->PermissionUtil.check(m, channel, data.locale, Permission.MANAGE_MESSAGES))
+				.flatMap(o->message.getGuild()).map(guild->{ //Would rather use .then, but whatever
+					GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
+						obj.set("message", argument); doc.save();
+					});
+					
+					return channel.createMessage(data.localize(LocalizedString.TicketMessageSet));
 				});
-				
-				return channel.createMessage(data.localize(LocalizedString.TicketMessageSet));
-			});
 		});
 	}
 }

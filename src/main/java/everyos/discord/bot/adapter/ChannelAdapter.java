@@ -1,7 +1,12 @@
 package everyos.discord.bot.adapter;
 
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import everyos.discord.bot.ShardInstance;
 import everyos.storage.database.DBDocument;
+import everyos.storage.database.DBObject;
 
 public class ChannelAdapter implements IAdapter {
     private ShardInstance instance;
@@ -19,4 +24,14 @@ public class ChannelAdapter implements IAdapter {
     @Override public DBDocument getDocument() {
         return instance.db.collection("channels").getOrSet(id, doc->{});
     }
+
+	public <T> T getData(Function<DBObject, T> func) {
+		return getDocument().getObject(func);
+	}
+    public <T> T getData(BiFunction<DBObject, DBDocument, T> func) {
+		return getDocument().getObject(func);
+	}
+    public void getData(BiConsumer<DBObject, DBDocument> func) {
+		getDocument().getObject(func);
+	}
 }

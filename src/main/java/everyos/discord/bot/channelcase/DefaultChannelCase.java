@@ -17,6 +17,7 @@ import everyos.discord.bot.command.fun.MusicCommand;
 import everyos.discord.bot.command.fun.OneWordCommand;
 import everyos.discord.bot.command.info.DBLVoteCommand;
 import everyos.discord.bot.command.info.DonateCommand;
+import everyos.discord.bot.command.info.HelpCommand;
 import everyos.discord.bot.command.info.InfoCommand;
 import everyos.discord.bot.command.info.PingCommand;
 import everyos.discord.bot.command.info.ProfileCommand;
@@ -33,7 +34,9 @@ import everyos.discord.bot.command.utility.ReactionCommand;
 import everyos.discord.bot.command.utility.RoleCommand;
 import everyos.discord.bot.command.utility.SuggestCommand;
 import everyos.discord.bot.command.utility.TicketCommand;
+import everyos.discord.bot.command.utility.TranslateCommand;
 import everyos.discord.bot.command.utility.WelcomeCommand;
+import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.parser.ArgumentParser;
 import reactor.core.publisher.Mono;
 
@@ -69,6 +72,8 @@ public class DefaultChannelCase implements IGroupCommand {
         commands.put("reaction", new ReactionCommand());
         commands.put("starboard", new StarboardCommand());
         commands.put("dict", new DictionaryCommand());
+        commands.put("help", new HelpCommand());
+        commands.put("translate", new TranslateCommand());
     }
 
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
@@ -82,4 +87,6 @@ public class DefaultChannelCase implements IGroupCommand {
         if (commands.containsKey(command)) return commands.get(command).execute(message, data, arg);
         return Mono.empty();
     }
+    
+    @Override public HashMap<String, ICommand> getCommands(Localization locale) { return commands; }
 }

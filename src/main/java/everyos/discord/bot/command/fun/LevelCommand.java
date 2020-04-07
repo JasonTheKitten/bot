@@ -1,18 +1,18 @@
 package everyos.discord.bot.command.fun;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import discord4j.core.object.entity.Message;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.adapter.MemberAdapter;
-import everyos.discord.bot.adapter.TopEntityAdapter;
+import everyos.discord.bot.annotation.Help;
+import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
-import everyos.discord.bot.command.IGroupCommand;
+import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import reactor.core.publisher.Mono;
 
-public class LevelCommand implements IGroupCommand {
+@Help(help=LocalizedString.LevelCommandHelp, ehelp = LocalizedString.LevelCommandExtendedHelp, category=CategoryEnum.Fun)
+public class LevelCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		//TODO: Subcommands
 		
@@ -31,16 +31,14 @@ public class LevelCommand implements IGroupCommand {
         	} else {
         		return channel.createMessage(data.locale.localize(LocalizedString.UnrecognizedUsage));
         	}
-            TopEntityAdapter teadapter = TopEntityAdapter.of(data.shard, channel);
-            if (!teadapter.isOfGuild()) return Mono.empty(); //TODO
-            MemberAdapter madapter = MemberAdapter.of((GuildAdapter) teadapter.getPrimaryAdapter(), uid); //TODO: Check uid exists
+        	
+            MemberAdapter madapter = MemberAdapter.of(GuildAdapter.of(data.shard, channel), uid); //TODO: Check uid exists
             
             String fuid = iuid;
             return madapter.getMember()
             	.flatMap(member->{
-            		AtomicInteger xpa = new AtomicInteger();
-                    madapter.getDocument().getObject(obj->xpa.set(obj.getOrDefaultInt("xp", 0)));
-                    int xp = xpa.get();
+            		int xpa = madapter.getData(obj->obj.getOrDefaultInt("xp", 0));
+                    int xp = xpa;
                     int xpl = xp;
                     int level = 1;
                     int tnl = 3;

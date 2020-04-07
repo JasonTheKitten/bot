@@ -1,56 +1,71 @@
 package everyos.discord.bot.command.fun;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.User;
+import discord4j.core.object.util.Snowflake;
+import everyos.discord.bot.annotation.Help;
+import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.localization.LocalizedString;
+import everyos.discord.bot.parser.ArgumentParser;
 import reactor.core.publisher.Mono;
 
+@Help(help=LocalizedString.HugCommandHelp, ehelp = LocalizedString.HugCommandExtendedHelp, category=CategoryEnum.Fun)
 public class HugCommand implements ICommand {
+	String[] hugs;
+	
+	public HugCommand() {
+		try {
+            InputStream in = ClassLoader.getSystemResourceAsStream("hugs.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            ArrayList<String> hugs = new ArrayList<String>();
+            reader.lines().forEach(line->hugs.add(line));
+            reader.close();
+            this.hugs = hugs.toArray(new String[hugs.size()]);
+        } catch (Exception e) { e.printStackTrace(); }
+	}
+	
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
-		String[] hugs = new String[] { //TODO: Move to file
-				"https://i.giphy.com/media/9JnRMIFMYAKpaHRXRF/200.gif",
-				"https://i.giphy.com/media/HwOGA0ZvBXP5C/200.gif",
-				"https://i.giphy.com/media/8tpiC1JAYVMFq/200.gif",
-				"https://i.giphy.com/media/ViKfjpmrS8Cf6/200.gif",
-				"https://i.giphy.com/media/1FkCqpyObTuo0/200.gif",
-				"https://i.giphy.com/media/gl8ymnpv4Sqha/200.gif",
-				"https://i.giphy.com/media/3M4NpbLCTxBqU/200.gif",
-				"https://i.giphy.com/media/jMGxhWR7rtTNu/200.gif",
-				"https://i.giphy.com/media/j0AsV8zMp1JJQGSbLS/200.gif",
-				"https://i.giphy.com/media/l4FGpP4lxGGgK5CBW/200.gif",
-				"https://i.giphy.com/media/lXiRKBj0SAA0EWvbG/200.gif",
-				"https://i.giphy.com/media/3bdGMdcWTIto24a8vK/200.gif",
-				"https://i.giphy.com/media/gnXG2hODaCOru/200.gif",
-				"https://i.giphy.com/media/JdPmb95rKeDn2/200.gif",
-				"https://i.giphy.com/media/Ilkurs1e3hP0c/200.gif",
-				"https://i.giphy.com/media/UwaByp0aMg6BO/200.gif",
-				"https://i.giphy.com/media/dfgm6lXR4pV8k/200w.gif",
-				"https://i.giphy.com/media/88usq9ke3jvlm/200.gif",
-				"https://i.giphy.com/media/2GnS81AihShS8/200.gif",
-				"https://i.giphy.com/media/TT9sxutF6IlTW/200.gif",
-				"https://i.giphy.com/media/fWrorpy7Jrlvi/200.gif",
-				"https://i.giphy.com/media/fvN5KrNcKKUyX7hNIA/200.gif",
-				"https://i.giphy.com/media/1yjLtavDnVGaMUdL43/200.gif",
-				"https://i.giphy.com/media/gGpkYyAEQbfjNEwLur/200.gif",
-				"https://i.giphy.com/media/J1S1lQ3bCNj1RYN0b9/200.gif",
-				"https://i.giphy.com/media/f487AxBVvjt8FcceRb/200.gif",
-				"https://i.giphy.com/media/2ZZN9mOePSw9QEms2v/200.gif",
-				"https://i.giphy.com/media/nt0vgOawKunde/200.gif",
-				"https://i.giphy.com/media/7J86GZZBkd8swc0IOV/200.gif",
-				"https://i.giphy.com/media/Yj8onktWOcxnXhcBUP/200.gif",
-				"https://i.giphy.com/media/Tja5U6KuWPVGE/200.gif",
-				"https://i.giphy.com/media/Bq6r8jnThNGixJY8c0/200.gif",
-				"https://i.giphy.com/media/p3rk2Uj69XljusB6TO/200.gif",
-				"https://i.giphy.com/media/KDteE5sy0H1gW8kxQV/200.gif",
-				"https://i.giphy.com/media/HvitTO6AhBGCY/200.gif",
-				"https://i.giphy.com/media/sX755wvr2Q6gE/200.gif",
-				"https://i.giphy.com/media/h9NEP5r1O1z56/200.gif"
-		};
-		return message.getChannel().flatMap(channel->{ //TODO: X sent Y a hug
-			return channel.createEmbed(embed->{
-				embed.setDescription("You've been sent a hug!");
-				embed.setImage(hugs[(int)Math.round(Math.random()*hugs.length)]);
-				embed.setFooter("Powered by Giphy", null);
+		return message.getChannel().flatMap(channel->{
+			User author = message.getAuthor().get();
+			Mono<User> mono;	
+			ArgumentParser parser = new ArgumentParser(argument);
+			if (parser.isEmpty()) {
+				mono = Mono.just(author);
+			} else if (!parser.couldBeUserID()) {
+				return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
+			} else {
+				mono = data.shard.client.getUserById(Snowflake.of(parser.eatUserID())); //TODO: Check user valid (UserUtil)
+			}
+			
+			return mono.flatMap(target->{
+				return channel.createEmbed(embed->{
+					if (target.getId().equals(author.getId())) {
+						embed.setDescription("You've been sent a hug!"); //TODO: Localize
+					} else if (target.getId().equals(Snowflake.of(data.shard.clientID))) {
+						embed.setDescription("--- wuvs you!");
+					} else {
+						embed.setDescription(String.format("%s#%s sent %s#%s a hug!", //TODO: Localize
+							author.getUsername(), author.getDiscriminator(),
+							target.getUsername(), target.getDiscriminator()));
+					}
+					
+					String hugURL = hugs[(int) Math.round(Math.random()*(hugs.length-1))];
+					embed.setImage(hugURL);
+					if (hugURL.contains("giphy.com")) { //Sloppy, will edit later
+						embed.setFooter("Powered by Giphy", null); //Not localized, I can't care enough
+					} else if (hugURL.contains("tenor.com")) {
+						embed.setFooter("Powered by Tenor", null);
+					} else {
+						embed.setFooter("Powered by Unknown Image Provider", null);
+					}
+				});
 			});
 		});
 	}

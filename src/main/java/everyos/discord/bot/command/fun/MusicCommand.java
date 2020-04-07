@@ -11,8 +11,11 @@ import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.adapter.MemberAdapter;
 import everyos.discord.bot.adapter.MusicAdapter;
 import everyos.discord.bot.adapter.TopEntityAdapter;
+import everyos.discord.bot.annotation.Help;
+import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
@@ -20,7 +23,8 @@ import everyos.discord.bot.util.MusicUtil;
 import everyos.discord.bot.util.TimeUtil;
 import reactor.core.publisher.Mono;
 
-public class MusicCommand implements ICommand {
+@Help(help=LocalizedString.MusicCommandHelp, ehelp = LocalizedString.MusicCommandExtendedHelp, category=CategoryEnum.Fun)
+public class MusicCommand implements IGroupCommand {
 	private HashMap<Localization, HashMap<String, ICommand>> lcommands;
 	public MusicCommand() {
 		HashMap<String, ICommand> commands;
@@ -35,6 +39,9 @@ public class MusicCommand implements ICommand {
         ICommand musicUnpauseCommand = new MusicUnpauseCommand();
         ICommand musicNpCommand = new MusicNpCommand();
         ICommand musicRepeatCommand = new MusicRepeatCommand();
+        ICommand musicQueueCommand = new MusicQueueCommand();
+        ICommand musicPlaylistCommand = new MusicPlaylistCommand();
+        ICommand musicRadioCommand = new MusicRadioCommand();
 
         //en_US
         commands = new HashMap<String, ICommand>();
@@ -47,6 +54,40 @@ public class MusicCommand implements ICommand {
         commands.put("np", musicNpCommand);
         commands.put("nowplaying", musicNpCommand);
         commands.put("repeat", musicRepeatCommand);
+        commands.put("queue", musicQueueCommand);
+        commands.put("playlist", musicPlaylistCommand);
+        commands.put("radio", musicRadioCommand);
+        lcommands.put(Localization.en_US, commands);
+	}
+	
+	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
+        if (argument.equals(""))
+        	return message.getChannel().flatMap(c->c.createMessage(data.locale.localize(LocalizedString.NoSuchSubcommand)));
+
+        String cmd = ArgumentParser.getCommand(argument);
+        String arg = ArgumentParser.getArgument(argument);
+        
+        ICommand command = lcommands.get(data.locale.locale).get(cmd);
+        
+        if (command==null)
+        	return message.getChannel().flatMap(c->c.createMessage(data.locale.localize(LocalizedString.NoSuchSubcommand)));
+	    
+        return command.execute(message, data, arg);
+    }
+
+	@Override public HashMap<String, ICommand> getCommands(Localization locale) { return lcommands.get(locale); }
+}
+
+class MusicPlaylistCommand implements ICommand {
+	private HashMap<Localization, HashMap<String, ICommand>> lcommands;
+	public MusicPlaylistCommand() {
+		HashMap<String, ICommand> commands;
+        lcommands = new HashMap<Localization, HashMap<String, ICommand>>();
+
+        //Commands
+
+        //en_US
+        commands = new HashMap<String, ICommand>();
         lcommands.put(Localization.en_US, commands);
 	}
 	
@@ -90,12 +131,13 @@ abstract class GenericMusicCommand implements ICommand {
 class MusicPlayCommand extends GenericMusicCommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument, MusicAdapter ma, MessageChannel channel) {
 		return MusicUtil.lookup(ma.getPlayer(), argument).flatMap(track->{
-			return ma.queue(track, 0).flatMap(o->channel.createEmbed(embed->{
+			return ma.queue(track, ma.getQueue().length).flatMap(o->channel.createEmbed(embed->{
 				AudioTrackInfo info = track.getInfo();
 				embed.setAuthor(data.safe(info.author), info.uri, null);
 				embed.setTitle(data.safe(info.title));
                 embed.setDescription("Song added to queue");
                 embed.addField("Length", TimeUtil.formatTime(info.length), false);
+                embed.setFooter("Requested by User ID "+message.getAuthor().get().getId().asString(), null);
 			}));
 		}); 
 	}
@@ -110,7 +152,9 @@ class MusicStopCommand extends GenericMusicCommand {
 
 class MusicSkipCommand extends GenericMusicCommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument, MusicAdapter ma, MessageChannel channel) {
-		ma.skip(Integer.valueOf(argument)); //TODO: Catch exceptions
+		if (argument.isEmpty()) {
+			ma.skip(0);
+		} else ma.skip(Integer.valueOf(argument)); //TODO: Catch exceptions
 		return channel.createMessage(data.localize(LocalizedString.TrackSkipped));
 	}
 }
@@ -138,6 +182,10 @@ class MusicUnpauseCommand extends GenericMusicCommand {
 
 class MusicNpCommand extends GenericMusicCommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument, MusicAdapter ma, MessageChannel channel) {
+		return showNowPlaying(data, ma, channel);
+	}
+	
+	public static Mono<?> showNowPlaying(CommandData data, MusicAdapter ma, MessageChannel channel) {
 		AudioTrack np = ma.getPlaying();
 		if (np==null) return channel.createMessage(data.localize(LocalizedString.NoTrackPlaying));
         return channel.createEmbed(embed->{
@@ -160,33 +208,47 @@ class MusicRepeatCommand extends GenericMusicCommand {
 	}
 }
 
+class MusicQueueCommand extends GenericMusicCommand {
+	@Override Mono<?> execute(Message message, CommandData data, String argument, MusicAdapter ma, MessageChannel channel) {
+		AudioTrack[] queue = ma.getQueue();
+		
+		if (queue.length==0) return MusicNpCommand.showNowPlaying(data, ma, channel);
+		
+		return channel.createEmbed(embed->{
+			embed.setTitle("Music Queue");
+            Long ttime = 0L;
+            
+            {
+            	AudioTrack track = ma.getPlaying();
+                embed.addField("Now playing", "**Title:** "+track.getInfo().title+"\n"+
+                    "**Length:** "+TimeUtil.formatTime(track.getDuration()), false);
+                ttime+=track.getDuration();
+            }
+            for (int i=0; i<queue.length; i++) {
+                AudioTrack track = queue[i];
+                embed.addField("Track "+(i+1), "**Title:** "+track.getInfo().title+"\n"+
+                    "**Length:** "+TimeUtil.formatTime(track.getDuration()), false);
+
+                ttime+=track.getDuration();
+            }
+            embed.setFooter("Total length: "+TimeUtil.formatTime(ttime), null);
+		});
+	}
+}
+
+class MusicRadioCommand extends GenericMusicCommand {
+	@Override public Mono<?> execute(Message message, CommandData data, String argument, MusicAdapter ma, MessageChannel channel) {
+		return ma.setRadio(!ma.getRadio());
+		//if (ma.getRadio()) return channel.createMessage(data.localize(LocalizedString.MusicRadioSet));
+		//return channel.createMessage(data.localize(LocalizedString.MusicRadioUnset));
+	}
+}
+
 /*
 public class MusicCommand implements ICommand {
 	@Override public void execute(Message message, String argument) {
 		//search, set time
-	    if (args[0].equals("queue")) {
-	    	MusicObject music = getMusicChannel(guild, channel);
-	        if (music==null) return;
-	        
-	        LinkedList<AudioTrack> queue = music.getQueue();
-	        if (queue.size()==0) {
-	            channel.send("The queue appears empty. Why not add some music?", true); return;
-	        }
-	        channel.send(embed->{
-	            embed.setTitle("Music Queue");
-	            Long ttime = 0L;
-	            synchronized(queue) {
-	                for (int i=0; i<queue.size(); i++) {
-	                    AudioTrack track = queue.get(i);
-	                    embed.addField("Track "+(i+1), "**Title:** "+track.getInfo().title+"\n"+
-	                        "**Length:** "+TimeUtil.formatTime(Math.floor(track.getDuration()/1000)), false);
-	
-	                    ttime+=track.getDuration();
-	                }
-	            }
-	            embed.setFooter("Total length: "+TimeUtil.formatTime(Math.floor(ttime/1000)), null);
-	        });
-	    } else if (args[0].equals("playlist")) {
+	    if (args[0].equals("playlist")) {
 	        if (args.length<2) {
 	            channel.send("Subcommand expected at least one argument!\n"+
 	            "<playlist>[args] Subcommands on playlists include create, add, delete, and details\n"+

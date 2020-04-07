@@ -101,6 +101,46 @@ public class ArgumentParser {
         }
         return token;
     }
+    
+    public boolean couldBeQuote() {
+    	String token = next();
+    	boolean foundStart = false;
+    	boolean escapeNext = false;
+    	if (!token.startsWith("\"")) return false;
+    	for (char b: token.toCharArray()) {
+    		if (escapeNext) {
+    			escapeNext = false;
+    			continue;
+    		}
+    		escapeNext = false;
+    		if (b=='\\') escapeNext = true;
+    		if (b=='"' && foundStart) return true;
+    		if (b=='"' && !foundStart) foundStart = true;
+    	}
+    	return false;
+    }
+    
+    public String eatQuote() {
+    	String token = eat();
+    	StringBuilder quote = new StringBuilder();
+    	boolean foundStart = false;
+    	boolean escapeNext = false;
+    	for (char b: token.toCharArray()) {
+    		if (escapeNext) {
+    			escapeNext = false;
+    			continue;
+    		}
+    		escapeNext = false;
+    		if (b=='\\') {
+    			escapeNext = true;
+    			continue;
+    		}
+    		if (b=='"' && foundStart) break;
+    		if (foundStart) quote.append(b);
+    		if (b=='"' && !foundStart) foundStart = true;
+    	}
+    	return quote.toString();
+    }
 
     public boolean isNumerical() {
         try {

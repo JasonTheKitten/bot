@@ -7,6 +7,7 @@ import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.command.utility.TicketManagerCommand;
+import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.parser.ArgumentParser;
 import reactor.core.publisher.Mono;
 
@@ -28,4 +29,6 @@ public class TicketChannelCase implements IGroupCommand {
         if (commands.containsKey(command)) return commands.get(command).execute(message, data, arg);
         return Mono.empty();
 	}
+	
+	@Override public HashMap<String, ICommand> getCommands(Localization locale) { return commands; }
 }

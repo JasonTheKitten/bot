@@ -12,6 +12,7 @@ import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.command.moderation.BanCommand;
 import everyos.discord.bot.command.moderation.KickCommand;
 import everyos.discord.bot.command.utility.SuggestCommand;
+import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.parser.ArgumentParser;
 import reactor.core.publisher.Mono;
 
@@ -36,17 +37,17 @@ public class SuggestionsChannelCase implements IGroupCommand {
             if (commands.containsKey(command)) return commands.get(command).execute(message, data, arg);
         }
 
-        return Mono.create(sink->{
-            String fromID = message.getChannelId().asString();
-            ChannelAdapter.of(data.shard, fromID).getDocument().getObject(obj->{
-                if (obj.has("data")&&obj.getOrDefaultObject("data", null).has("out")) {
-                    sink.success(obj.getOrDefaultObject("data", null).getOrDefaultString("out", null));
-                } else sink.error(new Exception("An exception has occured!"));
-            });
+        String fromID = message.getChannelId().asString();
+        return ChannelAdapter.of(data.shard, fromID).getData(obj->{
+            if (obj.has("data")&&obj.getOrDefaultObject("data", null).has("out"))
+                return Mono.just(obj.getOrDefaultObject("data", null).getOrDefaultString("out", null));
+            return Mono.error(new Exception("Data field is missing"));
         })
         .flatMap(s->data.shard.client.getChannelById(Snowflake.of((String) s)))
         .flatMap(c->message.getAuthorAsMember().flatMap(author->
             SuggestCommand.suggest(author, (MessageChannel) c, data, argument)))
         .flatMap(o->message.delete());
     }
+    
+    @Override public HashMap<String, ICommand> getCommands(Localization locale) { return commands; }
 }

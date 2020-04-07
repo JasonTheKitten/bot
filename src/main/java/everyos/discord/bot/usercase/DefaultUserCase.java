@@ -33,15 +33,15 @@ public class DefaultUserCase implements IGroupCommand {
 	
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
     	AtomicReference<String> cmode = new AtomicReference<String>();
-        ChannelAdapter.of(shard, message.getChannelId().asString()).getDocument().getObject(obj->{
-            cmode.set(obj.getOrDefaultString("type", "default"));
-        });
+        ChannelAdapter.of(shard, message.getChannelId().asString()).getData(obj->obj.getOrDefaultString("type", "default"));
         LocalizationProvider provider = new LocalizationProvider(Localization.en_US);
-        //CommandData data = new CommandData(provider, shard);
 
+        data.channelcase = (IGroupCommand) channels.getOrDefault(cmode.get(), channels.get("default"));
+        
         return
-            channels.getOrDefault(cmode.get(), channels.get("default"))
-                .execute(message, data, message.getContent().orElse(""))
+            data.channelcase.execute(message, data, message.getContent().orElse(""))
             .onErrorResume(e->{e.printStackTrace(); return Mono.empty();});
     }
+    
+    @Override public HashMap<String, ICommand> getCommands(Localization locale) {return channels;}
 }

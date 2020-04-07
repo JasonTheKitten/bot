@@ -11,7 +11,9 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
@@ -58,6 +60,12 @@ public class DBDocument {
         return name;
     }
 
+    public <T> T getObject(BiFunction<DBObject, DBDocument, T> func) {
+        synchronized(this) { return func.apply(dbobject, this); }
+    }
+    public <T> T getObject(Function<DBObject, T> func) {
+        synchronized(this) { return func.apply(dbobject); }
+    }
     public void getObject(BiConsumer<DBObject, DBDocument> func) {
         synchronized(this) { func.accept(dbobject, this); }
     }
