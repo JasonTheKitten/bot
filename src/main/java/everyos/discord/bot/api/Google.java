@@ -45,6 +45,7 @@ import everyos.storage.database.FileUtil;
 
 public class Google {
     private static final String CLIENT_SECRETS = "googleauth.json";
+    private static final String CLIENT_SECRETS_SERVICE = "googleauths.json";
     private static final Collection<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/youtube.force-ssl");
     private static final String APPLICATION_NAME = "JavaBot";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -73,7 +74,7 @@ public class Google {
     }
 
     private static Credentials authorize2() throws FileNotFoundException, IOException {
-        String f = FileUtil.getAppData("google.config");
+        String f = FileUtil.getAppData(CLIENT_SECRETS_SERVICE);
         if (!new File(f).exists()) return null;
         return ServiceAccountCredentials.fromStream(new FileInputStream(f));
     }
@@ -97,7 +98,8 @@ public class Google {
     }
 
     public static boolean isImageSafe(String url) throws Exception, IOException {
-        //TODO: I think this is synchronous rn :/
+        //I think this is synchronous rn :/
+    	//I actually can't use this, because it wants billing info, but I'll keep the code in
         List<AnnotateImageRequest> requests = new ArrayList<>();
 
         ImageSource imgSource = ImageSource.newBuilder().setImageUri(url).build();

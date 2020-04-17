@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 @Help(help=LocalizedString.GiphyCommandHelp, ehelp = LocalizedString.GiphyCommandExtendedHelp, category=CategoryEnum.Fun)
 public class GiphyCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
-		return message.getChannel().flatMap(channel->{ //TODO: X sent Y a hug
+		return message.getChannel().flatMap(channel->{
 			SimpleGiphy.setApiKey(data.bot.giphyKey);
 			if (data.bot.giphyKey==null) return channel.createMessage(data.localize(LocalizedString.NoGiphyKey));
 			return channel.createEmbed(embed->{

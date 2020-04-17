@@ -5,14 +5,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
+import discord4j.core.object.entity.channel.MessageChannel;
 import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
+import everyos.discord.bot.command.CommandAlias;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
+import everyos.discord.bot.util.FillinUtil;
 import reactor.core.publisher.Mono;
 
 @Help(help=LocalizedString.HelpCommandHelp, ehelp = LocalizedString.HelpCommandExtendedHelp, category=CategoryEnum.Info)
@@ -42,7 +44,10 @@ public class HelpCommand implements ICommand {
 		});
 	}
 	
-	public Mono<?> showHelp(ICommand command, String group, MessageChannel channel, CommandData data, String header) {
+	public Mono<?> showHelp(ICommand commandu, String group, MessageChannel channel, CommandData data, String header) {
+		ICommand command = commandu;
+		while (commandu instanceof CommandAlias) commandu = ((CommandAlias) commandu).parent;
+		
 		Help defaultHelp = new Help() {
 			@Override public Class<? extends Annotation> annotationType() { return Help.class; }
 			@Override public LocalizedString help() { return LocalizedString.Undocumented; }
@@ -54,13 +59,15 @@ public class HelpCommand implements ICommand {
 			HashMap<String, ICommand> acommands = new HashMap<String, ICommand>();
 			ArrayList<CategoryEnum> groups = new ArrayList<CategoryEnum>();
 			String fgroup = group;
-			commands.forEach((name, cmd)->{
+			commands.forEach((name, cmdu)->{
+				ICommand cmd = cmdu;
+				while (cmdu instanceof CommandAlias) cmdu = ((CommandAlias) cmdu).parent;
 				Help help = cmd.getClass().getAnnotation(Help.class);
 				if (help == null) help = defaultHelp;
 				boolean matches = (fgroup==null)||
 					(help.category()!=CategoryEnum.NULL&&help.category().toString().toUpperCase().equals(fgroup));
 				if (help.category()!=CategoryEnum.NULL && !groups.contains(help.category())) groups.add(help.category());
-				if (matches) acommands.put(name, cmd);
+				if (matches) acommands.put(name, cmdu);
 			});
 			return channel.createEmbed(spec->{
 				if (fgroup==null && !groups.isEmpty()) {
@@ -77,9 +84,15 @@ public class HelpCommand implements ICommand {
 				
 				StringBuilder helpmsg = new StringBuilder();
 				acommands.forEach((name, cmd)->{
-					Help help = cmd.getClass().getAnnotation(Help.class);
-					if (help == null) help = defaultHelp;
-					helpmsg.append(String.format("**%s** %s\n", name, data.localize(help.help())));
+					String desc;
+					if (cmd instanceof CommandAlias) {
+						desc = data.locale.localize(LocalizedString.CommandAlias, FillinUtil.of("command", ((CommandAlias) cmd).pname));
+					} else {
+						Help help = cmd.getClass().getAnnotation(Help.class);
+						if (help == null) help = defaultHelp;
+						desc = data.localize(help.help());
+					}
+					helpmsg.append(String.format("**%s** %s\n", name, desc));
 				});
 				
 				spec.setTitle(header + " - Help");

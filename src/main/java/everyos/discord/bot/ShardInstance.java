@@ -1,18 +1,18 @@
 package everyos.discord.bot;
 
-import discord4j.core.DiscordClient;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import everyos.storage.database.Database;
 
 public class ShardInstance {
-    public DiscordClient client;
+    public GatewayDiscordClient client;
     public Database db;
-    public String clientID;
+    public long clientID;
     public long uptime = -1;
     public BotInstance instance;
 
-    public ShardInstance(BotInstance instance, DiscordClient client) {
+    public ShardInstance(BotInstance instance, GatewayDiscordClient client) {
         this.client = client;
         this.db = instance.db;
         this.client = client;

@@ -2,6 +2,7 @@ package everyos.discord.bot.command;
 
 import java.util.HashMap;
 
+import discord4j.core.event.domain.message.MessageEvent;
 import everyos.discord.bot.BotInstance;
 import everyos.discord.bot.ShardInstance;
 import everyos.discord.bot.filter.EveryoneFilter;
@@ -14,6 +15,7 @@ public class CommandData {
     public BotInstance bot;
 	public IGroupCommand usercase;
 	public IGroupCommand channelcase;
+	public MessageEvent event;
 
     public CommandData(LocalizationProvider locale, ShardInstance shard) {
         this.locale = locale;
@@ -33,5 +35,9 @@ public class CommandData {
 
 	public String localize(LocalizedString label) {
 		return locale.localize(label);
+	}
+
+	public String localize(LocalizedString label, HashMap<String, String> fillins) {
+		return locale.localize(label, fillins);
 	}
 }

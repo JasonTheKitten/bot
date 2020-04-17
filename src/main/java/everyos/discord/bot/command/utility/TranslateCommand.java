@@ -15,8 +15,8 @@ public class TranslateCommand implements ICommand {
 		return message.getChannel().flatMap(channel->{ //TODO: Support other languages
 			return TranslateUtil.translate(data.bot.yandexKey, argument, TranslateUtil.locale(data.locale.locale))
 				.flatMap(resp->channel.createMessage(data.safe(
-					String.format("Translation: %s\n(Powered by Yandex Translate ( https://translate.yandex.com/ )) (Invoked by user ID: %s)",
-						resp.result, message.getAuthor().get().getId().asString()))));//TODO: Localize
-		}).flatMap(m->m.suppressEmbeds(true));
+					String.format("Translation: %s\n(Powered by Yandex Translate ( <https://translate.yandex.com/> )) (Invoked by user ID: %s)",
+						resp.result, message.getAuthor().get().getId().asLong()))));//TODO: Localize
+		});
 	}
 }

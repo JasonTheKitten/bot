@@ -6,31 +6,31 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import discord4j.core.object.entity.Channel;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.Channel;
 import everyos.discord.bot.ShardInstance;
 import everyos.storage.database.DBDocument;
 import everyos.storage.database.DBObject;
 
 public class MessageAdapter implements IAdapter {
     private ShardInstance instance;
-    private String id;
-    private String cid;
+    private long id;
+    private long cid;
 
-    public MessageAdapter(ShardInstance instance, String cid, String id) {
+    public MessageAdapter(ShardInstance instance, long cid, long id) {
         this.instance = instance;
         this.id = id;
         this.cid = cid;
     }
 
-    public static MessageAdapter of(ShardInstance instance, String cid, String id) {
+    public static MessageAdapter of(ShardInstance instance, long cid, long id) {
         return new MessageAdapter(instance, cid, id);
     }
-    public static MessageAdapter of(ShardInstance instance, Channel channel, String id) {
-        return new MessageAdapter(instance, channel.getId().asString(), id);
+    public static MessageAdapter of(ShardInstance instance, Channel channel, long id) {
+        return new MessageAdapter(instance, channel.getId().asLong(), id);
     }
     public static MessageAdapter of(ShardInstance instance, Channel channel, Message m) {
-        return new MessageAdapter(instance, channel.getId().asString(), m.getId().asString());
+        return new MessageAdapter(instance, channel.getId().asLong(), m.getId().asLong());
     }
 
     @Override public DBDocument getDocument() {

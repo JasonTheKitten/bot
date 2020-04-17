@@ -3,7 +3,7 @@ package everyos.discord.bot.command.utility;
 import java.util.HashMap;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.util.Permission;
+import discord4j.rest.util.Permission;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
@@ -59,7 +59,7 @@ class AutoRoleAddCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
 			return message.getAuthorAsMember()
-				.flatMap(m->PermissionUtil.check(m, channel, data.locale, Permission.MANAGE_ROLES))
+				.flatMap(m->PermissionUtil.check(m, Permission.MANAGE_ROLES))
 				.flatMap(o->message.getGuild())
 				.flatMap(guild->{
 					ArgumentParser parser = new ArgumentParser(argument);
@@ -87,7 +87,7 @@ class AutoRoleRemoveCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
 			return message.getAuthorAsMember()
-				.flatMap(m->PermissionUtil.check(m, channel, data.locale, Permission.MANAGE_ROLES))
+				.flatMap(m->PermissionUtil.check(m, Permission.MANAGE_ROLES))
 				.flatMap(o->message.getGuild())
 				.flatMap(guild->{
 					ArgumentParser parser = new ArgumentParser(argument);

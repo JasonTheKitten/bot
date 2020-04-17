@@ -9,8 +9,9 @@ import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import discord4j.core.DiscordClient;
+import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.EventDispatcher;
+import discord4j.core.event.domain.channel.TypingStartEvent;
 import discord4j.core.event.domain.guild.GuildCreateEvent;
 import discord4j.core.event.domain.guild.GuildDeleteEvent;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
@@ -19,9 +20,10 @@ import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.lifecycle.ReconnectEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.ReactionAddEvent;
-import discord4j.core.object.entity.MessageChannel;
-import discord4j.core.object.util.Snowflake;
-import discord4j.core.shard.ShardingClientBuilder;
+import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.rest.util.Snowflake;
+import everyos.discord.bot.adapter.ChannelAdapter;
+import everyos.discord.bot.adapter.ChatLinkAdapter;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.event.MessageCreateEventHandler;
 import everyos.discord.bot.event.ReactionAddEventHandler;
@@ -30,13 +32,15 @@ import everyos.storage.database.Database;
 import everyos.storage.database.FileUtil;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 public class BotInstance {
     public static void main(String args[]) {
         System.out.println("Command is running");
 
         String clientID; String clientSecret;
-        String giphyKey = null; String rapidKey = null; String yandexKey = null;
+        String giphyKey = null; String rapidKey = null;
+        String yandexKey = null; String moderationKey = null;
         File keys = new File(FileUtil.getAppData("keys.config"));
         if (args.length >= 2) {
             clientID = args[0];
@@ -64,6 +68,10 @@ public class BotInstance {
 	                	System.out.println("Enter Yandex Key:");
 	                	yandexKey = s.next();
                 	}
+                	if (s.hasNext()) {
+	                	System.out.println("Enter Moderation Key:");
+	                	moderationKey = s.next();
+                	}
                 }
                 
                 s.close();
@@ -83,10 +91,10 @@ public class BotInstance {
                 System.out.println("Could not save keys!");
             }
         
-        new BotInstance(clientID, clientSecret, giphyKey, rapidKey, yandexKey).start();
+        new BotInstance(Long.valueOf(clientID), clientSecret, giphyKey, rapidKey, yandexKey, moderationKey).start();
     }
 
-    public String clientID;
+    public long clientID;
     private String clientSecret;
     
     public String giphyKey;
@@ -97,14 +105,16 @@ public class BotInstance {
     public long uptime;
 	public AtomicBoolean shutdown;
 	public AtomicInteger serverCount;
+	public String moderationKey;
 
-    public BotInstance(String id, String secret, String gk, String rk, String yk) {
+    public BotInstance(long id, String secret, String gk, String rk, String yk, String mk) {
         clientID = id;
         clientSecret = secret;
         
         giphyKey = gk;
         rapidKey = rk;
         yandexKey = yk;
+        moderationKey = mk;
 
         db = Database.of(FileUtil.getAppData("database"));
         uptime = System.currentTimeMillis();
@@ -114,16 +124,19 @@ public class BotInstance {
     }
 
     public void start() {
-        new ShardingClientBuilder(clientSecret).build()
-            .map(client->client.build())
-            .doOnNext(client->{
+    	DiscordClientBuilder.create(clientSecret)
+    		.build()
+            .withGateway(client->{
                 ShardInstance shard = new ShardInstance(this, client);
                 
                 AtomicInteger shardGuildCount = new AtomicInteger();
+                
+                MessageCreateEventHandler mcehandler = new MessageCreateEventHandler(shard);
+		        ReactionAddEventHandler raeh = new ReactionAddEventHandler(shard);
 
                 EventDispatcher dispatcher = client.getEventDispatcher();
 
-                dispatcher.on(ReadyEvent.class).doOnNext(e->{
+                Flux<?> m1 = dispatcher.on(ReadyEvent.class).doOnNext(e->{
                     System.out.println("Bot running at xxx");
                     shard.uptime = System.currentTimeMillis();
                     
@@ -131,26 +144,25 @@ public class BotInstance {
                     shardGuildCount.set(0);
                     
                     shard.onWakeup();
-                }).subscribe();
-                dispatcher.on(ReconnectEvent.class).doOnNext(e->{
+                });
+                Flux<?> m2 = dispatcher.on(ReconnectEvent.class).doOnNext(e->{
                     shard.uptime = System.currentTimeMillis();
-                }).subscribe();
+                });
                 
-                dispatcher.on(GuildCreateEvent.class).subscribe(e -> {
+                Flux<?> m3 = dispatcher.on(GuildCreateEvent.class).doOnNext(e -> {
 		        	serverCount.incrementAndGet();
 		        	shardGuildCount.incrementAndGet();
 		        });
-		        dispatcher.on(GuildDeleteEvent.class).subscribe(e -> {
+                Flux<?> m4 = dispatcher.on(GuildDeleteEvent.class).doOnNext(e -> {
 		        	serverCount.decrementAndGet();
 		        	shardGuildCount.decrementAndGet();
 		        });
 
-		        MessageCreateEventHandler mcehandler = new MessageCreateEventHandler(shard);
-                dispatcher.on(MessageCreateEvent.class)
-                    .flatMap(e->mcehandler.handle(e))
-                    .subscribe();
+                Flux<?> m5 = dispatcher.on(MessageCreateEvent.class)
+                	.publishOn(Schedulers.boundedElastic())
+                	.flatMap(e->mcehandler.handle(e));
                 
-                dispatcher.on(MemberJoinEvent.class)
+                Flux<?> m6 = dispatcher.on(MemberJoinEvent.class)
 	        		.flatMap(e->{
 	        			return e.getGuild().flatMap(guild->{
 	        				ArrayList<String> roles = new ArrayList<String>();
@@ -177,11 +189,9 @@ public class BotInstance {
 	        				
 	        				return mono;
 	        			});
-	        		})
-	        		.onErrorResume(e->{e.printStackTrace(); return Flux.empty();})
-	        		.subscribe();
+	        		});
                 
-                dispatcher.on(MemberLeaveEvent.class)
+                Flux<?> m7 = dispatcher.on(MemberLeaveEvent.class)
 	        		.flatMap(e->{
 	        			return e.getGuild().flatMap(guild->{
 	        				GuildAdapter gadapter = GuildAdapter.of(shard, guild);
@@ -198,15 +208,41 @@ public class BotInstance {
 	        				return mono;
 	        			});
 	        		})
-	        		.onErrorResume(e->{e.printStackTrace(); return Flux.empty();})
-	        		.subscribe();
+	        		;
                 
-                ReactionAddEventHandler raeh = new ReactionAddEventHandler(shard);
-                dispatcher.on(ReactionAddEvent.class)
-	    	        .flatMap(e->raeh.handle(e))
-	    			.subscribe();
+                Flux<?> m8 = dispatcher.on(ReactionAddEvent.class)
+	    	        .flatMap(e->raeh.handle(e));
+                
+                Flux<?> m9 = dispatcher.on(TypingStartEvent.class)
+                	.flatMap(e->{
+                		return e.getUser()
+                			.filter(u->!u.isBot())
+                			.flatMap(u->ChannelAdapter.of(shard, e.getChannelId().asLong()).getData(obj->{
+	                            if (obj.has("data")&&obj.getOrDefaultObject("data", null).has("chatlinkid"))  {
+	                                return Mono.just(obj.getOrDefaultObject("data", null).getOrDefaultLong("chatlinkid", -1L));
+	                            }
+	                            return Mono.empty();
+	                        })).cast(Long.class)
+	                        .flatMapMany(s->{
+	                        	ChatLinkAdapter adapter = ChatLinkAdapter.of(shard, s);
+	                        	return adapter.onEachChannel(e.getChannelId().asLong(), (channel, id)->{
+	                        		return channel.type();
+	                        	});
+	                        });
+                	})
+                	.onErrorResume(e->{e.printStackTrace(); return Mono.empty();});
                 	
-            })
-            .flatMap(DiscordClient::login).blockLast();
+                return Mono.when(r(m1), r(m2), r(m3), r(m4), r(m5), r(m6), r(m7), r(m8), r(m9)).onErrorResume(e->{
+                	e.printStackTrace();
+                	return Mono.empty();
+                });
+            }).block();
+    }
+    
+    public Flux<?> r(Flux<?> flux) {
+    	return flux.onErrorResume(e->{
+    		e.printStackTrace();
+    		return Flux.empty();
+    	});
     }
 }

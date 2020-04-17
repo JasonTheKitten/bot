@@ -10,39 +10,39 @@ import javax.annotation.Nonnull;
 
 public class DBCollection {
     private String path;
-    private HashMap<String, DBDocument> cache; // TODO: Store an expiration in DBDocument
+    private HashMap<Long, DBDocument> cache; // TODO: Store an expiration in DBDocument
 
     protected DBCollection(@Nonnull String path) { // TODO: Throw exception if is directory
         this.path = path;
-        this.cache = new HashMap<String, DBDocument>();
+        this.cache = new HashMap<Long, DBDocument>();
         File mfile = new File(path);
         if (!mfile.exists())
             mfile.mkdirs();
     }
 
-    public boolean has(@Nonnull String document) {
+    public boolean has(long document) {
         return cache.containsKey(document) || new File(FileUtil.join(path, document+".json")).exists();
     }
 
-    public DBDocument getOrNull(@Nonnull String document) {
+    public DBDocument getOrNull(long document) {
         if (cache.containsKey(document))
             return cache.get(document);
 
         File collectionfi = new File(FileUtil.join(path, document + ".json"));
         DBDocument dbdocument = cache.get(document);
         if (dbdocument == null && collectionfi.exists()) { // TODO: Should be .json?
-            dbdocument = new DBDocument(document, FileUtil.join(path, document));
+            dbdocument = new DBDocument(document, FileUtil.join(path, String.valueOf(document)));
             cache.put(document, dbdocument);
         }
 
         return dbdocument;
     }
 
-    public DBDocument getOrSet(@Nonnull String document, @Nonnull Consumer<DBDocument> func) {
+    public DBDocument getOrSet(long document, @Nonnull Consumer<DBDocument> func) {
         DBDocument dbdocument = getOrNull(document);
 
         if (dbdocument == null) {
-            dbdocument = new DBDocument(document, FileUtil.join(path, document));
+            dbdocument = new DBDocument(document, FileUtil.join(path, String.valueOf(document)));
             func.accept(dbdocument);
             cache.put(document, dbdocument);
         }
@@ -50,7 +50,7 @@ public class DBCollection {
         return dbdocument;
     }
 
-    public OtherCase getIfPresent(@Nonnull String document, @Nonnull Function<DBDocument, Boolean> func) {
+    public OtherCase getIfPresent(long document, @Nonnull Function<DBDocument, Boolean> func) {
         DBDocument dbobj = getOrNull(document);
         OtherCase elsedo = new OtherCase();
         if (dbobj != null) {
@@ -59,7 +59,7 @@ public class DBCollection {
         return elsedo;
     }
 
-    public OtherCase getIfPresent(@Nonnull String document, @Nonnull Consumer<DBDocument> func) {
+    public OtherCase getIfPresent(long document, @Nonnull Consumer<DBDocument> func) {
         DBDocument dbobj = getOrNull(document);
         OtherCase elsedo = new OtherCase();
         if (dbobj != null) {
@@ -69,14 +69,14 @@ public class DBCollection {
         return elsedo;
     }
 
-    public void ifNotPresent(@Nonnull String document, @Nonnull Consumer<DBDocument> func) {
+    public void ifNotPresent(long document, @Nonnull Consumer<DBDocument> func) {
         DBDocument dbobj = getOrNull(document);
         if (dbobj == null)
             func.accept(dbobj);
     }
 
-    public void delete(@Nonnull String document) {
-        File collectionfi = new File(FileUtil.join(path, document));
+    public void delete(long document) {
+        File collectionfi = new File(FileUtil.join(path, String.valueOf(document)));
         if (collectionfi.exists())
             collectionfi.delete();
         cache.remove(document);
@@ -87,9 +87,13 @@ public class DBCollection {
         File f = new File(path);
         for (String n : f.list()) {
             if (n.endsWith(".json")) {
-                DBDocument doc = getOrNull(n.substring(0, n.length() - 5));
-                if (doc != null && func.apply(doc))
-                    matches.add(doc);
+            	try {
+	                DBDocument doc = getOrNull(Long.valueOf(n.substring(0, n.length() - 5)));
+	                if (doc != null && func.apply(doc))
+	                    matches.add(doc);
+            	} catch(Exception e) {
+            		e.printStackTrace();
+            	}
             }
         }
         return matches.toArray(new DBDocument[matches.size()]);

@@ -1,7 +1,7 @@
 package everyos.discord.bot.command.utility;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.util.Permission;
+import discord4j.rest.util.Permission;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
@@ -17,7 +17,7 @@ public class WelcomeCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
 			return message.getAuthorAsMember()
-				.flatMap(m->PermissionUtil.check(m, channel, data.locale, 
+				.flatMap(m->PermissionUtil.check(m,
 					new Permission[] {Permission.MANAGE_CHANNELS},
 					new Permission[] {Permission.MANAGE_MESSAGES}))
 				.flatMap(o->message.getGuild())
@@ -38,7 +38,7 @@ public class WelcomeCommand implements ICommand {
 					if (!parser.couldBeChannelID()) 
 						return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
 					
-					String wchannel = parser.eatChannelID();
+					long wchannel = parser.eatChannelID();
 					if (parser.isEmpty()) return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
 					String wmessage = parser.toString();
 					

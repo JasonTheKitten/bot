@@ -3,9 +3,10 @@ package everyos.discord.bot.command.channel;
 import java.util.HashMap;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.util.Permission;
+import discord4j.rest.util.Permission;
 import everyos.discord.bot.adapter.ChannelAdapter;
 import everyos.discord.bot.adapter.ChatLinkAdapter;
+import everyos.discord.bot.annotation.Ignorable;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
@@ -14,11 +15,14 @@ import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import everyos.discord.bot.standards.ChatLinkDocumentCreateStandard;
+import everyos.discord.bot.util.ErrorUtil.LocalizedException;
 import everyos.discord.bot.util.FillinUtil;
+import everyos.discord.bot.util.PermissionUtil;
 import everyos.storage.database.DBArray;
 import reactor.core.publisher.Mono;
 import xyz.downgoon.snowflake.Snowflake;
 
+@Ignorable(id=1)
 public class ChatLinkCommand implements IGroupCommand {
     public HashMap<Localization, HashMap<String, ICommand>> lcommands;
     public ChatLinkCommand() {
@@ -28,62 +32,56 @@ public class ChatLinkCommand implements IGroupCommand {
         //Commands
         ICommand createCommand = new ChatLinkCreateCommand();
         ICommand joinCommand = new ChatLinkJoinCommand();
-        ICommand acceptCommand = new ChatLinkAcceptCommand();
 
         //en_US
         commands = new HashMap<String, ICommand>();
         commands.put("create", createCommand);
         commands.put("join", joinCommand);
-        commands.put("accept", acceptCommand);
         lcommands.put(Localization.en_US, commands);
     }
 
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
         return message.getChannel().flatMap(channel->{
             return message.getAuthorAsMember()
-                .flatMap(member->member.getBasePermissions()) //TODO: Support "fake" permissions
-                .flatMap(perms->{
-                    if (!(perms.contains(Permission.ADMINISTRATOR)||perms.contains(Permission.MANAGE_CHANNELS)))
-                        return channel.createMessage(data.locale.localize(LocalizedString.InsufficientPermissions));
-
+                .flatMap(member->PermissionUtil.check(member, new Permission[] {Permission.MANAGE_CHANNELS}))
+                .flatMap(member->{
                     String cmd = ArgumentParser.getCommand(argument);
 					String arg = ArgumentParser.getArgument(argument);
 
                     return lcommands.get(data.locale.locale).getOrDefault(cmd, new InvalidSubcommand()).execute(message, data, arg);
-                });
+                })
+                .cast(Object.class);
         });
     }
     
     @Override public HashMap<String, ICommand> getCommands(Localization locale) { return lcommands.get(locale); }
 }
 
+@Ignorable(id=2)
 class ChatLinkCreateCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
         return message.getChannel()
             .flatMap(channel->{
-                return Mono.create(sink->{
-                    ChannelAdapter.of(data.shard, channel.getId().asString()).getDocument().getObject((obj, doc)->{
-                        if (obj.getOrDefaultString("type", "default")!="default") {
-                            //TODO: Warning+Confirmation here?
-                            channel.createMessage(data.locale.localize(LocalizedString.ChannelAlreadyInUse)).subscribe();
-                            //return;
-                        }
+                return ChannelAdapter.of(data.shard, channel.getId().asLong()).getDocument().getObject((obj, doc)->{
+                    if (obj.getOrDefaultString("type", "default")!="default") {
+                        //TODO: Warning+Confirmation here?
+                        return Mono.error(new LocalizedException(LocalizedString.ChannelAlreadyInUse));
+                    }
 
-                        Snowflake factory = new Snowflake(0, 0);
-                        String id = String.valueOf(factory.nextId());
-                        
-                        obj.set("type", "chatlink");
-                        obj.createObject("data", cdobj->{
-                            cdobj.set("verified", true);
-                            cdobj.set("chatlinkid", id);
-                        });
-                        doc.save();
-
-                        sink.success(id);
+                    Snowflake factory = new Snowflake(0, 0);
+                    long id = factory.nextId();
+                    
+                    obj.set("type", "chatlink");
+                    obj.createObject("data", cdobj->{
+                        cdobj.set("verified", true);
+                        cdobj.set("chatlinkid", id);
                     });
-                }).flatMap(clID->{
-                	String cid = channel.getId().asString();
-                    ChatLinkAdapter.of(data.shard, (String) clID).getData((clobj, cldoc)->{
+                    doc.save();
+
+                    return Mono.just(id);
+                }).cast(Long.class).flatMap(clID->{
+                	long cid = channel.getId().asLong();
+                    ChatLinkAdapter.of(data.shard, clID).getData((clobj, cldoc)->{
                         clobj.createArray("admins", arr->{
                             arr.add(cid);
                         });
@@ -92,22 +90,23 @@ class ChatLinkCreateCommand implements ICommand {
                         cldoc.save();
                     });
                     return channel.createMessage(data.locale.localize(LocalizedString.ChatLinkOOBE,
-                    	FillinUtil.of("id", (String) clID, "ping", data.shard.clientID)))
+                    	FillinUtil.of("id", String.valueOf(clID), "ping", String.valueOf(data.shard.clientID))))
                         .flatMap(msg->msg.pin());
                 });
 			});
 	}
 }
 
+@Ignorable(id=3)
 class ChatLinkJoinCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
         return message.getChannel()
             .flatMap(channel->{
 				ArgumentParser parser = new ArgumentParser(argument);
 				if (parser.isNumerical()) {
-					String clid = String.valueOf(parser.eatNumerical());
+					long clid = parser.eatNumerical();
 					if (ChatLinkDocumentCreateStandard.exists(data.bot, clid)) {
-						ChannelAdapter.of(data.shard, channel.getId().asString()).getDocument().getObject((cobj, cdoc)->{
+						ChannelAdapter.of(data.shard, channel.getId().asLong()).getDocument().getObject((cobj, cdoc)->{
                             cobj.set("type", "chatlink");
                             cobj.createObject("data", obj->{
                                 obj.set("chatlinkid", clid);
@@ -117,68 +116,11 @@ class ChatLinkJoinCommand implements ICommand {
                         
                         return channel.createMessage(data.locale.localize(LocalizedString.AcceptChatLinkPrompt, FillinUtil.of("id", channel.getId().asString())));
 					} else {
-						return channel.createMessage(data.locale.localize(LocalizedString.UnrecognizedChatLink));
+						return Mono.error(new LocalizedException(LocalizedString.UnrecognizedChatLink));
                     }
 				} else {
-					return channel.createMessage(data.locale.localize(LocalizedString.UnrecognizedUsage));
+					return Mono.error(new LocalizedException(LocalizedString.UnrecognizedUsage));
 				}
 		    });
-	}
-}
-
-class ChatLinkAcceptCommand implements ICommand {
-	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
-        return message.getChannel()
-            .flatMap(channel->{
-				ArgumentParser parser = new ArgumentParser(argument);
-				if (parser.couldBeChannelID()) {
-					String cid = parser.eatChannelID();
-					return Mono.create(sink->{
-						ChannelAdapter.of(data.shard, cid).getDocument().getObject(cobj->{
-							if (!cobj.getOrDefaultString("type", "default").equals("chatlink")||cobj.getOrDefaultObject("data", null)==null) {
-								sink.success(channel.createMessage(
-										data.locale.localize(LocalizedString.UnrecognizedChatLink)).flatMap(o->Mono.empty()));
-								return;
-							}
-							sink.success(cobj.getOrDefaultObject("data", null).getOrDefaultString("chatlinkid", null));
-						});
-					}).flatMap(clID->{
-						System.out.println(clID);
-						return Mono.create(sink->{
-							if (ChatLinkDocumentCreateStandard.exists(data.bot, (String) clID)) {
-								ChatLinkAdapter.of(data.shard, (String) clID).getDocument().getObject((clobj, cldoc)->{	
-									/*DBArray permitted = clobj.getOrDefaultArray("admins", new DBArray());
-									if (!permitted.contains(cid)) {
-										channel.createMessage("Localize this message").flatMap(o->Mono.empty()).subscribe();
-										sink.success();
-										return; 
-									}*/
-									
-			                        ChannelAdapter.of(data.shard, cid).getDocument().getObject((cobj, cdoc)->{
-				    					if (cobj.getOrDefaultString("type", null)!="chatlink"||cobj.getOrDefaultObject("data", null)==null) {
-				    						channel.createMessage(data.locale.localize(LocalizedString.ChannelNotAwaitingChatlink)).subscribe();
-				    						return;
-				                        }
-			
-				                        DBArray links = clobj.getOrCreateArray("links", ()->new DBArray());
-				                        links.add(cid);
-				                        cldoc.save();
-				                        
-				                        cobj.getOrDefaultObject("data", null).set("verified", true);
-				                        cdoc.save();
-			                        });
-								});
-	
-		                        channel.createMessage(data.locale.localize(LocalizedString.ChatLinkAccepted)).subscribe();
-							} else {
-								channel.createMessage(data.locale.localize(LocalizedString.UnrecognizedChatLink)).subscribe();
-							};
-							sink.success();
-						});
-					});
-				} else {
-					return channel.createMessage(data.locale.localize(LocalizedString.UnrecognizedUsage));
-				}
-			});
 	}
 }

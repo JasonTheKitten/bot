@@ -13,6 +13,7 @@ import everyos.discord.bot.adapter.ChannelAdapter;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
+import everyos.discord.bot.command.info.HelpCommand;
 import everyos.discord.bot.command.moderation.OneWordModerationCommand;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
@@ -35,10 +36,11 @@ public class OneWordChannelCase implements IGroupCommand {
     public OneWordChannelCase() {
         commands = new HashMap<String, ICommand>();
         commands.put("oneword", new OneWordModerationCommand());
+        commands.put("help", new HelpCommand());
     }
 
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
-        String content = message.getContent().orElse("");
+        String content = message.getContent();
         String trunc = ArgumentParser.getIfPrefix(content, 
             new String[]{"---", "*", "<@"+data.bot.clientID+">", "<@!"+data.bot.clientID+">"});
 
@@ -50,41 +52,44 @@ public class OneWordChannelCase implements IGroupCommand {
         }
 
         return message.getChannel().flatMap(channel->{
-	        return Mono.create(sink->{
-	            String fromID = message.getChannelId().asString();
-	            ChannelAdapter.of(data.shard, fromID).getData((obj, doc)->{
-	                if (obj.has("data")) {
-	                	//TODO: Check user ID
-	                	if (!words.has(content.toLowerCase())) {
-	    	        		sink.success(channel.createMessage(data.localize(LocalizedString.Undocumented)).then());
-	    	        		return;
-	    	        	}
-	                	
-	                	DBObject cc = obj.getOrDefaultObject("data", new DBObject());
-	                	
-	                	String uid = message.getAuthor().get().getId().asString();
-	                	if (obj.getOrDefaultString("lastuser", "").equals(uid)) {
-	                		sink.success(channel.createMessage(data.localize(LocalizedString.Undocumented)).then());
-	    	        		return;
-	                	}
-	                	obj.set("lastuser", uid);
-	                	
-	                	StringBuilder sentenceb = new StringBuilder(cc.getOrDefaultString("sentence", ""));
-	                	if (!content.isEmpty()&&(words.get(content.toLowerCase()).getAsInt()!=2))
-	                		sentenceb.append(" ");
-	                	sentenceb.append(content);
-	                	String sentence = sentenceb.toString();
-	                	int length = sentence.length();
-	                	if (length>2000) sentence = sentence.substring(length-2000, length);
-	                	cc.set("sentence", sentence);
-	                	doc.save();
-	                	sink.success(channel.createMessage(sentence));
-	                } else sink.error(new Exception("An exception has occured!"));
-	            });
-	        })
-	        .flatMap(mono->(Mono<?>) mono);
+            long fromID = message.getChannelId().asLong();
+            return ChannelAdapter.of(data.shard, fromID).getData((obj, doc)->{
+                if (obj.has("data")) {
+                	//TODO: Check user ID
+                	//TODO: Pin data when we get too long
+                	if (!words.has(content.toLowerCase())) return Mono.error(new Exception());
+                	
+                	DBObject cc = obj.getOrDefaultObject("data", new DBObject());
+                	
+                	long uid = message.getAuthor().get().getId().asLong();
+                	if (obj.getOrDefaultLong("lastuser", -1L)==uid) {
+                		return channel.createMessage(data.localize(LocalizedString.Undocumented)).then();
+                	}
+                	obj.set("lastuser", uid);
+                	
+                	StringBuilder sentenceb = new StringBuilder(cc.getOrDefaultString("sentence", ""));
+                	if (!content.isEmpty()&&(words.get(content.toLowerCase()).getAsInt()!=2))
+                		sentenceb.append(" ");
+                	sentenceb.append(content);
+                	String sentence = sentenceb.toString();
+                	int length = sentence.length();
+                	if (length>2000) sentence = sentence.substring(length-2000, length);
+                	cc.set("sentence", sentence);
+                	doc.save();
+                	return channel.createMessage(sentence);
+                } else return Mono.error(new Exception("An exception has occured!"));
+	        }).cast(Message.class).onErrorResume(e->{
+	     	   if (e instanceof UnrecognizedWordException) {
+	    		   return channel.createMessage(data.localize(LocalizedString.UnrecognizedWord));
+	    	   }
+	    	   return Mono.error(e);
+	       });
        });
     }
     
     @Override public HashMap<String, ICommand> getCommands(Localization locale) { return commands; }
+}
+
+class UnrecognizedWordException extends Exception {
+	private static final long serialVersionUID = 2003475837972589674L;
 }

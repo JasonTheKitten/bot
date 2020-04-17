@@ -3,12 +3,13 @@ package everyos.discord.bot.event;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import discord4j.core.event.domain.message.ReactionAddEvent;
 import discord4j.core.object.entity.Attachment;
-import discord4j.core.object.entity.MessageChannel;
-import discord4j.core.object.util.Snowflake;
+import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.rest.util.Snowflake;
 import everyos.discord.bot.ShardInstance;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.adapter.MessageAdapter;
@@ -22,7 +23,7 @@ public class ReactionAddEventHandler {
 		this.shard = shard;
 	}
 
-	public Mono<?> handle(ReactionAddEvent e) {
+	public Mono<Void> handle(ReactionAddEvent e) {
 		return e.getMessage().flatMap(message->{	
 			String emoji =
 				e.getEmoji().asUnicodeEmoji().map(ue->ue.getRaw())
@@ -30,7 +31,7 @@ public class ReactionAddEventHandler {
 			
 			//Reaction role code
 			AtomicReference<String> roleID = new AtomicReference<String>();
-			MessageAdapter.of(shard, message.getChannelId().asString(), message.getId().asString()).getDocument().getObject(obj->{
+			MessageAdapter.of(shard, message.getChannelId().asLong(), message.getId().asLong()).getDocument().getObject(obj->{
 				roleID.set(obj.getOrDefaultObject("roles", new DBObject()).getOrDefaultString(emoji, null));
 			});
 			
@@ -43,10 +44,10 @@ public class ReactionAddEventHandler {
 			Snowflake gid = e.getGuildId().orElse(null);
 			if (gid!=null) {
 				AtomicReference<String> starID = new AtomicReference<String>();
-				AtomicReference<String> sbCID = new AtomicReference<String>();
-				GuildAdapter.of(shard, gid.asString()).getDocument().getObject(obj->{
+				AtomicLong sbCID = new AtomicLong();
+				GuildAdapter.of(shard, gid.asLong()).getDocument().getObject(obj->{
 					starID.set(obj.getOrDefaultString("star", null));
-					sbCID.set(obj.getOrDefaultString("starc", null));
+					sbCID.set(obj.getOrDefaultLong("starc", -1));
 				});
 				
 				if (emoji.equals(starID.get())) {
@@ -58,19 +59,19 @@ public class ReactionAddEventHandler {
 						})
 						.count()
 						.flatMap(n->{
-							AtomicReference<String> orgID = new AtomicReference<String>();
-							AtomicReference<String> orgCID = new AtomicReference<String>();
-							AtomicReference<String> sbID = new AtomicReference<String>();
+							AtomicLong orgID = new AtomicLong();
+							AtomicLong orgCID = new AtomicLong();
+							AtomicLong sbID = new AtomicLong();
 							AtomicReference<Mono<?>> mono2 = new AtomicReference<Mono<?>>();
 							mono2.set(Mono.empty());
 							
-							String mid = e.getMessageId().asString();
-							String mcid = e.getChannelId().asString();
+							long mid = e.getMessageId().asLong();
+							long mcid = e.getChannelId().asLong();
 							MessageAdapter.of(shard, mcid, mid).getDocument().getObject((obj, doc)->{
 								if (!obj.getOrDefaultBoolean("issb", false)) { //Post is not from starboard
 									orgID.set(mid); orgCID.set(mcid);
 									if (obj.getOrDefaultString("sbmid", null)!=null) { //Post is already on starboard
-										sbID.set(obj.getOrDefaultString("sbmid", null));
+										sbID.set(obj.getOrDefaultLong("sbmid", -1));
 									} else { //Post is not yet on starboard
 										if (n<1) return; //TODO: Var
 										mono2.set(e.getGuild().flatMap(g->g.getChannelById(Snowflake.of(sbCID.get())).cast(MessageChannel.class)
@@ -78,23 +79,23 @@ public class ReactionAddEventHandler {
 												return c.createMessage(msg->{
 													msg.setEmbed(embed->{
 														embed.setColor(Color.YELLOW);
-														embed.setDescription(message.getContent().orElse(""));
+														embed.setDescription(message.getContent());
 														Set<Attachment> s = message.getAttachments();
 														if (!s.isEmpty()) embed.setImage(s.iterator().next().getUrl());
 														message.getAuthor().ifPresent(a->{
 															String url = String.format(
 																"https://discordapp.com/channels/%s/%s/%s", 
-																gid.asString(),
-																e.getChannelId().asString(),
-																e.getMessageId().asString());
+																gid.asLong(),
+																e.getChannelId().asLong(),
+																e.getMessageId().asLong());
 															embed.setAuthor(a.getUsername()+"#"+a.getDiscriminator(), url, a.getAvatarUrl());
-															embed.setFooter("Posted by User ID: "+a.getId().asString(), null);
+															embed.setFooter("Posted by User ID: "+a.getId().asLong(), null);
 														}); //TODO: Localize
 													});
 												});
 											}))
 											.flatMap(m->{
-												sbID.set(m.getId().asString());
+												sbID.set(m.getId().asLong());
 												obj.set("sbmid", sbID.get());
 												MessageAdapter.of(shard, sbCID.get(), sbID.get()).getDocument().getObject((obj2, doc2)->{
 													obj2.set("issb", true);
@@ -105,7 +106,7 @@ public class ReactionAddEventHandler {
 									}
 								} else { //Post is from starboard
 									sbID.set(mid); sbCID.set(mcid);
-									orgID.set(obj.getOrDefaultString("ogm", null));
+									orgID.set(obj.getOrDefaultLong("ogm", -1));
 								}
 								doc.save();
 							});

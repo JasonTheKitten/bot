@@ -1,6 +1,7 @@
 package everyos.discord.bot.command.fun;
 
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.GuildMessageChannel;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.adapter.MemberAdapter;
 import everyos.discord.bot.annotation.Help;
@@ -16,10 +17,9 @@ public class LevelCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		//TODO: Subcommands
 		
-		return message.getChannel().flatMap(channel->{
-			String uid = null;
-        	String iuid = null;
-        	iuid = message.getAuthor().get().getId().asString();
+		return message.getChannel().cast(GuildMessageChannel.class).flatMap(channel->{
+			long uid; long iuid;
+        	iuid = message.getAuthor().get().getId().asLong();
         	
         	ArgumentParser parser = new ArgumentParser(argument);
         	
@@ -34,7 +34,7 @@ public class LevelCommand implements ICommand {
         	
             MemberAdapter madapter = MemberAdapter.of(GuildAdapter.of(data.shard, channel), uid); //TODO: Check uid exists
             
-            String fuid = iuid;
+            long fuid = iuid;
             return madapter.getMember()
             	.flatMap(member->{
             		int xpa = madapter.getData(obj->obj.getOrDefaultInt("xp", 0));

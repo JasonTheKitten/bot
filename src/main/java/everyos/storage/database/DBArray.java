@@ -91,4 +91,7 @@ public class DBArray {
 	public boolean contains(String str) {
 		return json.contains(new JsonPrimitive(str));
 	}
+	public boolean contains(long l) {
+		return json.contains(new JsonPrimitive(l));
+	}
 }

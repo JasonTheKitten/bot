@@ -10,11 +10,8 @@ import reactor.core.publisher.Mono;
 
 @Help(help=LocalizedString.RemindIntervalCommandHelp, ehelp = LocalizedString.RemindIntervalCommandExtendedHelp, category=CategoryEnum.Utility)
 public class RemindInterval implements ICommand {
-
 	@Override
 	public Mono<?> execute(Message message, CommandData data, String argument) {
-		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

@@ -1,7 +1,6 @@
 package everyos.discord.bot.usercase;
 
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import discord4j.core.object.entity.Message;
 import everyos.discord.bot.ShardInstance;
@@ -10,6 +9,7 @@ import everyos.discord.bot.channelcase.ChatLinkChannelCase;
 import everyos.discord.bot.channelcase.DefaultChannelCase;
 import everyos.discord.bot.channelcase.OneWordChannelCase;
 import everyos.discord.bot.channelcase.SuggestionsChannelCase;
+import everyos.discord.bot.channelcase.TicketChannelCase;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
@@ -29,18 +29,17 @@ public class DefaultUserCase implements IGroupCommand {
         channels.put("suggestions", new SuggestionsChannelCase());
         channels.put("chatlink", new ChatLinkChannelCase());
         channels.put("oneword", new OneWordChannelCase());
+        channels.put("ticket", new TicketChannelCase());
 	}
 	
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
-    	AtomicReference<String> cmode = new AtomicReference<String>();
-        ChannelAdapter.of(shard, message.getChannelId().asString()).getData(obj->obj.getOrDefaultString("type", "default"));
+        String cmode = ChannelAdapter.of(shard, message.getChannelId().asLong())
+        	.getData(obj->obj.getOrDefaultString("type", "default"));
         LocalizationProvider provider = new LocalizationProvider(Localization.en_US);
 
-        data.channelcase = (IGroupCommand) channels.getOrDefault(cmode.get(), channels.get("default"));
+        data.channelcase = (IGroupCommand) channels.getOrDefault(cmode, channels.get("default"));
         
-        return
-            data.channelcase.execute(message, data, message.getContent().orElse(""))
-            .onErrorResume(e->{e.printStackTrace(); return Mono.empty();});
+        return data.channelcase.execute(message, data, message.getContent());
     }
     
     @Override public HashMap<String, ICommand> getCommands(Localization locale) {return channels;}

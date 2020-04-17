@@ -5,8 +5,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.reaction.ReactionEmoji.Unicode;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.Snowflake;
+import discord4j.rest.util.Permission;
+import discord4j.rest.util.Snowflake;
 import everyos.discord.bot.adapter.MessageAdapter;
 import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
@@ -56,7 +56,7 @@ class ReactionAddCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
 			return message.getAuthorAsMember()
-				.flatMap(m->PermissionUtil.check(m, channel, data.locale, Permission.MANAGE_ROLES, Permission.ADD_REACTIONS))
+				.flatMap(m->PermissionUtil.check(m, Permission.MANAGE_ROLES, Permission.ADD_REACTIONS))
 				.flatMap(o->message.getGuild())
 				.flatMap(guild->{
 					
@@ -65,8 +65,8 @@ class ReactionAddCommand implements ICommand {
 					ArgumentParser parser = new ArgumentParser(argument);
 					boolean isID = parser.couldBeEmojiID();
 					String reactID = isID?parser.eatEmojiID():parser.eat(); //TODO
-					String roleID = parser.eatRoleID();
-					String messageID = parser.eat();
+					long roleID = parser.eatRoleID();
+					long messageID = Long.valueOf(parser.eat());
 					//TODO: Unrecognized Usage
 					
 					return MessageAdapter.of(data.shard, channel, messageID).getData((obj, doc)->{

@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import discord4j.core.object.PermissionOverwrite;
-import discord4j.core.object.entity.GuildMessageChannel;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.PermissionSet;
+import discord4j.core.object.entity.channel.GuildMessageChannel;
+import discord4j.rest.util.Permission;
+import discord4j.rest.util.PermissionSet;
+import discord4j.rest.util.Snowflake;
 import everyos.discord.bot.adapter.ChannelAdapter;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.adapter.MemberAdapter;
@@ -82,7 +83,7 @@ class TicketCreateCommand implements ICommand {
 			
 			return guild.createTextChannel(channel->{
 				channel.setName("Ticket-x");
-				channel.setReason("Opened by user "+message.getAuthor().get().getId().asString());
+				channel.setReason("Opened by user "+message.getAuthor().get().getId().asLong());
 				channel.setTopic("Ticket opened by user.");
 				
 				HashSet<PermissionOverwrite> set = new HashSet<PermissionOverwrite>();
@@ -91,7 +92,7 @@ class TicketCreateCommand implements ICommand {
 						PermissionSet.of(0),
 						PermissionSet.all()));
 				set.add(PermissionOverwrite.forMember(
-						data.shard.client.getSelfId().get(),
+						Snowflake.of(data.shard.clientID),
 						PermissionSet.all(),
 						PermissionSet.none()));
 				set.add(PermissionOverwrite.forMember(
@@ -101,13 +102,18 @@ class TicketCreateCommand implements ICommand {
 				channel.setPermissionOverwrites(set);
 			})
 			.flatMap(channel->{
-				ChannelAdapter.of(data.shard, channel.getId().asString()).getData((obj, doc)->{
+				ChannelAdapter.of(data.shard, channel.getId().asLong()).getData((obj, doc)->{
 					obj.set("type", "ticket");
 					obj.createObject("data", dataobj->{});
 					
 					doc.save();
 				});
-				//TODO: Store ticket ID in user info
+				MemberAdapter.of(data.shard, guild, message.getAuthor().get()).getData((obj, doc)->{
+					obj.set("ticketid", channel.getId().asLong());
+					
+					doc.save();
+					return null;
+				});
 				
 				String reason = GuildAdapter.of(data.shard, guild).getDocument().getObject(obj->{
 					return obj.getOrDefaultString("message", data.localize(LocalizedString.DefaultTicketMessage));
@@ -125,7 +131,7 @@ class TicketCreateCommand implements ICommand {
 class SetMessageCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
-			return message.getAuthorAsMember().flatMap(m->PermissionUtil.check(m, channel, data.locale, Permission.MANAGE_MESSAGES))
+			return message.getAuthorAsMember().flatMap(m->PermissionUtil.check(m, Permission.MANAGE_MESSAGES))
 				.flatMap(o->message.getGuild()).map(guild->{ //Would rather use .then, but whatever
 					GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
 						obj.set("message", argument); doc.save();

@@ -3,7 +3,7 @@ package everyos.discord.bot.command.utility;
 import java.util.HashMap;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
+import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.reaction.ReactionEmoji.Unicode;
 import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
@@ -13,6 +13,7 @@ import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
+import everyos.discord.bot.util.ErrorUtil.LocalizedException;
 import reactor.core.publisher.Mono;
 
 @Help(help=LocalizedString.GiveawayCommandHelp, ehelp = LocalizedString.GiveawayCommandExtendedHelp, category=CategoryEnum.Utility)
@@ -99,6 +100,8 @@ class GiveawayCreateCommand implements ICommand {
 				} else if (parser.next().equals("--jointime")||parser.next().equals("-jt")) {
 					parser.eat();
 					//TODO
+				} else {
+					return Mono.error(new LocalizedException(LocalizedString.UnrecognizedUsage));
 				}
 			}
 			
@@ -117,7 +120,7 @@ class GiveawayCreateCommand implements ICommand {
 	
 	public Mono<?> sendGiveaway(MessageChannel channel, CommandData data, GiveawayFormat format) {
 		return channel.createEmbed(embed->{
-			embed.setTitle(data.localize(LocalizedString.GiveawayTitle)); //TODO: Localize
+			embed.setTitle(data.localize(LocalizedString.GiveawayTitle));
 			embed.setDescription(data.localize(LocalizedString.GiveawayPrompt));
 		}).flatMap(embed->{
 			return embed.addReaction(Unicode.unicode("\uD83C\uDF89"));

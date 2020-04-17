@@ -26,5 +26,6 @@ public enum LocalizedString {
     RemindIntervalCommandHelp, RemindIntervalCommandExtendedHelp, RoleCommandHelp, RoleCommandExtendedHelp, SuggestCommandHelp, SuggestCommandExtendedHelp,
     TicketCommandHelp, TicketCommandExtendedHelp, TranslateCommandHelp, TranslateCommandExtendedHelp, TicketManagerCommandHelp, TicketManagerCommandExtendedHelp,
     WMSGCommandHelp, WMSGCommandExtendedHelp, StarboardCommandHelp, StarboardCommandExtendedHelp, SuggestionsCommandHelp, SuggestionsCommandExtendedHelp,
-    TicketAlreadyExists, MusicRadioSet, MusicRadioUnset
+    TicketAlreadyExists, MusicRadioSet, MusicRadioUnset, UnrecognizedWord, NotInMusicChannel, InsufficientBotPermissions, MemberUnmuted, MemberMuted, 
+    CommandAlias, MustBeInVoiceChannel, SelfSendMoney, SendMoneyThankYou, HugSent, HugSentBot, HugSentUser, BanUserReason, NotLinkAdmin, KickUserReason
 }

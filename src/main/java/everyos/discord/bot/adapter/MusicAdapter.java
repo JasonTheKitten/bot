@@ -20,20 +20,26 @@ import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import com.sedmelluq.discord.lavaplayer.track.playback.NonAllocatingAudioFrameBuffer;
 
 import discord4j.core.object.entity.Member;
-import discord4j.core.object.entity.VoiceChannel;
-import discord4j.core.object.util.Snowflake;
+import discord4j.core.object.entity.channel.VoiceChannel;
+import discord4j.rest.util.Snowflake;
 import discord4j.voice.AudioProvider;
 import discord4j.voice.VoiceConnection;
 import everyos.discord.bot.ShardInstance;
+import everyos.discord.bot.localization.LocalizedString;
+import everyos.discord.bot.util.ErrorUtil.LocalizedException;
 import everyos.discord.bot.util.MusicUtil;
 import everyos.storage.database.DBDocument;
 import reactor.core.publisher.Mono;
 
-public class MusicAdapter implements IAdapter { //TODO: Get guild ID, cache by guild ID
-	private static HashMap<String, MusicAdapter> adapters;
+public class MusicAdapter implements IAdapter {
+	public static class VoiceStateMissingException extends Exception {
+		private static final long serialVersionUID = -8308486187759343621L;	
+	}
+	
+	private static HashMap<Long, MusicAdapter> adapters;
 	private static AudioPlayerManager manager;
 	static {
-		adapters = new HashMap<String, MusicAdapter>();
+		adapters = new HashMap<Long, MusicAdapter>();
 		
 		manager = new DefaultAudioPlayerManager();
         manager.getConfiguration().setFrameBufferFactory(NonAllocatingAudioFrameBuffer::new);
@@ -41,16 +47,15 @@ public class MusicAdapter implements IAdapter { //TODO: Get guild ID, cache by g
 	}
 	
 	private ShardInstance instance;
-    private String id;
     
     private VoiceChannel channel;
     private TrackScheduler scheduler;
     private AudioPlayer player;
     private AudioProvider provider;
+	private long channelID;
 
-    public MusicAdapter(ShardInstance instance, String id) {
+    public MusicAdapter(ShardInstance instance) {
     	this.instance = instance;
-        this.id = id;
         
         player = manager.createPlayer();
     	provider = new LavaPlayerAudioProvider(player);
@@ -58,30 +63,29 @@ public class MusicAdapter implements IAdapter { //TODO: Get guild ID, cache by g
     	player.addListener(scheduler);
     }
 
-    public static MusicAdapter of(ShardInstance instance, String id) {
-    	if (adapters.containsKey(id)) return adapters.get(id);
-        MusicAdapter adapter = new MusicAdapter(instance, id);
-        adapters.put(id, adapter);
+    public static MusicAdapter of(ShardInstance instance, long l) {
+    	if (adapters.containsKey(l)) return adapters.get(l);
+        MusicAdapter adapter = new MusicAdapter(instance);
+        adapters.put(l, adapter);
         return adapter;
     }
     
 	public static Mono<MusicAdapter> getFromMember(ShardInstance instance, Member member) {
-    	return Mono.create(sink->{
-	    	member.getVoiceState()
-	    		.map(vs->vs.getChannelId())
-	    		.map(cidm->{
-	    			if (!cidm.isPresent()) {
-	    				sink.error(new Exception());
-	    				return Mono.empty();
-	    			}
-	    			return cidm.get().asString();
-	    		})
-	    		.doOnNext(cid->sink.success(MusicAdapter.of(instance, (String) cid)))
-	    		.subscribe();
-    	});
+    	return member.getVoiceState()
+    		.switchIfEmpty(Mono.error(new VoiceStateMissingException()))
+    		.flatMap(vs->{
+				if (!(vs.getChannelId().isPresent())) return Mono.error(new LocalizedException(LocalizedString.MustBeInVoiceChannel));
+				MusicAdapter adapter = MusicAdapter.of(instance, member.getGuildId().asLong());
+				adapter.setPreferredChannel(vs.getChannelId().get().asLong());
+				return Mono.just(adapter);
+	    	});
     }
 
-    @Override public DBDocument getDocument() { return null; }
+    private void setPreferredChannel(long id) {
+		this.channelID = id;
+	}
+
+	@Override public DBDocument getDocument() { return null; }
     
     public AudioPlayer getPlayer() {
     	return player;
@@ -93,13 +97,13 @@ public class MusicAdapter implements IAdapter { //TODO: Get guild ID, cache by g
     private Mono<VoiceConnection> connect() {
     	Mono<VoiceConnection> vcm;
 		if (scheduler.connection == null) {
-			Mono<VoiceChannel> mono = channel==null?instance.client.getChannelById(Snowflake.of(id)).cast(VoiceChannel.class):Mono.just(channel);
+			Mono<VoiceChannel> mono = channel==null?instance.client.getChannelById(Snowflake.of(channelID)).cast(VoiceChannel.class):Mono.just(channel);
 			vcm = mono.flatMap(channel->channel.join(spec->spec.setProvider(getProvider())));
 		} else vcm = Mono.just(scheduler.connection);
 		return vcm.doOnNext(vc->scheduler.setConnection(vc));
     }
 
-	public Mono<?> queue(AudioTrack track, int i) {
+	public Mono<VoiceConnection> queue(AudioTrack track, int i) {
 		synchronized(scheduler) {
 			return connect().doOnNext(vc->scheduler.queue(track, i));
 		}
@@ -136,14 +140,14 @@ public class MusicAdapter implements IAdapter { //TODO: Get guild ID, cache by g
 	public boolean getRadio() {
 		synchronized(scheduler) {return scheduler.getRadio();}
 	}
-	public Mono<?> setRadio(boolean r) {
+	public Mono<VoiceConnection> setRadio(boolean r) {
 		synchronized(scheduler) {
 			return connect().doOnNext(vc->scheduler.setRadio(r));
 		}
 	}
 }
 
-class TrackScheduler extends AudioEventAdapter { //TODO: Sync everything
+class TrackScheduler extends AudioEventAdapter {
 	public VoiceConnection connection;
 	
 	private AudioPlayer player;
@@ -182,6 +186,7 @@ class TrackScheduler extends AudioEventAdapter { //TODO: Sync everything
 
 	@Override public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
 		if (!endReason.mayStartNext) return;
+		if (repeat) queue.add(playingTrack.makeClone());
 		playNext();
 	}
 	
@@ -198,20 +203,19 @@ class TrackScheduler extends AudioEventAdapter { //TODO: Sync everything
 			}
 			
 			if (queue.isEmpty()) {
-				leave();
+				stop();
 				return;
 			}
 			
 			playingTrack = queue.get(0);
 			queue.remove(0);
-			if (repeat) queue.add(playingTrack.makeClone());
 			player.playTrack(playingTrack);
 		}
 	}
 	
 	public void leave() {
 		playingTrack = null;
-		if (connection!=null) connection.disconnect();
+		if (connection!=null) connection.disconnect().subscribe();
 		connection = null;
 	}
 

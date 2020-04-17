@@ -189,27 +189,27 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 			case CancelCommandExtendedHelp:
 				break;
 			case CancelCommandHelp:
-				break;
+				return "Escape the current prompt";
 			case CurrencyCommandExtendedHelp:
 				break;
 			case CurrencyCommandHelp:
-				break;
+				return "[subcommand] Yet another currency system";
 			case DBLVoteCommandExtendedHelp:
 				break;
 			case DBLVoteCommandHelp:
 				break;
 			case DictionaryCommandExtendedHelp:
-				break;
+				return "**<word>** The word to check the definition of";
 			case DictionaryCommandHelp:
-				break;
+				return "<word> Check the definition of a word";
 			case DisableCommandExtendedHelp:
 				break;
 			case DisableCommandHelp:
 				break;
 			case DonateCommandExtendedHelp:
-				break;
+				return ":/";
 			case DonateCommandHelp:
-				break;
+				return "Get a link to donate";
 			case FilterCommandExtendedHelp:
 				break;
 			case FilterCommandHelp:
@@ -248,9 +248,9 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 			case LMSGCommandHelp:
 				return "<channel> [message] Set a message to be sent when users leave";
 			case LevelCommandExtendedHelp:
-				break;
+				return "**[user]** The user whose level is to be displayed. Defaults to the invoker";
 			case LevelCommandHelp:
-				break;
+				return "[user] Displays a user's level";
 			case MessageCommandExtendedHelp:
 				break;
 			case MessageCommandHelp:
@@ -258,7 +258,7 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 			case MusicCommandExtendedHelp:
 				break;
 			case MusicCommandHelp:
-				break;
+				return "[subcommand] Play music and manage playlists";
 			case MuteCommandExtendedHelp:
 				break;
 			case MuteCommandHelp:
@@ -298,15 +298,15 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 			case RoleCommandExtendedHelp:
 				break;
 			case RoleCommandHelp:
-				break;
+				return "<subcommand> Manage self-assignable roles (e.g. color roles)";
 			case SuggestCommandExtendedHelp:
 				return "**<suggestion>** The content of the suggestion";
 			case SuggestCommandHelp:
 				return "<suggestion> Create a new suggestion with voting reactions in the current channel";
 			case SupportCommandExtendedHelp:
-				break;
+				return "No additional usage";
 			case SupportCommandHelp:
-				break;
+				return "Gives a link to this bot's support server";
 			case TicketCommandExtendedHelp:
 				return "No additional usage";
 			case TicketCommandHelp:
@@ -316,9 +316,9 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 			case TicketManagerCommandHelp:
 				break;
 			case TranslateCommandExtendedHelp:
-				break;
+				return "**[\\*lang]** The language to translate the text into. Can be *english";
 			case TranslateCommandHelp:
-				break;
+				return "[\\*lang] Translate a phrase to another language!";
 			case UnmuteCommandExtendedHelp:
 				break;
 			case UnmuteCommandHelp:
@@ -337,11 +337,45 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 			case StarboardCommandHelp:
 				break;
 			case SuggestionsCommandExtendedHelp:
-				break;
+				return "**[channel]** A channel to use for suggestions. Defaults to current channel.";
 			case SuggestionsCommandHelp:
-				break;
+				return "[channel] Sets a dedicated suggestions channel";
 			case TicketAlreadyExists:
-				break;
+				return "You already have an open ticket!";
+			case MusicRadioSet:
+				return "The radio is now turned on";
+			case MusicRadioUnset:
+				return "The radio is now turned off";
+			case UnrecognizedWord:
+				return "This word is not recognized";
+			case NotInMusicChannel:
+				return "Please join a music channel in this server to use this command";
+			case InsufficientBotPermissions:
+				return "--- has insufficient permissions and requires the follow permissions: ${permissions}";
+			case MemberMuted:
+				return "The member has been muted successfully!";
+			case MemberUnmuted:
+				return "The member has been unmuted successfully!";
+			case CommandAlias:
+				return "An alias for '${command}'";
+			case HugSent:
+				return "You've been sent a hug!";
+			case MustBeInVoiceChannel:
+				return "You must be in a voice channel to use this command!";
+			case SelfSendMoney:
+				return "You can't send yourself money!";
+			case SendMoneyThankYou:
+				return "Thank you, uwu";
+			case HugSentBot:
+				return "--- wuvs you!";
+			case HugSentUser:
+				return "${invoker} sent ${recipient} a hug!";
+			case BanUserReason:
+				return "User bad invocated by user";
+			case KickUserReason:
+				return "User kick invocated by user";
+			case NotLinkAdmin:
+				return "This channel is not in the chatlink administration group";
         }
         return "This text should not appear";
 	}

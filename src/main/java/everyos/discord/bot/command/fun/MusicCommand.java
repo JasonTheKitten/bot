@@ -1,16 +1,15 @@
 package everyos.discord.bot.command.fun;
 
+import java.awt.Color;
 import java.util.HashMap;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
-import everyos.discord.bot.adapter.GuildAdapter;
-import everyos.discord.bot.adapter.MemberAdapter;
+import discord4j.core.object.entity.channel.MessageChannel;
 import everyos.discord.bot.adapter.MusicAdapter;
-import everyos.discord.bot.adapter.TopEntityAdapter;
+import everyos.discord.bot.adapter.MusicAdapter.VoiceStateMissingException;
 import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
@@ -19,6 +18,7 @@ import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
+import everyos.discord.bot.util.ErrorUtil.LocalizedException;
 import everyos.discord.bot.util.MusicUtil;
 import everyos.discord.bot.util.TimeUtil;
 import reactor.core.publisher.Mono;
@@ -69,8 +69,7 @@ public class MusicCommand implements IGroupCommand {
         
         ICommand command = lcommands.get(data.locale.locale).get(cmd);
         
-        if (command==null)
-        	return message.getChannel().flatMap(c->c.createMessage(data.locale.localize(LocalizedString.NoSuchSubcommand)));
+        if (command==null) return Mono.error(new LocalizedException(LocalizedString.NoSuchSubcommand));
 	    
         return command.execute(message, data, arg);
     }
@@ -92,16 +91,14 @@ class MusicPlaylistCommand implements ICommand {
 	}
 	
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
-        if (argument.equals(""))
-        	return message.getChannel().flatMap(c->c.createMessage(data.locale.localize(LocalizedString.NoSuchSubcommand)));
+        if (argument.equals("")) return Mono.error(new LocalizedException(LocalizedString.NoSuchSubcommand));
 
         String cmd = ArgumentParser.getCommand(argument);
         String arg = ArgumentParser.getArgument(argument);
         
         ICommand command = lcommands.get(data.locale.locale).get(cmd);
         
-        if (command==null)
-        	return message.getChannel().flatMap(c->c.createMessage(data.locale.localize(LocalizedString.NoSuchSubcommand)));
+        if (command==null) return Mono.error(new LocalizedException(LocalizedString.NoSuchSubcommand));
 	    
         return command.execute(message, data, arg);
     }
@@ -110,17 +107,20 @@ class MusicPlaylistCommand implements ICommand {
 abstract class GenericMusicCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 			return message.getChannel().flatMap(channel->{
-				//Can probably just be message.getAuthorAsMember, but to be on the safe side...
-				TopEntityAdapter teadapter = TopEntityAdapter.of(data.shard, channel);
-	            if (!teadapter.isOfGuild()) return Mono.empty();
-	            MemberAdapter madapter = MemberAdapter.of((GuildAdapter) teadapter.getPrimaryAdapter(), message.getAuthor().get().getId().asString());
-	            
-	            message.suppressEmbeds(true).subscribe();
-	            return madapter.getMember()
+				return message.suppressEmbeds(true)
+					.onErrorResume(e->Mono.empty())
+					.then(message.getAuthorAsMember())
 	            	.flatMap(m->MusicAdapter.getFromMember(data.shard, m))
-	            	.flatMap(ma->execute(message, data, argument, ma, channel));
-	            });
-			
+	            	.flatMap(ma->execute(message, data, argument, ma, channel))
+	            	.cast(Object.class)
+	            	.onErrorResume(e->{
+	            		if (e instanceof VoiceStateMissingException) {
+	            			return channel.createMessage(data.localize(LocalizedString.NotInMusicChannel));
+	            		}
+	            		return Mono.error(e);
+	            	});
+	        });
+			//TODO: We should scan out VoiceStates in other guilds if the current guild does not have a voice state
 		}
 	
 	abstract Mono<?> execute(Message message, CommandData data, String argument, MusicAdapter ma, MessageChannel channel);
@@ -137,7 +137,7 @@ class MusicPlayCommand extends GenericMusicCommand {
 				embed.setTitle(data.safe(info.title));
                 embed.setDescription("Song added to queue");
                 embed.addField("Length", TimeUtil.formatTime(info.length), false);
-                embed.setFooter("Requested by User ID "+message.getAuthor().get().getId().asString(), null);
+                embed.setFooter("Requested by User ID "+message.getAuthor().get().getId().asLong(), null);
 			}));
 		}); 
 	}
@@ -154,7 +154,11 @@ class MusicSkipCommand extends GenericMusicCommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument, MusicAdapter ma, MessageChannel channel) {
 		if (argument.isEmpty()) {
 			ma.skip(0);
-		} else ma.skip(Integer.valueOf(argument)); //TODO: Catch exceptions
+		} else try {
+			ma.skip(Integer.valueOf(argument));
+		} catch (NumberFormatException e) {
+			return Mono.error(new LocalizedException(LocalizedString.UnrecognizedUsage));
+		}
 		return channel.createMessage(data.localize(LocalizedString.TrackSkipped));
 	}
 }
@@ -190,12 +194,13 @@ class MusicNpCommand extends GenericMusicCommand {
 		if (np==null) return channel.createMessage(data.localize(LocalizedString.NoTrackPlaying));
         return channel.createEmbed(embed->{
             AudioTrackInfo info = np.getInfo();
+            embed.setColor(Color.BLACK);
             embed.setAuthor(data.safe(info.author), info.uri, null);
             embed.setTitle(data.safe(info.title));
             embed.setDescription("Now playing");
             embed.addField("Length", 
                 TimeUtil.formatTime(np.getPosition())+"/"+ TimeUtil.formatTime(info.length)+
-                " ("+(Math.floor((((double) np.getPosition())/(double) info.length)*1000.)/10.)+"%)", false);     
+                " ("+(Math.floor((((double) np.getPosition())/(double) info.length)*1000.)/10.)+"%)", false);
         });
 	}
 }
@@ -238,16 +243,23 @@ class MusicQueueCommand extends GenericMusicCommand {
 
 class MusicRadioCommand extends GenericMusicCommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument, MusicAdapter ma, MessageChannel channel) {
-		return ma.setRadio(!ma.getRadio());
-		//if (ma.getRadio()) return channel.createMessage(data.localize(LocalizedString.MusicRadioSet));
-		//return channel.createMessage(data.localize(LocalizedString.MusicRadioUnset));
+		return ma.setRadio(!ma.getRadio()).flatMap(r->{
+			if (ma.getRadio()) return channel.createMessage(data.localize(LocalizedString.MusicRadioSet));
+			return channel.createMessage(data.localize(LocalizedString.MusicRadioUnset));
+		});
+	}
+}
+
+class MusicPlayListAddCommand implements ICommand {
+	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
+		return null;
 	}
 }
 
 /*
 public class MusicCommand implements ICommand {
 	@Override public void execute(Message message, String argument) {
-		//search, set time
+		//search, set time, volume
 	    if (args[0].equals("playlist")) {
 	        if (args.length<2) {
 	            channel.send("Subcommand expected at least one argument!\n"+

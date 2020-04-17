@@ -24,16 +24,16 @@ import com.google.gson.JsonParser;
 public class DBDocument {
     private String path;
     private String file;
-    private String name;
+    private long name;
     private JsonObject json;
     private DBObject dbobject;
     private HashMap<String, DBCollection> cache;
     private HashMap<String, Object> memory;
 
-    protected DBDocument(String name, String path) {
+    protected DBDocument(long document, String path) {
         this.path = path;
         this.file = path + ".json";
-        this.name = name;
+        this.name = document;
         this.cache = new HashMap<String, DBCollection>();
 
         File fo = new File(file);
@@ -56,7 +56,7 @@ public class DBDocument {
         return cache.get(collection);
     }
 
-    public String getName() {
+    public long getName() {
         return name;
     }
 

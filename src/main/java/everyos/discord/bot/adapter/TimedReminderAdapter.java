@@ -1,21 +1,21 @@
 package everyos.discord.bot.adapter;
 
-import discord4j.core.object.entity.GuildMessageChannel;
+import discord4j.core.object.entity.channel.GuildMessageChannel;
 import everyos.discord.bot.ShardInstance;
 import everyos.storage.database.DBDocument;
 
 public class TimedReminderAdapter implements IAdapter {
 	private ShardInstance shard;
-	private String guildID;
-	private String reminderID;
+	private long guildID;
+	private long reminderID;
 
-	public TimedReminderAdapter(ShardInstance shard, String guildID, String reminderID) {
+	public TimedReminderAdapter(ShardInstance shard, long guildID, long reminderID) {
 		this.shard = shard;
 		this.guildID = guildID;
 		this.reminderID = reminderID;
 	}
 	
-	public static String create(String mid, String content, GuildMessageChannel channel, int time) {
+	public static String create(long mid, String content, GuildMessageChannel channel, int time) {
 		return null;
 	}
 	

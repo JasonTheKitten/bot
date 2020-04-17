@@ -10,14 +10,14 @@ import everyos.storage.database.DBObject;
 
 public class ChannelAdapter implements IAdapter {
     private ShardInstance instance;
-    private String id;
+    private long id;
 
-    public ChannelAdapter(ShardInstance instance, String id) {
+    public ChannelAdapter(ShardInstance instance, long id) {
         this.instance = instance;
         this.id = id;
     }
 
-    public static ChannelAdapter of(ShardInstance instance, String id) {
+    public static ChannelAdapter of(ShardInstance instance, long id) {
         return new ChannelAdapter(instance, id);
     }
 

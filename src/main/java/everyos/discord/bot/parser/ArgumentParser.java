@@ -2,7 +2,7 @@ package everyos.discord.bot.parser;
 
 import javax.annotation.Nonnull;
 
-import discord4j.core.object.util.Snowflake;
+import discord4j.rest.util.Snowflake;
 import everyos.discord.bot.util.StringUtil;
 
 public class ArgumentParser {
@@ -35,13 +35,13 @@ public class ArgumentParser {
         }
     }
 
-    public String eatUserID() {
+    public long eatUserID() {
         String token = eat();
         if (token.startsWith("<@") && token.endsWith(">")) {
             token = token.substring(2, token.length() - 1);
             if (token.startsWith("!")) token = token.substring(1, token.length());
         }
-        return token;
+        return Long.valueOf(token);
     }
 
     public boolean couldBeChannelID() {
@@ -55,11 +55,11 @@ public class ArgumentParser {
         }
     }
 
-    public String eatChannelID() {
+    public long eatChannelID() {
         String token = eat();
         if (token.startsWith("<#") && token.endsWith(">"))
             token = token.substring(2, token.length() - 1);
-        return token;
+        return Long.valueOf(token);
     }
     
     public boolean couldBeRoleID() {
@@ -74,12 +74,12 @@ public class ArgumentParser {
         }
     }
 
-    public String eatRoleID() {
+    public long eatRoleID() {
         String token = eat();
         if (token.startsWith("<@&") && token.endsWith(">")) {
             token = token.substring(3, token.length() - 1);
         }
-        return token;
+        return Long.valueOf(token);
     }
     
     public boolean couldBeEmojiID() {

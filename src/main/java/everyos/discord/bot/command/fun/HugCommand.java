@@ -7,13 +7,14 @@ import java.util.ArrayList;
 
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
-import discord4j.core.object.util.Snowflake;
+import discord4j.rest.util.Snowflake;
 import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
+import everyos.discord.bot.util.FillinUtil;
 import reactor.core.publisher.Mono;
 
 @Help(help=LocalizedString.HugCommandHelp, ehelp = LocalizedString.HugCommandExtendedHelp, category=CategoryEnum.Fun)
@@ -47,13 +48,13 @@ public class HugCommand implements ICommand {
 			return mono.flatMap(target->{
 				return channel.createEmbed(embed->{
 					if (target.getId().equals(author.getId())) {
-						embed.setDescription("You've been sent a hug!"); //TODO: Localize
+						embed.setDescription(data.localize(LocalizedString.HugSent));
 					} else if (target.getId().equals(Snowflake.of(data.shard.clientID))) {
-						embed.setDescription("--- wuvs you!");
+						embed.setDescription(data.localize(LocalizedString.HugSentBot));
 					} else {
-						embed.setDescription(String.format("%s#%s sent %s#%s a hug!", //TODO: Localize
-							author.getUsername(), author.getDiscriminator(),
-							target.getUsername(), target.getDiscriminator()));
+						embed.setDescription(data.localize(LocalizedString.HugSentUser, FillinUtil.of(
+							"invoker", author.getUsername(), author.getDiscriminator(),
+							"recipient", target.getUsername(), target.getDiscriminator())));
 					}
 					
 					String hugURL = hugs[(int) Math.round(Math.random()*(hugs.length-1))];

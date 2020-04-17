@@ -3,8 +3,8 @@ package everyos.discord.bot.command.utility;
 import java.util.HashMap;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.Snowflake;
+import discord4j.rest.util.Permission;
+import discord4j.rest.util.Snowflake;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
@@ -14,6 +14,7 @@ import everyos.discord.bot.command.IGroupCommand;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
+import everyos.discord.bot.util.ErrorUtil.LocalizedException;
 import everyos.discord.bot.util.PermissionUtil;
 import everyos.storage.database.DBObject;
 import reactor.core.publisher.Mono;
@@ -61,7 +62,7 @@ class RoleCreateCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
 			return message.getAuthorAsMember()
-				.flatMap(member->PermissionUtil.check(member, channel, data.locale, Permission.MANAGE_ROLES))
+				.flatMap(member->PermissionUtil.check(member, Permission.MANAGE_ROLES))
 				.flatMap(o->message.getGuild())
 				.flatMap(guild->{
 					return GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
@@ -73,7 +74,7 @@ class RoleCreateCommand implements ICommand {
 							spec.setName(argument);
 							spec.setMentionable(false);
 						}).flatMap(role->{
-							obj.getOrCreateObject("roles", ()->new DBObject()).set(argument, role.getId().asString());
+							obj.getOrCreateObject("roles", ()->new DBObject()).set(argument, role.getId().asLong());
 							doc.save();
 							
 							return channel.createMessage(data.localize(LocalizedString.RoleCreated));
@@ -93,12 +94,11 @@ class RoleTakeCommand implements ICommand {
 					if (roles == null) return null;
 					return roles.getOrDefaultString(argument, null);
 				});
-				if (roleID==null) return channel.createMessage(data.localize(LocalizedString.NoSuchRole));
+				if (roleID==null) return Mono.error(new LocalizedException(LocalizedString.NoSuchRole));
 				return message.getAuthorAsMember().flatMap(member->member.addRole(Snowflake.of(roleID)))
 					.then(channel.createMessage(data.localize(LocalizedString.RoleGiven)));
 			});
 		});
-		//TODO: On-Error
 	}
 }
 
@@ -111,11 +111,10 @@ class RoleRemoveCommand implements ICommand {
 					if (roles == null) return null;
 					return roles.getOrDefaultString(argument, null);
 				});
-				if (roleID==null) return channel.createMessage(data.localize(LocalizedString.NoSuchRole));
+				if (roleID==null) return Mono.error(new LocalizedException(LocalizedString.NoSuchRole));
 				return message.getAuthorAsMember().flatMap(member->member.removeRole(Snowflake.of(roleID)))
 					.then(channel.createMessage(data.localize(LocalizedString.RoleRemoved)));
 			});
 		});
-		//TODO: On-Error
 	}
 }
