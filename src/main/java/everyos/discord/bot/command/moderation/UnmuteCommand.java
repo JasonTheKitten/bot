@@ -9,6 +9,7 @@ import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import everyos.discord.bot.util.ErrorUtil.LocalizedException;
@@ -24,10 +25,11 @@ public class UnmuteCommand implements ICommand {
 			return message.getAuthorAsMember()
 				.flatMap(member->PermissionUtil.check(member, new Permission[] {Permission.MANAGE_ROLES}, new Permission[] {Permission.MANAGE_MESSAGES}))
 				.then(message.getGuild()).flatMap(guild->{
-					return GuildAdapter.of(data.shard, guild.getId().asLong()).getData(obj->{
+					return GuildAdapter.of(data.bot, guild.getId().asLong()).getDocument().flatMap(doc->{
+						DBObject obj = doc.getObject();
 						if (!obj.has("muteid")) return Mono.empty();
 						return Mono.just(Snowflake.of(obj.getOrDefaultString("muteid", null))); 
-					}).cast(Snowflake.class).flatMap(role->{
+					}).flatMap(role->{
 						return guild.getMemberById(Snowflake.of(parser.eatUserID()))
 							.flatMap(member->member.removeRole(role));
 					}).then(channel.createMessage(data.localize(LocalizedString.MemberUnmuted)));

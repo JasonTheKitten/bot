@@ -13,12 +13,16 @@ import everyos.discord.bot.adapter.ChannelAdapter;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
+import everyos.discord.bot.command.channel.ResetChannelCommand;
 import everyos.discord.bot.command.info.HelpCommand;
+import everyos.discord.bot.command.moderation.BanCommand;
+import everyos.discord.bot.command.moderation.KickCommand;
 import everyos.discord.bot.command.moderation.OneWordModerationCommand;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
-import everyos.storage.database.DBObject;
+import everyos.discord.bot.util.ErrorUtil.LocalizedException;
 import reactor.core.publisher.Mono;
 
 public class OneWordChannelCase implements IGroupCommand {
@@ -36,13 +40,15 @@ public class OneWordChannelCase implements IGroupCommand {
     public OneWordChannelCase() {
         commands = new HashMap<String, ICommand>();
         commands.put("oneword", new OneWordModerationCommand());
+        commands.put("ban", new BanCommand());
+        commands.put("kick", new KickCommand());
+        commands.put("resetchannel", new ResetChannelCommand());
         commands.put("help", new HelpCommand());
     }
 
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
         String content = message.getContent();
-        String trunc = ArgumentParser.getIfPrefix(content, 
-            new String[]{"---", "*", "<@"+data.bot.clientID+">", "<@!"+data.bot.clientID+">"});
+        String trunc = ArgumentParser.getIfPrefix(content, data.prefixes);
 
         if (!(trunc == null)) {
             String command = ArgumentParser.getCommand(trunc);
@@ -52,20 +58,20 @@ public class OneWordChannelCase implements IGroupCommand {
         }
 
         return message.getChannel().flatMap(channel->{
-            long fromID = message.getChannelId().asLong();
-            return ChannelAdapter.of(data.shard, fromID).getData((obj, doc)->{
+            long fromID = channel.getId().asLong();
+            return ChannelAdapter.of(data.bot, fromID).getDocument().flatMap(doc->{
+            	DBObject obj = doc.getObject();
                 if (obj.has("data")) {
-                	//TODO: Check user ID
                 	//TODO: Pin data when we get too long
-                	if (!words.has(content.toLowerCase())) return Mono.error(new Exception());
+                	if (!words.has(content.toLowerCase())) return Mono.error(new LocalizedException(LocalizedString.OneWordNotRecognized));
                 	
-                	DBObject cc = obj.getOrDefaultObject("data", new DBObject());
+                	DBObject cc = obj.getOrDefaultObject("data", null);
                 	
                 	long uid = message.getAuthor().get().getId().asLong();
-                	if (obj.getOrDefaultLong("lastuser", -1L)==uid) {
-                		return channel.createMessage(data.localize(LocalizedString.Undocumented)).then();
-                	}
-                	obj.set("lastuser", uid);
+                	if (cc.getOrDefaultLong("lastuser", -1L)==uid)
+                		return Mono.error(new LocalizedException(LocalizedString.OneWordOneWord));
+                	
+                	cc.set("lastuser", uid);
                 	
                 	StringBuilder sentenceb = new StringBuilder(cc.getOrDefaultString("sentence", ""));
                 	if (!content.isEmpty()&&(words.get(content.toLowerCase()).getAsInt()!=2))
@@ -75,8 +81,7 @@ public class OneWordChannelCase implements IGroupCommand {
                 	int length = sentence.length();
                 	if (length>2000) sentence = sentence.substring(length-2000, length);
                 	cc.set("sentence", sentence);
-                	doc.save();
-                	return channel.createMessage(sentence);
+                	return doc.save().then(channel.createMessage(sentence));
                 } else return Mono.error(new Exception("An exception has occured!"));
 	        }).cast(Message.class).onErrorResume(e->{
 	     	   if (e instanceof UnrecognizedWordException) {

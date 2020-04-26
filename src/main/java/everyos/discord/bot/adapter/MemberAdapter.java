@@ -1,16 +1,12 @@
 package everyos.discord.bot.adapter;
 
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.User;
 import discord4j.rest.util.Snowflake;
-import everyos.discord.bot.ShardInstance;
-import everyos.storage.database.DBDocument;
-import everyos.storage.database.DBObject;
+import everyos.discord.bot.BotInstance;
+import everyos.discord.bot.database.DBDocument;
 import reactor.core.publisher.Mono;
 
 public class MemberAdapter implements IAdapter {
@@ -28,17 +24,20 @@ public class MemberAdapter implements IAdapter {
     public static MemberAdapter of(GuildAdapter gadapter, User user) {
 		return of(gadapter, user.getId().asLong());
 	}
-    public static MemberAdapter of(ShardInstance shard, Guild guild, User user) {
-		return of(GuildAdapter.of(shard, guild), user);
+    public static MemberAdapter of(BotInstance bot, Guild guild, User user) {
+		return of(GuildAdapter.of(bot, guild), user);
 	}
-    public static MemberAdapter of(ShardInstance shard, Guild guild, long user) {
-		return of(GuildAdapter.of(shard, guild), user);
+    public static MemberAdapter of(BotInstance bot, Guild guild, long user) {
+		return of(GuildAdapter.of(bot, guild), user);
 	}
     
     public Mono<Member> getMember() {
     	return adapter.instance.client.getMemberById(Snowflake.of(adapter.id), Snowflake.of(id));
     }
-    public long getMemberID() {
+    public ModMemberAdapter toMod() {
+    	return ModMemberAdapter.of(adapter, id);
+    }
+    public long getUserID() {
 		return id;
 	}
     
@@ -48,14 +47,7 @@ public class MemberAdapter implements IAdapter {
     	return adp.id==id && adp.adapter.id==adapter.id;
     }
 
-    @Override public DBDocument getDocument() {
-        return adapter.getDocument().subcollection("members").getOrSet(id, doc -> {});
-    }
-
-    public <T> T getData(Function<DBObject, T> func) {
-		return getDocument().getObject(func);
-	}
-    public <T> T getData(BiFunction<DBObject, DBDocument, T> func) {
-		return getDocument().getObject(func);
+    @Override public Mono<DBDocument> getDocument() {
+		return adapter.instance.db.collection("members").scan().with("uid", id).with("gid", adapter.id).orSet(doc->{});
 	}
 }

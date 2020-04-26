@@ -11,6 +11,6 @@ bin
 .theia
 *.config
 .vscode
-src/main/resources/googleauth.json
+config.json
 
 snippets.txt

@@ -25,7 +25,7 @@ public class ProfileCommand implements ICommand {
 			ArgumentParser parser = new ArgumentParser(argument);
 			Mono<Member> userm = null;
 			if (parser.couldBeUserID()) {
-				userm = MemberAdapter.of(GuildAdapter.of(data.shard, channel), parser.eatUserID()).getMember()
+				userm = MemberAdapter.of(GuildAdapter.of(data.bot, channel), parser.eatUserID()).getMember()
 					.onErrorResume(e->Mono.error(new LocalizedException(LocalizedString.UnrecognizedUser)));
 			} else if (parser.isEmpty()) {
 				userm = message.getAuthorAsMember();

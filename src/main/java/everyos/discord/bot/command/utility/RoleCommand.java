@@ -11,12 +11,12 @@ import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import everyos.discord.bot.util.ErrorUtil.LocalizedException;
 import everyos.discord.bot.util.PermissionUtil;
-import everyos.storage.database.DBObject;
 import reactor.core.publisher.Mono;
 
 @Help(help=LocalizedString.RoleCommandHelp, ehelp = LocalizedString.RoleCommandExtendedHelp, category=CategoryEnum.Utility)
@@ -50,7 +50,7 @@ public class RoleCommand implements IGroupCommand {
 		ICommand command = lcommands.get(data.locale.locale).get(cmd);
 
 		if (command==null)
-			return message.getChannel().flatMap(c->c.createMessage(data.locale.localize(LocalizedString.NoSuchSubcommand)));
+			return message.getChannel().flatMap(c->c.createMessage(data.localize(LocalizedString.NoSuchSubcommand)));
 
 		return command.execute(message, data, arg);
 	}
@@ -65,8 +65,9 @@ class RoleCreateCommand implements ICommand {
 				.flatMap(member->PermissionUtil.check(member, Permission.MANAGE_ROLES))
 				.flatMap(o->message.getGuild())
 				.flatMap(guild->{
-					return GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
+					return GuildAdapter.of(data.bot, guild).getDocument().flatMap(doc->{
 						//TODO: Limit creatable roles, for the sanity of my disk
+						DBObject obj = doc.getObject();
 						if (obj.getOrDefaultObject("roles", new DBObject()).has(argument)) {
 							return channel.createMessage(data.localize(LocalizedString.RoleAlreadyExists));
 						}
@@ -75,9 +76,7 @@ class RoleCreateCommand implements ICommand {
 							spec.setMentionable(false);
 						}).flatMap(role->{
 							obj.getOrCreateObject("roles", ()->new DBObject()).set(argument, role.getId().asLong());
-							doc.save();
-							
-							return channel.createMessage(data.localize(LocalizedString.RoleCreated));
+							return doc.save().then(channel.createMessage(data.localize(LocalizedString.RoleCreated)));
 						});
 					});
 			});
@@ -88,16 +87,16 @@ class RoleCreateCommand implements ICommand {
 class RoleTakeCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
-			return message.getGuild().flatMap(guild->{
-				String roleID = GuildAdapter.of(data.shard, guild).getData(obj->{
-					DBObject roles = obj.getOrDefaultObject("roles", null);
-					if (roles == null) return null;
-					return roles.getOrDefaultString(argument, null);
+			return message.getGuild()
+				.flatMap(guild->GuildAdapter.of(data.bot, guild).getDocument())
+				.flatMap(doc->{
+					DBObject roles = doc.getObject().getOrDefaultObject("roles", null);
+					if (roles == null) return Mono.error(new LocalizedException(LocalizedString.NoSuchRole));
+					String roleID =  roles.getOrDefaultString(argument, null);
+					if (roleID==null) return Mono.error(new LocalizedException(LocalizedString.NoSuchRole));
+					return message.getAuthorAsMember().flatMap(member->member.addRole(Snowflake.of(roleID)))
+						.then(channel.createMessage(data.localize(LocalizedString.RoleGiven)));
 				});
-				if (roleID==null) return Mono.error(new LocalizedException(LocalizedString.NoSuchRole));
-				return message.getAuthorAsMember().flatMap(member->member.addRole(Snowflake.of(roleID)))
-					.then(channel.createMessage(data.localize(LocalizedString.RoleGiven)));
-			});
 		});
 	}
 }
@@ -105,16 +104,16 @@ class RoleTakeCommand implements ICommand {
 class RoleRemoveCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
-			return message.getGuild().flatMap(guild->{
-				String roleID = GuildAdapter.of(data.shard, guild).getData(obj->{
-					DBObject roles = obj.getOrDefaultObject("roles", null);
-					if (roles == null) return null;
-					return roles.getOrDefaultString(argument, null);
+			return message.getGuild()
+				.flatMap(guild->GuildAdapter.of(data.bot, guild).getDocument())
+				.flatMap(doc->{
+					DBObject roles = doc.getObject().getOrDefaultObject("roles", null);
+					if (roles == null) return Mono.error(new LocalizedException(LocalizedString.NoSuchRole));
+					String roleID =  roles.getOrDefaultString(argument, null);
+					if (roleID==null) return Mono.error(new LocalizedException(LocalizedString.NoSuchRole));
+					return message.getAuthorAsMember().flatMap(member->member.removeRole(Snowflake.of(roleID)))
+						.then(channel.createMessage(data.localize(LocalizedString.RoleRemoved)));
 				});
-				if (roleID==null) return Mono.error(new LocalizedException(LocalizedString.NoSuchRole));
-				return message.getAuthorAsMember().flatMap(member->member.removeRole(Snowflake.of(roleID)))
-					.then(channel.createMessage(data.localize(LocalizedString.RoleRemoved)));
-			});
 		});
 	}
 }

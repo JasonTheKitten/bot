@@ -7,6 +7,7 @@ import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import everyos.discord.bot.util.PermissionUtil;
@@ -25,14 +26,13 @@ public class LeaveCommand implements ICommand {
 					ArgumentParser parser = new ArgumentParser(argument);
 					
 					if (parser.isEmpty()) {
-						GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
+						GuildAdapter.of(data.bot, guild).getDocument().flatMap(doc->{
+							DBObject obj = doc.getObject();
 							obj.remove("lmsgc");
 							obj.remove("lmsg");
 							
-							doc.save();
-						});
-						
-						return channel.createMessage(data.localize(LocalizedString.ConfigurationReset));
+							return doc.save();
+						}).then(channel.createMessage(data.localize(LocalizedString.ConfigurationReset)));
 					}
 					
 					if (!parser.couldBeChannelID()) 
@@ -42,14 +42,13 @@ public class LeaveCommand implements ICommand {
 					if (parser.isEmpty()) return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
 					String wmessage = parser.toString();
 					
-					GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
+					return GuildAdapter.of(data.bot, guild).getDocument().flatMap(doc->{
+						DBObject obj = doc.getObject();
 						obj.set("lmsgc", wchannel);
 						obj.set("lmsg", wmessage);
 						
-						doc.save();
-					});
-					
-					return channel.createMessage(data.localize(LocalizedString.LeaveMessageSet));
+						return doc.save();
+					}).then(channel.createMessage(data.localize(LocalizedString.LeaveMessageSet)));
 				});
 		});
 	}

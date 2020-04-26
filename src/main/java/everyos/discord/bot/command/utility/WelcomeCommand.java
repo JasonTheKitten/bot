@@ -7,8 +7,10 @@ import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
+import everyos.discord.bot.util.ErrorUtil.LocalizedException;
 import everyos.discord.bot.util.PermissionUtil;
 import reactor.core.publisher.Mono;
 
@@ -25,31 +27,29 @@ public class WelcomeCommand implements ICommand {
 					ArgumentParser parser = new ArgumentParser(argument);
 					
 					if (parser.isEmpty()) {
-						GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
+						return GuildAdapter.of(data.bot, guild).getDocument().flatMap(doc->{
+							DBObject obj = doc.getObject();
 							obj.remove("wmsgc");
 							obj.remove("wmsg");
 							
-							doc.save();
+							return doc.save().then(channel.createMessage(data.localize(LocalizedString.ConfigurationReset)));
 						});
-						
-						return channel.createMessage(data.localize(LocalizedString.ConfigurationReset));
 					}
 					
 					if (!parser.couldBeChannelID()) 
-						return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
+						return Mono.error(new LocalizedException(LocalizedString.UnrecognizedUsage));
 					
 					long wchannel = parser.eatChannelID();
 					if (parser.isEmpty()) return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
 					String wmessage = parser.toString();
 					
-					GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
+					return GuildAdapter.of(data.bot, guild).getDocument().flatMap(doc->{
+						DBObject obj = doc.getObject();
 						obj.set("wmsgc", wchannel);
 						obj.set("wmsg", wmessage);
 						
-						doc.save();
+						return doc.save().then(channel.createMessage(data.localize(LocalizedString.WelcomeMessageSet)));
 					});
-					
-					return channel.createMessage(data.localize(LocalizedString.WelcomeMessageSet));
 				});
 		});
 	}

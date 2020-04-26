@@ -9,7 +9,7 @@ import everyos.discord.bot.localization.LocalizedString;
 import reactor.core.publisher.Mono;
 
 @Help(help=LocalizedString.RemindIntervalCommandHelp, ehelp = LocalizedString.RemindIntervalCommandExtendedHelp, category=CategoryEnum.Utility)
-public class RemindInterval implements ICommand {
+public class RemindIntervalCommand implements ICommand {
 	@Override
 	public Mono<?> execute(Message message, CommandData data, String argument) {
 		return null;

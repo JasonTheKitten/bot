@@ -13,6 +13,7 @@ import everyos.discord.bot.command.info.HelpCommand;
 import everyos.discord.bot.command.moderation.BanCommand;
 import everyos.discord.bot.command.moderation.KickCommand;
 import everyos.discord.bot.command.utility.SuggestCommand;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.parser.ArgumentParser;
 import reactor.core.publisher.Mono;
@@ -29,8 +30,7 @@ public class SuggestionsChannelCase implements IGroupCommand {
 
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
         String content = message.getContent();
-        String trunc = ArgumentParser.getIfPrefix(content, 
-            new String[] {"---", "*", "<@"+data.bot.clientID+">", "<@!"+data.bot.clientID+">"});
+        String trunc = ArgumentParser.getIfPrefix(content, data.prefixes);
 
         if (!(trunc == null)) {
             String command = ArgumentParser.getCommand(trunc);
@@ -40,12 +40,13 @@ public class SuggestionsChannelCase implements IGroupCommand {
         }
 
         long fromID = message.getChannelId().asLong();
-        return ChannelAdapter.of(data.shard, fromID).getData(obj->{
+        return ChannelAdapter.of(data.bot, fromID).getDocument().flatMap(doc->{
+        	DBObject obj = doc.getObject();
             if (obj.has("data")&&obj.getOrDefaultObject("data", null).has("out"))
                 return Mono.just(obj.getOrDefaultObject("data", null).getOrDefaultString("out", null));
             return Mono.error(new Exception("Data field is missing"));
         })
-        .flatMap(s->data.shard.client.getChannelById(Snowflake.of((String) s))).cast(MessageChannel.class)
+        .flatMap(s->data.bot.client.getChannelById(Snowflake.of(s)).cast(MessageChannel.class))
         .flatMap(c->message.getAuthorAsMember().flatMap(author->
             SuggestCommand.suggest(author, c, data, argument)
         	.then(c.createMessage(author.getMention()))))

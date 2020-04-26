@@ -24,11 +24,11 @@ import discord4j.core.object.entity.channel.VoiceChannel;
 import discord4j.rest.util.Snowflake;
 import discord4j.voice.AudioProvider;
 import discord4j.voice.VoiceConnection;
-import everyos.discord.bot.ShardInstance;
+import everyos.discord.bot.BotInstance;
+import everyos.discord.bot.database.DBDocument;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.util.ErrorUtil.LocalizedException;
 import everyos.discord.bot.util.MusicUtil;
-import everyos.storage.database.DBDocument;
 import reactor.core.publisher.Mono;
 
 public class MusicAdapter implements IAdapter {
@@ -46,7 +46,7 @@ public class MusicAdapter implements IAdapter {
         AudioSourceManagers.registerRemoteSources(manager);
 	}
 	
-	private ShardInstance instance;
+	private BotInstance instance;
     
     private VoiceChannel channel;
     private TrackScheduler scheduler;
@@ -54,7 +54,7 @@ public class MusicAdapter implements IAdapter {
     private AudioProvider provider;
 	private long channelID;
 
-    public MusicAdapter(ShardInstance instance) {
+    public MusicAdapter(BotInstance instance) {
     	this.instance = instance;
         
         player = manager.createPlayer();
@@ -63,14 +63,14 @@ public class MusicAdapter implements IAdapter {
     	player.addListener(scheduler);
     }
 
-    public static MusicAdapter of(ShardInstance instance, long l) {
+    public static MusicAdapter of(BotInstance instance, long l) {
     	if (adapters.containsKey(l)) return adapters.get(l);
         MusicAdapter adapter = new MusicAdapter(instance);
         adapters.put(l, adapter);
         return adapter;
     }
     
-	public static Mono<MusicAdapter> getFromMember(ShardInstance instance, Member member) {
+	public static Mono<MusicAdapter> getFromMember(BotInstance instance, Member member) {
     	return member.getVoiceState()
     		.switchIfEmpty(Mono.error(new VoiceStateMissingException()))
     		.flatMap(vs->{
@@ -85,7 +85,7 @@ public class MusicAdapter implements IAdapter {
 		this.channelID = id;
 	}
 
-	@Override public DBDocument getDocument() { return null; }
+	@Override public Mono<DBDocument> getDocument() { return null; }
     
     public AudioPlayer getPlayer() {
     	return player;

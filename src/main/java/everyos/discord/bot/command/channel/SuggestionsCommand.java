@@ -9,6 +9,7 @@ import everyos.discord.bot.annotation.Ignorable;
 import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import everyos.discord.bot.util.ErrorUtil.LocalizedException;
@@ -47,12 +48,13 @@ public class SuggestionsCommand implements ICommand {
                             .flatMap(c->guild.getChannelById(Snowflake.of(toID)))
                             .onErrorResume(e->Mono.error(new LocalizedException(LocalizedString.UnrecognizedChannel)));
                     }).flatMap(c->{
-                        ChannelAdapter.of(data.shard, fromID).getData((obj, doc)->{
+                        ChannelAdapter.of(data.bot, fromID).getDocument().flatMap(doc->{
+                        	DBObject obj = doc.getObject();
                             obj.set("type", "suggestions");
                             obj.createObject("data", obj2->obj2.set("out", toID));
-                            doc.save();
+                            return doc.save();
                         });
-                        return channel.createMessage(data.locale.localize(LocalizedString.ChannelsSet)).flatMap(m->Mono.empty());
+                        return channel.createMessage(data.localize(LocalizedString.ChannelsSet)).flatMap(m->Mono.empty());
                     });
                 });
         });

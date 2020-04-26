@@ -2,21 +2,22 @@ package everyos.discord.bot.adapter;
 
 import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.object.entity.channel.GuildChannel;
-import everyos.discord.bot.ShardInstance;
-import everyos.storage.database.DBDocument;
+import everyos.discord.bot.BotInstance;
+import everyos.discord.bot.database.DBDocument;
+import reactor.core.publisher.Mono;
 
 public class TopEntityAdapter implements IAdapter {
-    private ShardInstance instance;
+    private BotInstance instance;
     private boolean isGuild;
     private long id;
 
-    public TopEntityAdapter(ShardInstance instance, boolean isGuild, long id) {
+    public TopEntityAdapter(BotInstance instance, boolean isGuild, long id) {
         this.instance = instance;
         this.isGuild = isGuild;
         this.id = id;
     }
 
-    public static TopEntityAdapter of(ShardInstance instance, Channel channel) {
+    public static TopEntityAdapter of(BotInstance instance, Channel channel) {
         if (channel instanceof GuildChannel) {
             return new TopEntityAdapter(instance, true, ((GuildChannel) channel).getGuildId().asLong());
         } else {
@@ -30,7 +31,7 @@ public class TopEntityAdapter implements IAdapter {
     
     public boolean isOfGuild() {return isGuild;}
 
-    @Override public DBDocument getDocument() {
-        return instance.db.collection(isGuild?"guilds":"channels").getOrSet(id, document->{});
+    @Override public Mono<DBDocument> getDocument() {
+        return null; //instance.db.collection(isGuild?"guilds":"channels").getOrSet(id, document->{});
     }
 }

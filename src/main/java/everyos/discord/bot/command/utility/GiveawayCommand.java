@@ -1,20 +1,26 @@
 package everyos.discord.bot.command.utility;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.core.object.entity.channel.GuildMessageChannel;
 import discord4j.core.object.reaction.ReactionEmoji.Unicode;
+import everyos.discord.bot.Statics;
+import everyos.discord.bot.adapter.TimedExecutionAdapter;
 import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import everyos.discord.bot.util.ErrorUtil.LocalizedException;
+import io.grpc.netty.shaded.io.netty.channel.group.ChannelGroup;
 import reactor.core.publisher.Mono;
+import xyz.downgoon.snowflake.Snowflake;
 
 @Help(help=LocalizedString.GiveawayCommandHelp, ehelp = LocalizedString.GiveawayCommandExtendedHelp, category=CategoryEnum.Utility)
 public class GiveawayCommand implements IGroupCommand {
@@ -42,7 +48,7 @@ public class GiveawayCommand implements IGroupCommand {
 		ICommand command = lcommands.get(data.locale.locale).get(cmd);
 
 		if (command==null)
-			return message.getChannel().flatMap(c->c.createMessage(data.locale.localize(LocalizedString.NoSuchSubcommand)));
+			return message.getChannel().flatMap(c->c.createMessage(data.localize(LocalizedString.NoSuchSubcommand)));
 
 		return command.execute(message, data, arg);
 	}
@@ -52,18 +58,19 @@ public class GiveawayCommand implements IGroupCommand {
 
 class GiveawayCreateCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
-		return message.getChannel().flatMap(channel->{
+		return message.getChannel().cast(GuildMessageChannel.class).flatMap(channel->{
 			if (argument.isEmpty()) {
 				return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
 			}
 			
+			int winners = -1;
 			int feth = -1;
 			int level = -1;
 			int messages = -1;
-			String server = null;
-			String req = null;
-			boolean reqboost = false; //TODO: Maybe convert to int? For multiple boosts
-			boolean boostMustBeNew = false;
+			String prize = null;
+			ArrayList<String> req = new ArrayList<String>();
+			boolean reqboost = false;
+			long server = -1L;
 			long end = 0;
 			long jointime = 0;
 			
@@ -79,6 +86,11 @@ class GiveawayCreateCommand implements ICommand {
 					if (parser.isNumerical()) {
 						level = (int) parser.eatNumerical();
 					} else return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
+				} else if (parser.next().equals("--winners")||parser.next().equals("-l")) {
+					parser.eat();
+					if (parser.isNumerical()) {
+						winners = (int) parser.eatNumerical();
+					} else return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
 				} else if (parser.next().equals("--messages")||parser.next().equals("-m")) {
 					parser.eat();
 					if (parser.isNumerical()) {
@@ -89,14 +101,11 @@ class GiveawayCreateCommand implements ICommand {
 				} else if (parser.next().equals("--server")||parser.next().equals("-s")) {
 					parser.eat();
 					if (parser.isNumerical()) {
-						server = parser.eat();
+						server = parser.eatNumerical();
 					} else return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
 				} else if (parser.next().equals("--boost")||parser.next().equals("-b")) {
 					parser.eat();
 					reqboost = true;
-				} else if (parser.next().equals("--newboost")||parser.next().equals("-nb")) {
-					parser.eat();
-					boostMustBeNew = true;
 				} else if (parser.next().equals("--jointime")||parser.next().equals("-jt")) {
 					parser.eat();
 					//TODO
@@ -110,6 +119,8 @@ class GiveawayCreateCommand implements ICommand {
 			if (messages==-1) messages=0;
 			
 			GiveawayFormat format = new GiveawayFormat();
+			format.server = server;
+			
 			format.feth = feth;
 			format.messages = messages;
 			format.level = level;
@@ -118,23 +129,37 @@ class GiveawayCreateCommand implements ICommand {
 		});
 	}
 	
-	public Mono<?> sendGiveaway(MessageChannel channel, CommandData data, GiveawayFormat format) {
-		return channel.createEmbed(embed->{
+	public Mono<?> sendGiveaway(GuildMessageChannel channel, CommandData data, GiveawayFormat format) {
+		return TimedExecutionAdapter.of(data.bot, new Snowflake(0, 0).nextId()).getDocument().flatMap(doc->{
+			DBObject obj = doc.getObject();
+			obj.set("type", Statics.GIVEAWAY_ID);
+			obj.set("timeout", format.endTime);
+			
+			obj.set("gid", channel.getGuildId().asLong());
+			obj.set("cid", channel.getId().asLong());
+			
+			obj.set("prize", format.prize);
+			obj.set("winners", format.winners);
+			
+			return doc.save();
+		}).then(channel.createEmbed(embed->{
 			embed.setTitle(data.localize(LocalizedString.GiveawayTitle));
 			embed.setDescription(data.localize(LocalizedString.GiveawayPrompt));
 		}).flatMap(embed->{
 			return embed.addReaction(Unicode.unicode("\uD83C\uDF89"));
-		});
+		}));
 	}
 	
 	public class GiveawayFormat {
 		public int feth;
 		public int level;
 		public int messages;
-		public String server;
+		public int winners;
+		public String prize;
 		public String[] req;
 		public boolean reqBoost;
 		public long joinTime;
 		public long endTime;
+		public long server;
 	}
 }

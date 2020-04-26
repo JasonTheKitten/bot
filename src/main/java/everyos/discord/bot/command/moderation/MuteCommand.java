@@ -7,12 +7,13 @@ import discord4j.core.object.entity.channel.GuildMessageChannel;
 import discord4j.rest.util.Permission;
 import discord4j.rest.util.PermissionSet;
 import discord4j.rest.util.Snowflake;
-import everyos.discord.bot.ShardInstance;
+import everyos.discord.bot.BotInstance;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.annotation.Help;
 import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import everyos.discord.bot.util.ErrorUtil.LocalizedException;
@@ -30,11 +31,12 @@ public class MuteCommand implements ICommand {
 			return message.getAuthorAsMember()
 				.flatMap(member->PermissionUtil.check(member, new Permission[] {Permission.MANAGE_ROLES}, new Permission[] {Permission.MANAGE_MESSAGES}))
 				.then(message.getGuild()).flatMap(guild->{
-					return GuildAdapter.of(data.shard, guild.getId().asLong()).getData(obj->{
+					return GuildAdapter.of(data.bot, guild.getId().asLong()).getDocument().flatMap(doc->{
+						DBObject obj = doc.getObject();
 						if (obj.has("muteid")) {
 							return guild.getRoleById(Snowflake.of(obj.getOrDefaultString("muteid", null)))
-								.onErrorResume(e->createRole(data.shard, guild));
-						} else return createRole(data.shard, guild);
+								.onErrorResume(e->createRole(data.bot, guild));
+						} else return createRole(data.bot, guild);
 					}).flatMap(role->{
 						return guild.getMemberById(Snowflake.of(parser.eatUserID()))
 							.flatMap(member->member.addRole(role.getId()))
@@ -44,14 +46,14 @@ public class MuteCommand implements ICommand {
 		});
 	}
 	
-	private Mono<Role> createRole(ShardInstance shard, Guild guild) {
+	private Mono<Role> createRole(BotInstance bot, Guild guild) {
 		return guild.createRole(role->{
 			role.setName("Muted");
 			role.setPermissions(PermissionSet.none());
 		}).doOnNext(role->{
-			GuildAdapter.of(shard, guild.getId().asLong()).getData((obj, doc)->{
-				obj.set("muteid", role.getId().asLong());
-				doc.save();
+			GuildAdapter.of(bot, guild.getId().asLong()).getDocument().flatMap(doc->{
+				doc.getObject().set("muteid", role.getId().asLong());
+				return doc.save();
 			});
 		});
 	}

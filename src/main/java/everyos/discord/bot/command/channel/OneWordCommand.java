@@ -8,6 +8,7 @@ import everyos.discord.bot.annotation.Ignorable;
 import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.LocalizedString;
 import reactor.core.publisher.Mono;
 
@@ -20,7 +21,7 @@ public class OneWordCommand implements ICommand {
                 .flatMap(member->member.getBasePermissions())
                 .flatMap(perms->{
                     if (!(perms.contains(Permission.ADMINISTRATOR)||perms.contains(Permission.MANAGE_CHANNELS)))
-                        return channel.createMessage(data.locale.localize(LocalizedString.InsufficientPermissions));
+                        return channel.createMessage(data.localize(LocalizedString.InsufficientPermissions));
 
 
                     return message.getGuild()
@@ -31,12 +32,12 @@ public class OneWordCommand implements ICommand {
                     			.setTopic(data.localize(LocalizedString.Undocumented));
                     	}))
                     	.flatMap(c->{
-	                        ChannelAdapter.of(data.shard, c.getId().asLong()).getData((obj, doc)->{
+	                        return ChannelAdapter.of(data.bot, c.getId().asLong()).getDocument().flatMap(doc->{
+	                        	DBObject obj = doc.getObject();
 	                            obj.set("type", "oneword");
 	                            obj.createObject("data", obj2->obj2.set("sentence", ""));
-	                            doc.save();
-	                        });
-	                        return channel.createMessage(data.locale.localize(LocalizedString.ChannelsSet)).then(Mono.empty());
+	                            return doc.save();
+	                        }).then(channel.createMessage(data.localize(LocalizedString.ChannelsSet)));
                     	});
                 });
         });

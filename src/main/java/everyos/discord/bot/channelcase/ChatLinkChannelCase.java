@@ -19,15 +19,18 @@ import everyos.discord.bot.api.Moderation;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
+import everyos.discord.bot.command.channel.ResetChannelCommand;
 import everyos.discord.bot.command.fun.MusicCommand;
 import everyos.discord.bot.command.info.HelpCommand;
 import everyos.discord.bot.command.moderation.BanCommand;
 import everyos.discord.bot.command.moderation.ChatLinkManagerCommand;
 import everyos.discord.bot.command.moderation.KickCommand;
 import everyos.discord.bot.command.moderation.PurgeCommand;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.filter.StrictFilter;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.parser.ArgumentParser;
+import everyos.discord.bot.util.ErrorUtil.EmptyException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -41,12 +44,12 @@ public class ChatLinkChannelCase implements IGroupCommand {
         commands.put("kick", new KickCommand());
         commands.put("help", new HelpCommand());
         commands.put("purge", new PurgeCommand());
+        commands.put("resetchannel", new ResetChannelCommand());
     }
 
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
         String content = message.getContent();
-        String trunc = ArgumentParser.getIfPrefix(content, 
-            new String[]{"---", "*", "<@"+data.bot.clientID+">", "<@!"+data.bot.clientID+">"});
+        String trunc = ArgumentParser.getIfPrefix(content, data.prefixes);
 
         if (!(trunc == null)) {
             String command = ArgumentParser.getCommand(trunc);
@@ -56,13 +59,17 @@ public class ChatLinkChannelCase implements IGroupCommand {
         }
 
         long fromID = message.getChannelId().asLong();
-        Flux<?> result = ChannelAdapter.of(data.shard, fromID).getData(obj->{
-            if (obj.has("data")&&obj.getOrDefaultObject("data", null).has("chatlinkid")) 
-                return Mono.just(obj.getOrDefaultObject("data", null).getOrDefaultString("chatlinkid", null));
+        Flux<?> result = ChannelAdapter.of(data.bot, fromID).getDocument().flatMap(doc->{
+        	DBObject obj = doc.getObject();
+            if (obj.has("data")&&obj.getOrDefaultObject("data", null).has("chatlinkid")) {
+            	DBObject dobj = obj.getOrDefaultObject("data", null);
+            	if (!dobj.getOrDefaultBoolean("verified", false)) return Mono.error(new EmptyException());
+                return Mono.just(dobj.getOrDefaultLong("chatlinkid", -1L));
+            }
             return Mono.error(new Exception("An exception has occured!"));
-        }).cast(Long.class)
+        })
         .flatMapMany(s->{
-        	ChatLinkAdapter adapter = ChatLinkAdapter.of(data.shard, s);
+        	ChatLinkAdapter adapter = ChatLinkAdapter.of(data.bot, s);
         	
         	String msgcontent =
     			Optional.ofNullable(message.getContent().isEmpty()?null:message.getContent()).map(c->"> "+c.replace("\n", "\n> ")).orElse("");

@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 @Help(help=LocalizedString.BanCommandHelp, ehelp = LocalizedString.BanCommandExtendedHelp, category=CategoryEnum.Moderation)
 public class BanCommand implements ICommand {
+	//TODO: Support Mass Ban (Raid Prevention)
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().cast(GuildMessageChannel.class).flatMap(channel->{
 			return message.getAuthorAsMember()
@@ -43,7 +44,7 @@ public class BanCommand implements ICommand {
 							invoker.isHigher(Snowflake.of((Long) id))
 							.flatMap(isHigher->{
 								if (!isHigher) return Mono.empty();
-								return MemberAdapter.of(GuildAdapter.of(data.shard, channel), (Long) id).getMember();
+								return MemberAdapter.of(GuildAdapter.of(data.bot, channel), (Long) id).getMember();
 							});
 					})
 					.flatMap(m->m.ban(b->{

@@ -12,6 +12,9 @@ import reactor.core.publisher.Mono;
 public class InfoCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel()
-			.flatMap(channel->channel.createMessage(data.localize(LocalizedString.Info)));
+			.flatMap(channel->channel.createEmbed(embed->{
+				embed.setTitle(data.localize(LocalizedString.Info));
+				embed.setDescription(data.localize(LocalizedString.InfoDescription));
+			}));
 	}
 }

@@ -13,6 +13,6 @@ import reactor.core.publisher.Mono;
 public class DBLVoteCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->
-			channel.createMessage(data.locale.localize(LocalizedString.DBLVote, FillinUtil.of("url", "abcd")))); //TODO: Vote url
+			channel.createMessage(data.localize(LocalizedString.DBLVote, FillinUtil.of("url", "abcd")))); //TODO: Vote url
 	}
 }

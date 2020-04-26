@@ -42,14 +42,14 @@ public class HugCommand implements ICommand {
 			} else if (!parser.couldBeUserID()) {
 				return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
 			} else {
-				mono = data.shard.client.getUserById(Snowflake.of(parser.eatUserID())); //TODO: Check user valid (UserUtil)
+				mono = data.bot.client.getUserById(Snowflake.of(parser.eatUserID())); //TODO: Check user valid (UserUtil)
 			}
 			
 			return mono.flatMap(target->{
 				return channel.createEmbed(embed->{
 					if (target.getId().equals(author.getId())) {
 						embed.setDescription(data.localize(LocalizedString.HugSent));
-					} else if (target.getId().equals(Snowflake.of(data.shard.clientID))) {
+					} else if (target.getId().equals(Snowflake.of(data.bot.clientID))) {
 						embed.setDescription(data.localize(LocalizedString.HugSentBot));
 					} else {
 						embed.setDescription(data.localize(LocalizedString.HugSentUser, FillinUtil.of(

@@ -27,5 +27,8 @@ public enum LocalizedString {
     TicketCommandHelp, TicketCommandExtendedHelp, TranslateCommandHelp, TranslateCommandExtendedHelp, TicketManagerCommandHelp, TicketManagerCommandExtendedHelp,
     WMSGCommandHelp, WMSGCommandExtendedHelp, StarboardCommandHelp, StarboardCommandExtendedHelp, SuggestionsCommandHelp, SuggestionsCommandExtendedHelp,
     TicketAlreadyExists, MusicRadioSet, MusicRadioUnset, UnrecognizedWord, NotInMusicChannel, InsufficientBotPermissions, MemberUnmuted, MemberMuted, 
-    CommandAlias, MustBeInVoiceChannel, SelfSendMoney, SendMoneyThankYou, HugSent, HugSentBot, HugSentUser, BanUserReason, NotLinkAdmin, KickUserReason
+    CommandAlias, MustBeInVoiceChannel, SelfSendMoney, SendMoneyThankYou, HugSent, HugSentBot, HugSentUser, BanUserReason, NotLinkAdmin, KickUserReason,
+    OneWordSentenceReset, OneWordLastUser, OneWordOneWord, OneWordNotRecognized, MemberIgnored, MemberMustBeHigher, HelpGroupsFooter, HelpCommandsFooter,
+    PrefixAdded, PrefixesReset, PrefixAlreadyExists, NoPrefixExists, OnePrefixMin, PrefixEmpty, PrefixTooLong, NoStarsLeft, StarTypeAdd,
+    StarAlreadyExistsForAmount, NoStarMatch, StarRemoved, NotFoundException, StarboardUnignoredChannel, StarboardIgnoredChannel
 }

@@ -62,7 +62,7 @@ public class MusicCommand implements IGroupCommand {
 	
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
         if (argument.equals(""))
-        	return message.getChannel().flatMap(c->c.createMessage(data.locale.localize(LocalizedString.NoSuchSubcommand)));
+        	return message.getChannel().flatMap(c->c.createMessage(data.localize(LocalizedString.NoSuchSubcommand)));
 
         String cmd = ArgumentParser.getCommand(argument);
         String arg = ArgumentParser.getArgument(argument);
@@ -110,7 +110,7 @@ abstract class GenericMusicCommand implements ICommand {
 				return message.suppressEmbeds(true)
 					.onErrorResume(e->Mono.empty())
 					.then(message.getAuthorAsMember())
-	            	.flatMap(m->MusicAdapter.getFromMember(data.shard, m))
+	            	.flatMap(m->MusicAdapter.getFromMember(data.bot, m))
 	            	.flatMap(ma->execute(message, data, argument, ma, channel))
 	            	.cast(Object.class)
 	            	.onErrorResume(e->{
@@ -259,7 +259,7 @@ class MusicPlayListAddCommand implements ICommand {
 /*
 public class MusicCommand implements ICommand {
 	@Override public void execute(Message message, String argument) {
-		//search, set time, volume
+		//search, set time, volume, restart, trim
 	    if (args[0].equals("playlist")) {
 	        if (args.length<2) {
 	            channel.send("Subcommand expected at least one argument!\n"+

@@ -1,7 +1,8 @@
 package everyos.discord.bot.adapter;
 
-import everyos.storage.database.DBDocument;
+import everyos.discord.bot.database.DBDocument;
+import reactor.core.publisher.Mono;
 
 public interface IAdapter {
-    public DBDocument getDocument();
+    public Mono<DBDocument> getDocument();
 }

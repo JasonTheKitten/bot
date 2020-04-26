@@ -17,16 +17,20 @@ public class BotPermissionUtil {
 					return member.getBasePermissions().flatMap(perms->{
 						if (perms.contains(Permission.ADMINISTRATOR)) return Mono.empty();
 						boolean hasPerms = false;
+						Permission missing = null;
 						for (Permission[] permissions:permissionsl) {
 							hasPerms = true;
 							for (Permission perm: permissions) {
 								if (!perms.contains(perm)) {
+									missing = perm;
 									hasPerms = false; break;
 								}
 							}
 							if (hasPerms) break;
 						}
-						if (!hasPerms) return Mono.error(new LocalizedException(LocalizedString.InsufficientBotPermissions));
+						if (!hasPerms) return Mono.error(new LocalizedException(
+							LocalizedString.InsufficientBotPermissions,
+							FillinUtil.of("permission", missing.toString())));
 						
 						return Mono.empty();
 					});

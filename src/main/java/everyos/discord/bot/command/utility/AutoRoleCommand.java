@@ -10,11 +10,11 @@ import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
+import everyos.discord.bot.database.DBArray;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import everyos.discord.bot.util.PermissionUtil;
-import everyos.storage.database.DBArray;
 import reactor.core.publisher.Mono;
 
 @Help(help=LocalizedString.AutoRoleCommandHelp, ehelp = LocalizedString.AutoRoleCommandExtendedHelp, category=CategoryEnum.Utility)
@@ -45,7 +45,7 @@ public class AutoRoleCommand implements IGroupCommand {
 		ICommand command = lcommands.get(data.locale.locale).get(cmd);
 
 		if (command==null)
-			return message.getChannel().flatMap(c->c.createMessage(data.locale.localize(LocalizedString.NoSuchSubcommand)));
+			return message.getChannel().flatMap(c->c.createMessage(data.localize(LocalizedString.NoSuchSubcommand)));
 
 		return command.execute(message, data, arg);
 	}
@@ -66,17 +66,15 @@ class AutoRoleAddCommand implements ICommand {
 					
 					if (!parser.couldBeRoleID()) return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage)).then(Mono.empty());
 					
-					return GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
-						DBArray array = obj.getOrCreateArray("aroles", ()->new DBArray());
+					return GuildAdapter.of(data.bot, guild).getDocument().flatMap(doc->{
+						DBArray array = doc.getObject().getOrCreateArray("aroles", ()->new DBArray());
 						if (array.getLength()>=3) {
 							return channel.createMessage(data.localize(LocalizedString.TooManyRoles));
 						}
 						
 						array.add(parser.eatRoleID());
 						
-						doc.save();
-						
-						return channel.createMessage(data.localize(LocalizedString.RoleAdded));
+						return doc.save().then(channel.createMessage(data.localize(LocalizedString.RoleAdded)));
 					});
 				});
 		});
@@ -94,11 +92,11 @@ class AutoRoleRemoveCommand implements ICommand {
 					
 					if (!parser.couldBeRoleID()) return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage)).then(Mono.empty());
 					
-					GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
-						DBArray array = obj.getOrDefaultArray("aroles", new DBArray());
+					GuildAdapter.of(data.bot, guild).getDocument().flatMap(doc->{
+						DBArray array = doc.getObject().getOrDefaultArray("aroles", new DBArray());
 						array.removeFirst(parser.eatRoleID());
 						
-						doc.save();
+						return doc.save();
 					});
 					
 					return channel.createMessage(data.localize(LocalizedString.RoleRemoved));

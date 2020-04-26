@@ -1,20 +1,22 @@
 package everyos.discord.bot.event;
 
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.PermissionOverwrite;
+import discord4j.core.object.entity.channel.GuildChannel;
 import discord4j.core.object.entity.channel.GuildMessageChannel;
 import discord4j.rest.util.Permission;
 import discord4j.rest.util.PermissionSet;
 import discord4j.rest.util.Snowflake;
-import everyos.discord.bot.ShardInstance;
+import everyos.discord.bot.BotInstance;
 import everyos.discord.bot.adapter.ChannelUserAdapter;
 import everyos.discord.bot.adapter.GuildAdapter;
 import everyos.discord.bot.adapter.MemberAdapter;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.IGroupCommand;
+import everyos.discord.bot.database.DBArray;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizationProvider;
 import everyos.discord.bot.usercase.DefaultUserCase;
@@ -24,14 +26,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class MessageCreateEventHandler {
-	private ShardInstance shard = null;
+	private BotInstance bot = null;
 	private HashMap<String, IGroupCommand> usercase;
-	public MessageCreateEventHandler(ShardInstance shard) {
-		this.shard = shard;
+	public MessageCreateEventHandler(BotInstance bot) {
+		this.bot = bot;
 		
 		usercase = new HashMap<String, IGroupCommand>();
-		usercase.put("default", new DefaultUserCase(shard));
-		usercase.put("ignore", new IgnoreUserCase(shard)); //NOTE: User cases are per-channel, while ignore is guild-wide. Must handle
+		usercase.put("default", new DefaultUserCase(bot));
+		usercase.put("ignore", new IgnoreUserCase(bot)); //NOTE: User cases are per-channel, while ignore is guild-wide. Must handle
 	}
 	
 	public Flux<?> handle(MessageCreateEvent event) {
@@ -43,19 +45,20 @@ public class MessageCreateEventHandler {
                     .doOnError(e->e.printStackTrace())
                     .filter(channel->channel instanceof GuildMessageChannel)
                     .cast(GuildMessageChannel.class)
-                    .map(channel->GuildAdapter.of(shard, channel))
-                    .doOnNext(adapter->{
+                    .flatMap(channel->MemberAdapter.of(GuildAdapter.of(bot, channel), message.getAuthor().get().getId().asLong()).getDocument())
+                    .flatMap(document->{
+                    	DBObject object = document.getObject();
+                    	
                         long uid = message.getAuthor().get().getId().asLong();
-                        MemberAdapter.of(adapter, uid).getDocument().getObject((object, document)->{
-                            long time = 1000*15;
-                            long curtime = System.currentTimeMillis();
-                            if (curtime-object.getOrDefaultLong("lastmsg", -time)>=time) {
-                            	object.set("feth", object.getOrDefaultLong("feth", 0)+1);
-                            	object.set("xp", object.getOrDefaultLong("xp", 0)+1); //TODO: Level awards
-                                object.set("lastmsg", curtime);
-                                document.save();
-                            }
-                        });
+                        long time = 1000*15;
+                        long curtime = System.currentTimeMillis();
+                        if (curtime-object.getOrDefaultLong("lastmsg", -time)>=time) {
+                        	object.set("feth", object.getOrDefaultLong("feth", 0)+1);
+                        	object.set("xp", object.getOrDefaultLong("xp", 0)+1); //TODO: Level awards
+                            object.set("lastmsg", curtime);
+                            return document.save();
+                        }
+                        return Mono.empty();
                     })
                     .onErrorResume(e->{e.printStackTrace(); return Mono.empty();})
                     .subscribe();
@@ -67,7 +70,7 @@ public class MessageCreateEventHandler {
             	return message.getChannel().flatMap(channel->{
             		if (channel instanceof GuildMessageChannel) {
             			return message.getGuild().flatMap(guild->{
-            				return GuildAdapter.of(shard, guild).getData(obj->{
+            				return GuildAdapter.of(bot, guild).getDocument().map(doc->doc.getObject()).flatMap(obj->{
             					if (obj.has("muteid")) {
             						Snowflake muteID = Snowflake.of(obj.getOrDefaultString("muteid", null));
             						return message.getAuthorAsMember().flatMap(member->{
@@ -92,28 +95,42 @@ public class MessageCreateEventHandler {
             })
             .flatMap(message->{
             	return message.getChannel().flatMap(channel->{
-	                AtomicReference<String> cmode = new AtomicReference<String>();
-	                ChannelUserAdapter.of(shard, message.getChannelId().asLong(), message.getAuthor().get()).getData(obj->{
-	                    cmode.set(obj.getOrDefaultString("case", "default"));
-	                });
-	                if (channel instanceof GuildMessageChannel) {
-	                	long uid = message.getAuthor().get().getId().asLong();
-	                	MemberAdapter.of(GuildAdapter.of(shard, (GuildMessageChannel) channel), uid).getDocument().getObject(obj->{
-	                		if (obj.getOrDefaultBoolean("ignored", false)) cmode.set("ignore");
-	                	});
-	                }
-	                
-	                LocalizationProvider provider = new LocalizationProvider(Localization.en_US);
-	                CommandData data = new CommandData(provider, shard);
-	                
-	                data.event = event;
-	                data.usercase = usercase.getOrDefault(cmode.get(), usercase.get("default"));
-	
-	                Mono<?> mono = data.usercase.execute(message, data, message.getContent());
-	                if (mono == null) return Mono.empty();
-	                return mono
-	                	.cast(Object.class)
-	                    .onErrorResume(e->{return ErrorUtil.handleError(e, channel, data.locale); });
+            		CommandData data = new CommandData(bot);
+            		return ChannelUserAdapter.of(bot, message.getChannelId().asLong(), message.getAuthor().get()).getDocument()
+            			.map(document->document.getObject())
+            			.flatMap(obj->{
+            				String cmode = obj.getOrDefaultString("case", "default");
+			                if (channel instanceof GuildMessageChannel) {
+			                	long uid = message.getAuthor().get().getId().asLong();
+			                	return MemberAdapter.of(GuildAdapter.of(bot, (GuildMessageChannel) channel), uid).getDocument().map(doc->{
+			                		return obj.getOrDefaultBoolean("ignored", false)?"ignore":cmode;
+			                	});
+			                }
+			                return Mono.just(cmode);
+			            }).flatMap(cmode->{
+			                data.locale = new LocalizationProvider(Localization.en_US);
+			                data.event = event;
+			                data.usercase = usercase.getOrDefault(cmode, usercase.get("default"));
+			                data.prefixes = new String[]{"---", "*", "<@"+data.bot.clientID+">", "<@!"+data.bot.clientID+">"};
+			
+			                Mono<?> mono = Mono.empty();
+			                if (channel instanceof GuildChannel) {
+			                	mono = GuildAdapter.of(data.bot, ((GuildChannel) channel).getGuildId().asLong()).getDocument()
+			                		.doOnNext(doc->{
+			                			DBArray prefixes = doc.getObject().getOrCreateArray("prefixes", ()->DBArray.from(data.prefixes));
+			                			
+			                			data.prefixes = prefixes.toArray(new String[prefixes.getLength()]);
+			                		});
+			                }
+			                
+			                Mono<?> mono2 = data.usercase.execute(message, data, message.getContent());
+			                if (mono2 == null) return Mono.empty();
+			                
+			                return mono
+			                	.then(mono2)
+			                	.cast(Object.class)
+			                    .onErrorResume(e->{return ErrorUtil.handleError(e, channel, data.locale);});
+            			});
             	});
             })
             .onErrorResume(e->{e.printStackTrace(); return Mono.empty();});

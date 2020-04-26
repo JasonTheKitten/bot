@@ -29,17 +29,17 @@ public class LevelCommand implements ICommand {
         	} else if (parser.isEmpty()) {
         		uid = iuid;
         	} else {
-        		return channel.createMessage(data.locale.localize(LocalizedString.UnrecognizedUsage));
+        		return channel.createMessage(data.localize(LocalizedString.UnrecognizedUsage));
         	}
         	
-            MemberAdapter madapter = MemberAdapter.of(GuildAdapter.of(data.shard, channel), uid); //TODO: Check uid exists
+            MemberAdapter madapter = MemberAdapter.of(GuildAdapter.of(data.bot, channel), uid); //TODO: Check uid exists
             
             long fuid = iuid;
-            return madapter.getMember()
-            	.flatMap(member->{
-            		int xpa = madapter.getData(obj->obj.getOrDefaultInt("xp", 0));
-                    int xp = xpa;
-                    int xpl = xp;
+            return madapter.getMember().flatMap(member->{
+            	return madapter.getDocument().flatMap(doc->{
+            		long xpa = doc.getObject().getOrDefaultLong("xp", 0);
+                    long xp = xpa;
+                    long xpl = xp;
                     int level = 1;
                     int tnl = 3;
                     while (xpl>=tnl) {
@@ -48,7 +48,7 @@ public class LevelCommand implements ICommand {
                     	tnl*=1.5;
                     }
                     
-                    int xplf = xpl; int levelf = level; int tnlf = tnl;
+                    long xplf = xpl; int levelf = level; int tnlf = tnl;
                     return channel.createEmbed(embed->{
                     	embed.setTitle("User Level"); //TODO: Localize
                     	embed.addField("User", data.safe(member.getUsername()+"#"+member.getDiscriminator()), false);
@@ -56,6 +56,7 @@ public class LevelCommand implements ICommand {
                     	embed.addField("XP", xp+" xp ("+xplf+"/"+tnlf+")", true);
                     });
             	});
+            });
 		});
 	}
 }

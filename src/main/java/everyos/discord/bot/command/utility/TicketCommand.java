@@ -5,7 +5,6 @@ import java.util.HashSet;
 
 import discord4j.core.object.PermissionOverwrite;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.channel.GuildMessageChannel;
 import discord4j.rest.util.Permission;
 import discord4j.rest.util.PermissionSet;
 import discord4j.rest.util.Snowflake;
@@ -17,9 +16,11 @@ import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
+import everyos.discord.bot.util.ErrorUtil.LocalizedException;
 import everyos.discord.bot.util.PermissionUtil;
 import reactor.core.publisher.Mono;
 
@@ -45,11 +46,10 @@ public class TicketCommand implements IGroupCommand {
 	
 	@Override public Mono<?> execute(Message message, CommandData data, String rargument) {
 		return message.getChannel().flatMap(channel->{
-			if (!(channel instanceof GuildMessageChannel))
-				return channel.createMessage(data.localize(LocalizedString.MustBeInServer));
-			
 			String argument = rargument;
 			if (argument.equals("")) argument = "create";
+			
+			//TODO: Tickets should not work until configured. Show help if "*ticket" run before configured
 
 			String cmd = ArgumentParser.getCommand(argument);
 			String arg = ArgumentParser.getArgument(argument);
@@ -57,7 +57,7 @@ public class TicketCommand implements IGroupCommand {
 			ICommand command = lcommands.get(data.locale.locale).get(cmd);
 
 			if (command==null)
-				return message.getChannel().flatMap(c->c.createMessage(data.locale.localize(LocalizedString.NoSuchSubcommand)));
+				return message.getChannel().flatMap(c->c.createMessage(data.localize(LocalizedString.NoSuchSubcommand)));
 
 			return command.execute(message, data, arg);
 		});
@@ -69,19 +69,15 @@ public class TicketCommand implements IGroupCommand {
 class TicketCreateCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getGuild().flatMap(guild->{
-			boolean ticketAlreadyExists = MemberAdapter.of(data.shard, guild, message.getAuthor().get()).getData((obj, doc)->{
+			return MemberAdapter.of(data.bot, guild, message.getAuthor().get()).getDocument().flatMap(doc->{
+				DBObject obj = doc.getObject();
 				Boolean tae = obj.getOrDefaultBoolean("ticket", false);
 				obj.set("ticket", true);
 				
-				doc.save();
-				return tae;
-			});
-			
-			if (ticketAlreadyExists) return message.getChannel()
-				.flatMap(c->c.createMessage(data.localize(LocalizedString.TicketAlreadyExists)))
-				.then(Mono.empty());
-			
-			return guild.createTextChannel(channel->{
+				return doc.save().then(tae?
+					Mono.error(new LocalizedException(LocalizedString.TicketAlreadyExists)):
+					Mono.empty());
+			}).then(guild.createTextChannel(channel->{
 				channel.setName("Ticket-x");
 				channel.setReason("Opened by user "+message.getAuthor().get().getId().asLong());
 				channel.setTopic("Ticket opened by user.");
@@ -92,7 +88,7 @@ class TicketCreateCommand implements ICommand {
 						PermissionSet.of(0),
 						PermissionSet.all()));
 				set.add(PermissionOverwrite.forMember(
-						Snowflake.of(data.shard.clientID),
+						Snowflake.of(data.bot.clientID),
 						PermissionSet.all(),
 						PermissionSet.none()));
 				set.add(PermissionOverwrite.forMember(
@@ -100,27 +96,23 @@ class TicketCreateCommand implements ICommand {
 					PermissionSet.of(379968),
 					PermissionSet.none()));
 				channel.setPermissionOverwrites(set);
-			})
+			}))
 			.flatMap(channel->{
-				ChannelAdapter.of(data.shard, channel.getId().asLong()).getData((obj, doc)->{
+				return ChannelAdapter.of(data.bot, channel.getId().asLong()).getDocument().flatMap(doc->{
+					DBObject obj = doc.getObject();
 					obj.set("type", "ticket");
 					obj.createObject("data", dataobj->{});
 					
-					doc.save();
-				});
-				MemberAdapter.of(data.shard, guild, message.getAuthor().get()).getData((obj, doc)->{
+					return doc.save();
+				}).then(MemberAdapter.of(data.bot, guild, message.getAuthor().get()).getDocument().flatMap(doc->{
+					DBObject obj = doc.getObject();
 					obj.set("ticketid", channel.getId().asLong());
 					
-					doc.save();
-					return null;
-				});
-				
-				String reason = GuildAdapter.of(data.shard, guild).getDocument().getObject(obj->{
-					return obj.getOrDefaultString("message", data.localize(LocalizedString.DefaultTicketMessage));
+					return doc.save();
+				})).then(GuildAdapter.of(data.bot, guild).getDocument().flatMap(doc->{
+					return channel.createMessage(doc.getObject().getOrDefaultString("message", data.localize(LocalizedString.DefaultTicketMessage)));
 					//TODO: A class to format this stuff.
-				});
-				
-				return channel.createMessage(reason);
+				}));
 			})
 			.flatMap(o->message.getChannel())
 			.flatMap(channel->channel.createMessage(data.localize(LocalizedString.TicketCreated)));
@@ -132,12 +124,11 @@ class SetMessageCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->{
 			return message.getAuthorAsMember().flatMap(m->PermissionUtil.check(m, Permission.MANAGE_MESSAGES))
-				.flatMap(o->message.getGuild()).map(guild->{ //Would rather use .then, but whatever
-					GuildAdapter.of(data.shard, guild).getData((obj, doc)->{
-						obj.set("message", argument); doc.save();
-					});
-					
-					return channel.createMessage(data.localize(LocalizedString.TicketMessageSet));
+				.flatMap(o->message.getGuild()).flatMap(guild->{
+					return GuildAdapter.of(data.bot, guild).getDocument().flatMap(doc->{
+						doc.getObject().set("message", argument);
+						return doc.save();
+					}).then(channel.createMessage(data.localize(LocalizedString.TicketMessageSet)));
 				});
 		});
 	}

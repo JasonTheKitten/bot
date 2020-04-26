@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
-import discord4j.core.object.entity.Member;
+import com.mongodb.client.model.Filters;
+
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.GuildMessageChannel;
 import everyos.discord.bot.adapter.GuildAdapter;
@@ -16,14 +18,14 @@ import everyos.discord.bot.command.CategoryEnum;
 import everyos.discord.bot.command.CommandData;
 import everyos.discord.bot.command.ICommand;
 import everyos.discord.bot.command.IGroupCommand;
+import everyos.discord.bot.database.DBDocument;
+import everyos.discord.bot.database.DBObject;
 import everyos.discord.bot.localization.Localization;
 import everyos.discord.bot.localization.LocalizedString;
 import everyos.discord.bot.parser.ArgumentParser;
 import everyos.discord.bot.util.ErrorUtil.LocalizedException;
 import everyos.discord.bot.util.FillinUtil;
 import everyos.discord.bot.util.TimeUtil;
-import everyos.storage.database.DBDocument;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 //TODO: Localize more
@@ -52,7 +54,7 @@ public class CurrencyCommand implements IGroupCommand {
     }
 
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
-        if (argument.equals("")) argument = "balance";
+        if (argument.equals("")) argument = "balance"; //TODO: Show help instead
 
         String cmd = ArgumentParser.getCommand(argument);
         String arg = ArgumentParser.getArgument(argument);
@@ -60,7 +62,7 @@ public class CurrencyCommand implements IGroupCommand {
         ICommand command = lcommands.get(data.locale.locale).get(cmd);
         
         if (command==null)
-        	return message.getChannel().flatMap(c->c.createMessage(data.locale.localize(LocalizedString.NoSuchSubcommand)));
+        	return message.getChannel().flatMap(c->c.createMessage(data.localize(LocalizedString.NoSuchSubcommand)));
 	    
         return command.execute(message, data, arg);
     }
@@ -85,25 +87,26 @@ class CurrencyBalanceCommand implements ICommand {
         	} else {
         		return Mono.error(new LocalizedException(LocalizedString.UnrecognizedUsage));
         	}
-            MemberAdapter madapter = MemberAdapter.of(GuildAdapter.of(data.shard, channel), uid); //TODO: Check uid exists
+            MemberAdapter madapter = MemberAdapter.of(GuildAdapter.of(data.bot, channel), uid); //TODO: Check uid exists
             
             long fuid = iuid;
-            return madapter.getMember()
-            	.flatMap(member->{
+            return madapter.getMember().flatMap(member->{
+            	return madapter.getDocument().flatMap(doc->{
             		String targetnameraw = member.getDisplayName();
             		String targetname = targetnameraw+"'s";
             		if (member.getId().asLong()==fuid) targetname = "Your";
             		
-            		int feth = madapter.getData(obj->obj.getOrDefaultInt("feth", 0));
+            		long feth = doc.getObject().getOrDefaultLong("feth", 0);
                     if (feth == 0) {
-                        return channel.createMessage(data.locale.localize(LocalizedString.ZeroBalance,
+                        return channel.createMessage(data.localize(LocalizedString.ZeroBalance,
                         	FillinUtil.of("feth", String.valueOf(feth), "target", targetname))); 
                         //I don't think this is actually reachable under normal use
                     } else {
-                    	return channel.createMessage(data.locale.localize(LocalizedString.CurrentBalance, 
+                    	return channel.createMessage(data.localize(LocalizedString.CurrentBalance, 
                         	FillinUtil.of("feth", String.valueOf(feth), "target", targetname)));
                     }
             	});
+        	});
         });
     }
 }
@@ -111,23 +114,23 @@ class CurrencyBalanceCommand implements ICommand {
 class CurrencyDailyCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
         return message.getChannel().flatMap(channel->{
-        	TopEntityAdapter teadapter = TopEntityAdapter.of(data.shard, channel);
+        	TopEntityAdapter teadapter = TopEntityAdapter.of(data.bot, channel);
         	if (!teadapter.isOfGuild()) return Mono.empty();
         	GuildAdapter gadapter = (GuildAdapter) teadapter.getPrimaryAdapter();
-            return MemberAdapter.of(gadapter, message.getAuthor().orElse(null).getId().asLong()).getData((obj, doc)->{
+            return MemberAdapter.of(gadapter, message.getAuthor().orElse(null).getId().asLong()).getDocument().flatMap(doc->{
+            	DBObject obj = doc.getObject();
             	long curtime = System.currentTimeMillis();
                 long time = obj.getOrDefaultLong("fethdaily", 0);
                 long timeleft = time-curtime;
                 if (timeleft<=0) {
                 	obj.set("fethdaily", System.currentTimeMillis()+(24*60*60*1000));
-                    obj.set("feth",  obj.getOrDefaultInt("feth", 0)+100);
-                    doc.save();
-                    return channel.createMessage(data.locale.localize(LocalizedString.ReceivedDaily, FillinUtil.of("feth", "100")));
+                    obj.set("feth",  obj.getOrDefaultLong("feth", 0)+20);
+                    return doc.save().then(channel.createMessage(data.localize(LocalizedString.ReceivedDaily, FillinUtil.of("feth", "20"))));
                 } else {
                 	String hours = String.valueOf(TimeUtil.getHours(timeleft, false));
                 	String minutes = String.valueOf(TimeUtil.getMinutes(timeleft, true));
                 	String seconds = String.valueOf(TimeUtil.getSeconds(timeleft, true));
-                	return channel.createMessage(data.locale.localize(LocalizedString.NoDaily, FillinUtil.of("h", hours, "m", minutes, "s", seconds)));
+                	return channel.createMessage(data.localize(LocalizedString.NoDaily, FillinUtil.of("h", hours, "m", minutes, "s", seconds)));
                 }
             });
         });
@@ -141,34 +144,33 @@ class CurrencyGiveCommand implements ICommand {
         		long uid = message.getAuthor().get().getId().asLong();
 	        	ArgumentParser parser = new ArgumentParser(argument);
 	        	if (parser.couldBeUserID()) {
-	        		GuildAdapter gadapter = GuildAdapter.of(data.shard, channel);
+	        		GuildAdapter gadapter = GuildAdapter.of(data.bot, channel);
 	        		MemberAdapter madapter = MemberAdapter.of(gadapter, parser.eatUserID());
                     //Should I continue to allow sending money to users who have left?
         			
                     if (parser.isNumerical()) {
-                    	if (madapter.getMemberID()==uid)
+                    	if (madapter.getUserID()==uid)
                     		return Mono.error(new LocalizedException(LocalizedString.SelfSendMoney));
                     	
-                    	if (madapter.getMemberID()==data.bot.clientID)
+                    	if (madapter.getUserID()==data.bot.clientID)
                     		return channel.createMessage(data.localize(LocalizedString.SendMoneyThankYou));
                     		
                         int amount = (int) parser.eatNumerical();
                         MemberAdapter invoker = MemberAdapter.of(gadapter, uid);
                         
-                        return invoker.getData((pobj, pdoc)->{
+                        return invoker.getDocument().flatMap(pdoc->{
+                        	DBObject pobj = pdoc.getObject();
                         	int ifeth = pobj.getOrDefaultInt("feth", 0);
                             if (amount<0)
                             	return Mono.error(new LocalizedException(LocalizedString.CurrencyStealing));
                             if (ifeth<amount)
                             	return Mono.error(new LocalizedException(LocalizedString.NotEnoughCurrency));
                             
-                            return madapter.getData((tobj, tdoc)->{
+                            return madapter.getDocument().flatMap(tdoc->{
+                            	DBObject tobj = tdoc.getObject();
 	                            pobj.set("feth", ifeth-amount);
-	                            pdoc.save();
-	                            
 	                            tobj.set("feth", tobj.getOrDefaultInt("feth", 0)+amount);
-	                            tdoc.save();
-	                            return channel.createMessage(data.locale.localize(LocalizedString.MoneySent));
+	                            return pdoc.save().and(tdoc.save()).then(channel.createMessage(data.localize(LocalizedString.MoneySent)));
                             });
                         });
                     } else {
@@ -186,78 +188,77 @@ class CurrencyTopCommand implements ICommand {
         return message.getChannel().cast(GuildMessageChannel.class).flatMap(channel->{
     		long uid = message.getAuthor().get().getId().asLong();
     		
-    		GuildAdapter gadapter = GuildAdapter.of(data.shard, channel);
+    		GuildAdapter gadapter = GuildAdapter.of(data.bot, channel);
     		MemberAdapter madapter = MemberAdapter.of(gadapter, uid);
     		
             int len = 5;
             LinkedList<DBDocument> lboard = new LinkedList<DBDocument>();
-            AtomicInteger c = new AtomicInteger(0);
+            AtomicReference<DBDocument> idoc = new AtomicReference<DBDocument>();
+            AtomicInteger asize = new AtomicInteger();
             
-            DBDocument[] members = gadapter.getDocument().subcollection("members").all();
-            for (DBDocument member: members) {
-                //TODO: O(n) execution time
-                member.getObject(obj->{
-                	int money = obj.getOrDefaultInt("feth", 0);
-                    for (int i=0; i<c.incrementAndGet(); i++) {
-                        if (i==lboard.size()) {
-                            lboard.add(i, member); break;
-                        } else {
-                        	int ic = i;
-                        	if (lboard.get(i).getObject(obj2->{
-                        		if (obj2.getOrDefaultInt("feth", 0)<money) {
-                        			lboard.add(ic, member);
-                        			return true;
-                        		}
-                        		return false;
-                        	})) break;
-                        }
+            return gadapter.members().filter(Filters.gt("feth", 0)).rest().doOnNext(doc->{
+            	//TODO: O(n) execution time
+            	DBObject obj = doc.getObject();
+            	if (obj.getOrDefaultLong("uid", -1L) == madapter.getUserID()) idoc.set(doc);
+            		
+            	long money = obj.getOrDefaultLong("feth", 0);
+            	int i = 0;
+                while (true) {
+                    if (i==asize.get()) {
+                        lboard.add(i, doc); break; //Insert user at end of lboard
+                    } else {
+                    	DBObject obj2 = lboard.get(i).getObject();
+                		if (obj2.getOrDefaultLong("feth", 0)<money) {
+                			lboard.add(i, doc); //Insert right before next lowest lboard value
+                			break;
+                		}
                     }
-                });
-            };
+                    i++;
+                }
+                asize.incrementAndGet();
+            }).last().flatMap(_0->{
+            	int xpos = -1;
+            	if (idoc.get()!=null) xpos = lboard.indexOf(idoc.get());
+            	
+            	int pos = xpos;
+            	int size = asize.get();
 
-            int pos = lboard.indexOf(madapter.getDocument());
+                ArrayList<EmbedFieldEntry> boardusers = new ArrayList<EmbedFieldEntry>();
+                AtomicReference<Mono<?>> monos = new AtomicReference<Mono<?>>(Mono.empty());
 
-            ArrayList<EmbedFieldEntry> boardusers = new ArrayList<EmbedFieldEntry>();
-            ArrayList<Mono<?>> monos = new ArrayList<Mono<?>>();
-            int size = lboard.size();
+                for (int i=0; i<((size<len)?size:len); i++) addToLeaderboard(i, size, lboard, monos, boardusers, gadapter, madapter, data);
+                if (pos!=-1) {
+	                if (pos-1 >= len) addToLeaderboard(pos-1, size, lboard, monos, boardusers, gadapter, madapter, data);
+	                if (pos >= len)   addToLeaderboard(pos  , size, lboard, monos, boardusers, gadapter, madapter, data);
+	                if (pos+1 >= len) addToLeaderboard(pos+1, size, lboard, monos, boardusers, gadapter, madapter, data);
+                }
 
-            for (int i=0; i<((size<len)?size:len); i++) addToLeaderboard(i, size, lboard, monos, boardusers, gadapter, madapter, data);
-            if (pos-1 >= len) addToLeaderboard(pos-1, size, lboard, monos, boardusers, gadapter, madapter, data);
-            if (pos >= len)   addToLeaderboard(pos  , size, lboard, monos, boardusers, gadapter, madapter, data);
-            if (pos+1 >= len) addToLeaderboard(pos+1, size, lboard, monos, boardusers, gadapter, madapter, data);
-
-            return Flux.just(monos.toArray())
-        		.flatMap(m->(Mono<?>) m)
-            	.last()
-            	.flatMap(o->{
-            		return channel.createEmbed(embed->{
+                return monos.get().flatMap(_1->{
+                	return channel.createEmbed(embed->{
                         embed.setTitle("Currency Leaderboard");
                         boardusers.forEach(embedinfo->{
                             embed.addField(embedinfo.title, embedinfo.content, false);
                         });
-                        if (lboard.contains(madapter.getDocument())) //TODO: Don't rely on a consistent doc
-                            embed.setFooter("You rank #"+(pos+1), null);
-                    });
-            	});
-	        });
+                        if (pos!=-1) embed.setFooter("You rank #"+(pos+1), null);
+                	});
+                });
+            });
+        });
     }
     
-    private void addToLeaderboard(int i, int size, LinkedList<DBDocument> lboard, ArrayList<Mono<?>> monos,
+    private void addToLeaderboard(int i, int size, LinkedList<DBDocument> lboard, AtomicReference<Mono<?>> monos,
     	ArrayList<EmbedFieldEntry> boardusers, GuildAdapter gadapter, MemberAdapter invoker, CommandData data) {
     	
         if (i>=size) return;
-        MemberAdapter user = MemberAdapter.of(gadapter, lboard.get(i).getName());
-        user.getData(obj->{
-	        int feth = obj.getOrDefaultInt("feth", 0);
-	        if (feth<=0&&!(user==invoker)) return null;
-	        Mono<Member> mono = user.getMember()
+        MemberAdapter user = MemberAdapter.of(gadapter, lboard.get(i).getObject().getOrDefaultLong("uid", -1L));
+        monos.set(monos.get().then(user.getDocument().flatMap(doc->{
+	        long feth = doc.getObject().getOrDefaultLong("feth", 0);
+	        if (feth<=0&&!(user==invoker)) return Mono.empty();
+	        return user.getMember()
 	        	.doOnNext(m->{
-	        		boardusers.add(new EmbedFieldEntry("#"+(i+1)+(user.equals(invoker)?" (You)":""), data.safe(m.getDisplayName())+": "+feth+" feth"));
-	        	});
-	        monos.add(mono);
-	        
-	        return null;
-        });
+	        		boardusers.add(new EmbedFieldEntry("#"+(i+1)+(user.getUserID()==invoker.getUserID()?" (You)":""), data.safe(m.getDisplayName())+": "+feth+" feth"));
+	        	}).onErrorResume(e->Mono.empty());
+        }).onErrorResume(e->Mono.empty())));
     }
 }
 

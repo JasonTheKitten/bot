@@ -44,7 +44,7 @@ public class KickCommand implements ICommand {
 							invoker.isHigher(Snowflake.of((Long) id))
 							.flatMap(isHigher->{
 								if (!isHigher) return Mono.empty();
-								return MemberAdapter.of(GuildAdapter.of(data.shard, channel), (Long) id).getMember();
+								return MemberAdapter.of(GuildAdapter.of(data.bot, channel), (Long) id).getMember();
 							});
 					})
 					.flatMap(m->m.kick(data.localize(LocalizedString.KickUserReason)))

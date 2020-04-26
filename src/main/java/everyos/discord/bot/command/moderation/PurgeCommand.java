@@ -72,8 +72,8 @@ public class PurgeCommand implements ICommand {
             if (channels.isEmpty()) channels.add(channel.getId().asLong());
             
             Flux<Channel> channelsf;
-            channelsf = Flux.just(channels.toArray(new String[channels.size()]))
-            	.flatMap(s->data.shard.client.getChannelById(Snowflake.of(s))); //TODO: Guild-get channel instead
+            channelsf = Flux.just(channels.toArray(new Long[channels.size()]))
+            	.flatMap(s->data.bot.client.getChannelById(Snowflake.of(s))); //TODO: Guild-get channel instead
             
             String afterf = after; int messagesf = messages;
             

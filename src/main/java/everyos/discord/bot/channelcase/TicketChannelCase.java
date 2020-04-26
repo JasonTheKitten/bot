@@ -22,8 +22,7 @@ public class TicketChannelCase implements IGroupCommand {
 	
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		String content = message.getContent();
-        String trunc = ArgumentParser.getIfPrefix(content, 
-            new String[] {"--- ", "*", "<@"+data.bot.clientID+">", "<@!"+data.bot.clientID+">"});
+        String trunc = ArgumentParser.getIfPrefix(content, data.prefixes);
         if (trunc == null) return Mono.empty();
         String command = ArgumentParser.getCommand(trunc);
         String arg = ArgumentParser.getArgument(trunc);

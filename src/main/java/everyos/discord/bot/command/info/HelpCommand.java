@@ -79,6 +79,7 @@ public class HelpCommand implements ICommand {
 					}
 					spec.setTitle(header + " - Help (Groups)");
 					spec.setDescription(ctgmsg.toString());
+					spec.setFooter(data.localize(LocalizedString.HelpGroupsFooter), null);
 					return;
 				}
 				
@@ -86,7 +87,7 @@ public class HelpCommand implements ICommand {
 				acommands.forEach((name, cmd)->{
 					String desc;
 					if (cmd instanceof CommandAlias) {
-						desc = data.locale.localize(LocalizedString.CommandAlias, FillinUtil.of("command", ((CommandAlias) cmd).pname));
+						desc = data.localize(LocalizedString.CommandAlias, FillinUtil.of("command", ((CommandAlias) cmd).pname));
 					} else {
 						Help help = cmd.getClass().getAnnotation(Help.class);
 						if (help == null) help = defaultHelp;
@@ -97,6 +98,7 @@ public class HelpCommand implements ICommand {
 				
 				spec.setTitle(header + " - Help");
 				spec.setDescription(helpmsg.toString());
+				spec.setFooter(data.localize(LocalizedString.HelpCommandsFooter), null);
 			});
 		} else {
 			return channel.createEmbed(spec->{

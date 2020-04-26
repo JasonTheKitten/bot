@@ -1,4 +1,4 @@
-package everyos.storage.database;
+package everyos.discord.bot.util;
 
 import java.io.File;
 

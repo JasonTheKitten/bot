@@ -13,6 +13,6 @@ import reactor.core.publisher.Mono;
 public class DonateCommand implements ICommand {
 	@Override public Mono<?> execute(Message message, CommandData data, String argument) {
 		return message.getChannel().flatMap(channel->
-			channel.createMessage(data.locale.localize(LocalizedString.Donate, FillinUtil.of("url", "https://shorturl.at/fgmv1"))));
+			channel.createMessage(data.localize(LocalizedString.Donate, FillinUtil.of("url", "https://shorturl.at/fgmv1"))));
 	}
 }

@@ -351,7 +351,7 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 			case NotInMusicChannel:
 				return "Please join a music channel in this server to use this command";
 			case InsufficientBotPermissions:
-				return "--- has insufficient permissions and requires the follow permissions: ${permissions}";
+				return "--- has insufficient permissions and requires the follow permission: ${permission}";
 			case MemberMuted:
 				return "The member has been muted successfully!";
 			case MemberUnmuted:
@@ -376,6 +376,52 @@ public class LocalizationLookupEnUS implements ILocalizationLookup {
 				return "User kick invocated by user";
 			case NotLinkAdmin:
 				return "This channel is not in the chatlink administration group";
+			case OneWordLastUser:
+				return "The last user was ${ping}";
+			case OneWordNotRecognized:
+				return "I don't quite recognize that word!";
+			case OneWordOneWord:
+				return "You can only say one word at a time!";
+			case OneWordSentenceReset:
+				return "The sentence has been reset";
+			case HelpCommandsFooter:
+				return "For additional command usage, run `help [command]` (e.g. `help music playlist create`)\nWritten by EveryOS";
+			case HelpGroupsFooter:
+				return "Don't forget the > sign!\nWritten by EveryOS";
+			case MemberIgnored:
+				return "The specified user will now be ignored";
+			case MemberMustBeHigher:
+				return "You must be higher than the specified member to run this command!";
+			case NoPrefixExists:
+				return "That prefix does not exist!";
+			case OnePrefixMin:
+				return "At least one prefix must be kept available";
+			case PrefixAdded:
+				return "Added the prefix";
+			case PrefixAlreadyExists:
+				return "That prefix already exists!";
+			case PrefixesReset:
+				return "The prefixes have been reset";
+			case PrefixEmpty:
+				return "This prefix cannot be used because it renders as empty!";
+			case PrefixTooLong:
+				return "This prefix is too long!";
+			case NoStarsLeft:
+				return "No stars remain configured. Default configurations will be applied until new configurations are set.";
+			case NoStarMatch:
+				return "No such star exists";
+			case NotFoundException:
+				return "The command was unable to complete because an entity was not found";
+			case StarAlreadyExistsForAmount:
+				return "A star was already set for this amount";
+			case StarRemoved:
+				return "Removed the star type!";
+			case StarTypeAdd:
+				return "Added the star type!";
+			case StarboardIgnoredChannel:
+				return "This channel will now be ignored on the starboard";
+			case StarboardUnignoredChannel:
+				return "This channel will no longer be ignored on the starboard";
         }
         return "This text should not appear";
 	}

@@ -23,7 +23,7 @@ public class SuggestCommand implements ICommand {
         return channel.createEmbed(embed->{
             embed.setTitle(data.safe(LocalizedString.SuggestionBy, FillinUtil.of("user", author.getUsername())));
             embed.setDescription(data.safe(argument));
-            embed.setFooter(data.locale.localize(LocalizedString.SuggestionFooter, FillinUtil.of("id", author.getId().asString())), null);
+            embed.setFooter(data.localize(LocalizedString.SuggestionFooter, FillinUtil.of("id", author.getId().asString())), null);
         }).flatMap(message->{
             return message.addReaction(ReactionEmoji.unicode("\u2705")).and(
             	message.addReaction(ReactionEmoji.unicode("\u274C")))

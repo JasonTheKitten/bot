@@ -11,7 +11,7 @@ import everyos.discord.bot.command.channel.ChatLinkCommand;
 import everyos.discord.bot.command.channel.OneWordCommand;
 import everyos.discord.bot.command.channel.StarboardCommand;
 import everyos.discord.bot.command.channel.SuggestionsCommand;
-import everyos.discord.bot.command.configuration.IgnoreCommand;
+import everyos.discord.bot.command.configuration.PrefixCommand;
 import everyos.discord.bot.command.fun.CurrencyCommand;
 import everyos.discord.bot.command.fun.GiphyCommand;
 import everyos.discord.bot.command.fun.HugCommand;
@@ -26,6 +26,7 @@ import everyos.discord.bot.command.info.ProfileCommand;
 import everyos.discord.bot.command.info.SupportCommand;
 import everyos.discord.bot.command.info.UptimeCommand;
 import everyos.discord.bot.command.moderation.BanCommand;
+import everyos.discord.bot.command.moderation.IgnoreCommand;
 import everyos.discord.bot.command.moderation.KickCommand;
 import everyos.discord.bot.command.moderation.MuteCommand;
 import everyos.discord.bot.command.moderation.PurgeCommand;
@@ -81,14 +82,14 @@ public class DefaultChannelCase implements IGroupCommand {
         commands.put("ignore", new IgnoreCommand());
         commands.put("mute", new MuteCommand());
         commands.put("unmute", new UnmuteCommand());
+        commands.put("prefix", new PrefixCommand());
         
         commands.put("m", new CommandAlias(commands.get("music"), "music"));
     }
 
     @Override public Mono<?> execute(Message message, CommandData data, String argument) {
         String content = message.getContent();
-        String trunc = ArgumentParser.getIfPrefix(content, 
-            new String[] {"--- ", "*", "<@"+data.bot.clientID+">", "<@!"+data.bot.clientID+">"});
+        String trunc = ArgumentParser.getIfPrefix(content, data.prefixes);
         if (trunc == null) return Mono.empty();
         String command = ArgumentParser.getCommand(trunc);
         String arg = ArgumentParser.getArgument(trunc);
