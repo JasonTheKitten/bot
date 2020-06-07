@@ -1,26 +1,28 @@
 # bot
-[New name to be revealed] is a Discord Bot written on the Discord4J framework.
+Luwu is a Discord Bot written on the Discord4J framework.
 
-Still rewriting, but it will provide a variety of features
+
 
 * Chat Linking: Link chat channels across multiple servers!
 
-* Music: WIP, but you can queue multiple tracks to play, as well as a repeat mode!
+* Music: You can queue multiple tracks to play, maintain playlists, as well as a repeat mode!
 
 * Basic moderation commands!
 
-* Automoderation!
+* Auto Role: Assign up to 3 roles to give on user join
+
+* Reaction role: Give users roles when they select a reaction
 
 * A currency system with daily rewards, chat rewards, and vote rewards!
 
-* Internationalization!
+*Starboard: Customizable. A post gets shown on starboard when enough people react with the set emoji
 
 * One word sentence! Makes managing one word sentence games easy!
 
 * Suggestion channels! Converts a suggestion to an embed with voting reactions!
 
-The following features are planned:
+* More, and more to come
 
-* Adventure: Players can play a game who's rules are supplied by a text file. Includes scripting.
 
-* Continue to extend existing features
+
+
