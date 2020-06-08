@@ -1,7 +1,6 @@
 # Luwu
-Luwu is a Multipurpose Discord Bot written on the Discord4J framework.
 
-Here are a few of Luwu's features:
+Luwu is a Discord Bot written on the Discord4J framework, which features:
 
 * Chat Linking: Link chat channels across multiple servers!
 
@@ -9,36 +8,16 @@ Here are a few of Luwu's features:
 
 * Basic moderation commands!
 
+* Auto Role: Assign up to 3 roles to give on user join
+
+* Reaction role: Give users roles when they select a reaction
+
 * A currency system with daily rewards, chat rewards, and (coming soon) vote rewards!
+
+* Starboard: Customizable. A post gets shown on starboard when enough people react with the set emoji
 
 * One word sentence! Makes managing one word sentence games easy!
 
 * Suggestion channels! Converts a suggestion to an embed with voting reactions!
 
-* Auto Role - Give new users roles when they join a server
-
-* Levelling!
-
-* Configurable Starboards!
-
-* Reaction roles!
-
-* Logging: log message edits and message deletions!
-
-* Welcome and Leave messages!
-
-The following features are planned:
-
-* Adventure: Players can play a game who's rules are supplied by a text file. Includes scripting.
-
-* A game to be revealed!
-
-* Translation channels!
-
-* Automoderation!
-
-* Internationalization!
-
-* Giveaways!
-
-* Continue to extend existing features
+* More, and more to come
