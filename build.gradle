@@ -1,0 +1,59 @@
+plugins {
+	id 'java'
+	id 'java-library'
+	id 'eclipse'
+	id 'com.github.johnrengelman.shadow' version '5.0.0'
+}
+
+version '0.0.1'
+
+repositories {
+	jcenter()
+	mavenCentral()
+	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+	maven { url 'https://jitpack.io' }
+}
+dependencies {
+	implementation 'ch.qos.logback:logback-classic:1.2.3'
+	implementation 'com.discord4j:discord4j-core:3.1.1-SNAPSHOT'
+	implementation 'com.google.code.findbugs:jsr305:3.0.2'
+	implementation 'com.google.code.gson:gson:2.8.6'
+	implementation 'com.mashape.unirest:unirest-java:1.4.9'
+	implementation 'io.projectreactor:reactor-core:3.3.8.RELEASE'
+	implementation 'org.mongodb:mongodb-driver-reactivestreams:1.13.0'
+	
+	//Nertivia4J dependencies
+	implementation 'io.socket:socket.io-client:1.0.0'
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs = [
+				'src/main/java/everyos.bot.chat4j',
+				'src/main/java/everyos.discord.chat4d',
+				'src/main/java/everyos.nertivia.chat4n',
+				'src/main/java/everyos.nertivia.nertivia4j',
+				'src/main/java/everyos.bot.luwu',
+			]
+		}
+	}
+}
+
+jar {
+	manifest {
+		attributes("Main-Class": "everyos.bot.luwu.Main")
+	}
+}
+
+shadowJar {
+	classifier = null
+}
+
+task run(type: JavaExec) {
+	group = 'Run'
+	description = 'Runs the app'
+	
+	classpath sourceSets.main.runtimeClasspath
+	main = "everyos.bot.luwu.Main"
+}
