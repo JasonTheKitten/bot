@@ -3,8 +3,6 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.0.0'
 }
 
-version '0.0.1'
-
 dependencies {
     implementation 'io.projectreactor:reactor-core:3.3.8.RELEASE'
 }
