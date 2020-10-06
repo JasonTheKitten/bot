@@ -1,0 +1,9 @@
+plugins {
+    id 'java-library'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+}
+
+dependencies {
+    implementation 'com.discord4j:discord4j-core:3.1.1-SNAPSHOT'
+    api project(':chat4j')
+}
