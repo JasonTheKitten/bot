@@ -8,3 +8,8 @@
  */
 
 rootProject.name = 'LuwuRewrite2'
+include 'chat4j'
+include 'chat4d'
+include 'chat4n'
+include 'luwu'
+include 'nertivia4j'
