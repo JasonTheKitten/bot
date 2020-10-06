@@ -6,7 +6,6 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
-import com.sedmelluq.discord.lavaplayer.track.TrackMarkerHandler;
 
 public class MusicTrackScheduler extends AudioEventAdapter {
 	private AudioPlayer player;

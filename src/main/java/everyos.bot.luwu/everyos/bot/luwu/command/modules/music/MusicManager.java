@@ -7,17 +7,18 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.track.playback.NonAllocatingAudioFrameBuffer;
 
 import everyos.bot.chat4j.audio.AudioBridge;
+import everyos.bot.luwu.command.modules.music.MusicCache.MusicCacheFinalizer;
 
 public class MusicManager {
 	private static AudioPlayerManager manager;
 	
+	private MusicCacheFinalizer finalizer;
+	private AudioPlayer player;
+	private AudioBridge bridge;
+	
 	private MusicQueue queue;
 	private MusicTrack playing;
 	private boolean repeat;
-	
-	private AudioPlayer player;
-	private AudioBridge bridge;
-
 	private boolean radio;
 	
 	static {
@@ -26,7 +27,9 @@ public class MusicManager {
         AudioSourceManagers.registerRemoteSources(manager);
 	}
 	
-	public MusicManager() {
+	public MusicManager(MusicCacheFinalizer finalizer) {
+		this.finalizer = finalizer;
+		
 		player = manager.createPlayer();
 		bridge = new LavaPlayerAudioBridge(player);
 		
@@ -64,6 +67,7 @@ public class MusicManager {
 
 	public void stop() {
 		player.destroy();
+		finalizer.cleanup();
 	}
 
 	public MusicTrack getPlaying() {
@@ -71,5 +75,12 @@ public class MusicManager {
 	}
 	protected void setPlaying(MusicTrack track) { //TODO: This should not exist
 		this.playing = track;
+	}
+
+	public void pause() {
+		
+	}
+	public void unpause() {
+		
 	}
 }

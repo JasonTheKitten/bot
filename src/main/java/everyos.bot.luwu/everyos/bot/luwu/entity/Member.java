@@ -43,4 +43,9 @@ public class Member extends User implements ChatInterfaceProvider {
 	public long getID() {
 		return this.member.getID();
 	}
+
+	//Luwu-specific logic
+	public Mono<Boolean> isDJ() {
+		return Mono.just(true);
+	}
 }

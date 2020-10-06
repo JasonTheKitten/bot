@@ -19,5 +19,9 @@ public class Message {
 
 	public Mono<Void> delete() {
 		return message.delete();
+	}
+
+	public Mono<Void> suppressEmbeds(boolean b) {
+		return Mono.empty();
 	};
 }
