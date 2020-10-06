@@ -1,4 +1,8 @@
 
+plugins {
+	id 'eclipse'
+}
+
 allprojects {
 	repositories {
 		jcenter()
