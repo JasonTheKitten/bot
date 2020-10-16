@@ -33,6 +33,7 @@ public class DiscordChatClient implements ChatClient {
 	
 	@Override public Mono<Void> login(Function<ChatConnection, Mono<?>> func) {
 		final ChatClient self = this;
+		//TODO: client.gateway().withEventDispatcher instead
 		return client.withGateway(connection->{
 			final EventDispatcher dispatcher = connection.getEventDispatcher();
 			return func.apply(new ChatConnection() {

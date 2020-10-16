@@ -1,0 +1,65 @@
+package everyos.bot.luwu.mongo.database;
+
+import java.util.ArrayList;
+import java.util.function.Consumer;
+
+import org.bson.Document;
+
+import everyos.bot.luwu.core.database.DBArray;
+
+public class MongoDBArray implements DBArray {
+	protected ArrayList<Object> data;
+	
+	public MongoDBArray(ArrayList<Object> data) {
+		this.data = data;
+	}
+	public MongoDBArray() {
+		this.data = new ArrayList<Object>();
+	}
+	
+	public void forEach(Consumer<Object> func) {
+		this.data.forEach(func);
+	}
+	public boolean contains(Object o) {
+		return this.data.contains(o);
+	}
+	public void add(Object o) {
+		this.data.add(o);
+	}
+	public void add(MongoDBObject o) {
+		this.data.add(o.document);
+	}
+	public void removeFirst(Object o) {
+		this.data.remove(o);
+	}
+	public void removeAll(Object o) {
+		while(this.data.remove(o));
+	}
+	public void remove(int i) {
+		data.remove(i);
+	}
+	public int getLength() {
+		return this.data.size();
+	}
+	public <T> T[] toArray(T[] a) {
+		return data.toArray(a);
+	}
+	public static <T> MongoDBArray from(T[] oarr) {
+		MongoDBArray arr = new MongoDBArray();
+		for (T obj: oarr) arr.add(obj);
+		return arr;
+	}
+	
+	public int getInt(int i) {
+		return (int) data.get(i);
+	}
+	public String getString(int i) {
+		return (String) data.get(i);
+	}
+	public long getLong(int i) {
+		return (long) data.get(i);
+	}
+	public MongoDBObject getObject(int i) {
+		return new MongoDBObject((Document) data.get(i));
+	}
+}

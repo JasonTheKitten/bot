@@ -3,12 +3,14 @@ package everyos.nertivia.chat4n.entity;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
+import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.bot.chat4j.functionality.UnsupportedInterfaceException;
 import everyos.bot.chat4j.functionality.channel.ChatChannelTextInterface;
 import everyos.nertivia.chat4n.functionality.channel.NertiviaTextInterface;
 import everyos.nertivia.nertivia4j.entity.channel.Channel;
 import everyos.nertivia.nertivia4j.entity.channel.MessageChannel;
+import reactor.core.publisher.Mono;
 
 public class NertiviaChannel implements ChatChannel {
 	private Channel channel;
@@ -42,5 +44,9 @@ public class NertiviaChannel implements ChatChannel {
 
 	@Override public ChatConnection getConnection() {
 		return connection;
+	}
+
+	@Override public Mono<ChatGuild> getGuild() {
+		return null;
 	}
 }

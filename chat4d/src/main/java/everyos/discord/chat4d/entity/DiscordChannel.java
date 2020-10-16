@@ -6,11 +6,13 @@ import discord4j.core.object.entity.channel.TextChannel;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
+import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.bot.chat4j.functionality.UnsupportedInterfaceException;
 import everyos.bot.chat4j.functionality.channel.ChatChannelTextInterface;
 import everyos.discord.chat4d.functionality.channel.DiscordChannelPrivateTextInterface;
 import everyos.discord.chat4d.functionality.channel.DiscordChannelTextInterface;
+import reactor.core.publisher.Mono;
 
 public class DiscordChannel implements ChatChannel {
 	private Channel channel;
@@ -50,5 +52,10 @@ public class DiscordChannel implements ChatChannel {
 
 	protected Channel getChannel() {
 		return channel;
+	}
+
+	@Override public Mono<ChatGuild> getGuild() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

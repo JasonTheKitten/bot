@@ -2,6 +2,7 @@ package everyos.bot.chat4j.entity;
 
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.functionality.ChatInterfaceProvider;
+import reactor.core.publisher.Mono;
 
 /**
  * Represents a channel on the chat client
@@ -14,4 +15,6 @@ public interface ChatChannel extends ChatInterfaceProvider {
 	public long getID();
 
 	public ChatConnection getConnection();
+	
+	public Mono<ChatGuild> getGuild();
 }
