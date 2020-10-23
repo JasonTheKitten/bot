@@ -34,7 +34,7 @@ public abstract class GenericMusicCommand implements Command {
     		}
     		return Mono.error(e);
     	});*/
-		//TODO: We should scan out VoiceStates in other guilds if the current guild does not have a voice state
+		//TODO: We should cache info about which users are in which VC
 	}
 
 	private Mono<MusicManager> createConnection(Member invoker, Locale locale) {

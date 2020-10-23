@@ -44,4 +44,9 @@ public interface ChatMessage extends ChatInterfaceProvider {
 	public long getTimestamp();
 
 	public ChatConnection getConnection();
+
+	//TODO: This just temporarily resides here.
+	public Mono<Void> pin();
+	
+	public long getChannelID();
 }

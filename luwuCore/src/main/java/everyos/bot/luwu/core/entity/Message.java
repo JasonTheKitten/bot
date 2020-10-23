@@ -36,4 +36,19 @@ public class Message {
 	public Mono<Channel> getChannel() {
 		return message.getChannel().map(channel->new Channel(connection, channel));
 	}
+
+	public Mono<Void> addReaction(String string) {
+		// TODO: Auto-generated method stub
+		// TODO: Also, move this to a feature
+		return Mono.empty();
+	}
+
+	public ChannelID getChannelID() {
+		// TODO Auto-generated method stub
+		return new ChannelID() {
+			@Override public long getLong() {
+				return message.getChannelID();
+			}
+		};
+	}
 }

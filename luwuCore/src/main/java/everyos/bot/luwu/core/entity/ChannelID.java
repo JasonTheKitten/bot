@@ -1,5 +1,5 @@
 package everyos.bot.luwu.core.entity;
 
-public class ChannelID {
-
+public interface ChannelID {
+	public long getLong();
 }

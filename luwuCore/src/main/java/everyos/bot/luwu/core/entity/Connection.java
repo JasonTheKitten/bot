@@ -17,7 +17,10 @@ public class Connection {
 	}
 
 	public Mono<User> getUserByID(long id) {
-		return Mono.empty();
+		return connection.getUserByID(id).map(user->new User(this, user));
+	}
+	public Mono<Channel> getChannelByID(long id) {
+		return connection.getChannelByID(id).map(channel->new Channel(this, channel));
 	}
 	
 	public Client getClient() {

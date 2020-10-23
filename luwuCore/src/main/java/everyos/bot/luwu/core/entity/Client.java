@@ -11,11 +11,13 @@ public class Client {
 	private BotEngine bot;
 	private ChatClient client;
 	private ClientBehaviour behaviour;
+	private int id;
 
 	public Client(BotEngine bot, ChatClient client, ClientBehaviour behaviour) {
 		this.bot = bot;
 		this.client = client;
 		this.behaviour = behaviour;
+		this.id = id;
 	}
 
 	public Mono<Member> getSelfAsUser() {
@@ -34,5 +36,9 @@ public class Client {
 		return client.login(connection->{
 			return func.apply(new Connection(this, connection));
 		});
+	}
+
+	public int getID() {
+		return this.id;
 	}
 }

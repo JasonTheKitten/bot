@@ -47,6 +47,6 @@ public class NertiviaChannel implements ChatChannel {
 	}
 
 	@Override public Mono<ChatGuild> getGuild() {
-		return null;
+		return Mono.empty();
 	}
 }

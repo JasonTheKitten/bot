@@ -63,4 +63,14 @@ public class DiscordMessage implements ChatMessage {
 	@Override public ChatConnection getConnection() {
 		return connection;
 	}
+
+	@Override
+	public Mono<Void> pin() {
+		// TODO Auto-generated method stub
+		return message.pin();
+	}
+
+	@Override public long getChannelID() {
+		return message.getChannelId().asLong();
+	}
 }

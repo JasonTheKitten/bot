@@ -49,10 +49,17 @@ public class MongoDBResult implements DBResult {
 	}
 
 	@Override public Mono<DBDocument> orDefault(DBObject def) {
-		return Mono.from(search().first()).map(d->new MongoDBDocument(collection, d));
+		return Mono.from(search().first()).map(d->new MongoDBDocument(collection, d)); //TODO
 	}
 	@Override public Mono<DBDocument> orCreate(Consumer<DBObject> func) {
-		return Mono.from(search().first()).map(d->new MongoDBDocument(collection, d));
+		return Mono.from(search().first()).map(d->new MongoDBDocument(collection, d))
+			.switchIfEmpty(Mono.just(new MongoDBDocument(collection, new Document())).doOnNext(document->{
+				iddata.forEach((k, v)->{
+					document.getObject().set(k, v);
+				});
+				func.accept(document.getObject());
+			}))
+			.cast(DBDocument.class);
 	}
 	@Override public Mono<DBDocument> orEmpty() {
 		return Mono.from(search().first()).map(d->new MongoDBDocument(collection, d));

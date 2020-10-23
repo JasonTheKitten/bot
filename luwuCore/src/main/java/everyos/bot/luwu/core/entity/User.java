@@ -35,8 +35,12 @@ public class User implements ChatInterfaceProvider {
 		return channel.getMember(user.getID());
 	}
 
-	public long getID() {
-		return user.getID();
+	public UserID getID() {
+		return new UserID() {
+			@Override public long getLong() {
+				return user.getID();
+			}
+		};
 	}
 
 	public String getHumanReadableID() {

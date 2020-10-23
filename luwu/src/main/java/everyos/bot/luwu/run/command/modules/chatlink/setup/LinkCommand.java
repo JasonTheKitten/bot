@@ -7,6 +7,6 @@ import reactor.core.publisher.Mono;
 
 public class LinkCommand implements Command {
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
-		return null;
+		return Mono.empty();
 	}
 }

@@ -2,5 +2,5 @@ package everyos.bot.chat4j.functionality.message;
 
 public interface MessageCreateSpec {
 	public void setContent(String content);
-	public void addImage(String image);
+	void addAttachment(String name, String imageURL);
 }

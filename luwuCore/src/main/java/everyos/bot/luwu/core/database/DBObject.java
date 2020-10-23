@@ -8,7 +8,7 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 public interface DBObject {
-	//DBObjectODO: Is too hacky feeling
+	//TODO: Is too hacky feeling
 	//Databases should never be mixed, but eh...
 	String getOrDefaultString(String name, String def);
 	String getOrSetString(String name, String def);

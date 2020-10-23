@@ -8,6 +8,7 @@ import everyos.bot.luwu.core.database.DBCollection;
 import everyos.bot.luwu.core.database.DBResult;
 
 public class MongoDBCollection implements DBCollection {
+	//TODO: Implement Synchronized WeakHashMap caching
 	private MongoCollection<Document> collection;
 	
 	public MongoDBCollection(String name, MongoCollection<Document> collection) {

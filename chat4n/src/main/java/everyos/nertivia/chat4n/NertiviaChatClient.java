@@ -4,12 +4,14 @@ import java.util.function.Function;
 
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
+import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.event.ChatEvent;
 import everyos.bot.chat4j.event.ChatMessageCreateEvent;
 import everyos.bot.chat4j.event.ChatMessageEvent;
 import everyos.bot.chat4j.event.UnsupportedEventException;
 import everyos.bot.chat4j.functionality.ChatInterface;
+import everyos.nertivia.chat4n.entity.NertiviaChannel;
 import everyos.nertivia.chat4n.entity.NertiviaUser;
 import everyos.nertivia.chat4n.event.NertiviaEvent;
 import everyos.nertivia.chat4n.event.NertiviaMessageCreateEvent;
@@ -74,6 +76,11 @@ public class NertiviaChatClient implements ChatClient {
 			@Override public Mono<ChatUser> getUserByID(long uid) {
 				return client.getUserByID(uid)
 					.map(user->new NertiviaUser(this, user));
+			}
+
+			@Override public Mono<ChatChannel> getChannelByID(long cid) {
+				return client.getChannelByID(cid)
+					.map(channel->new NertiviaChannel(this, channel));
 			}
 		}).flatMap(func).then();
 	}

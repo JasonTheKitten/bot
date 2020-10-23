@@ -58,6 +58,10 @@ public class BotEngineBuilder {
 			@Override public ChannelCase getChannelCase(String name) {
 				return channelCases.get(name);
 			}
+
+			@Override public DBDatabase getDatabase() {
+				return database;
+			}
 		};
 		
 		return new BotEngine(configuration);

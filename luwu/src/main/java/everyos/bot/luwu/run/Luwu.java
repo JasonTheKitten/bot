@@ -9,12 +9,14 @@ import everyos.bot.luwu.discord.DiscordClientBuilder;
 import everyos.bot.luwu.mongo.MongoDatabaseBuilder;
 import everyos.bot.luwu.nertivia.NertiviaClientBuilder;
 import everyos.bot.luwu.run.command.channelcase.DefaultChannelCase;
+import everyos.bot.luwu.run.command.modules.chatlink.channelcase.ChatLinkChannelCase;
 import everyos.bot.luwu.run.command.usercase.DefaultUserCase;
 import reactor.core.publisher.Mono;
 
 public class Luwu {
 	private static final String PRIVATE_CHANNELCASE = "private";
 	private static final String DEFAULT_CHANNELCASE = "default";
+	private static final String CHATLINK_CHANNELCASE = "chatlink"; //TODO: The value of this constant is hard-coded elsewhere :/
 	
 	private static final String DEFAULT_USERCASE = "default";
 	
@@ -63,6 +65,7 @@ public class Luwu {
 		
 		// Register channel behaviours
 		engineBuilder.registerChannelCase(DEFAULT_CHANNELCASE, DefaultChannelCase.get());
+		engineBuilder.registerChannelCase(CHATLINK_CHANNELCASE, ChatLinkChannelCase.get());
 		engineBuilder.setDefaultChannelCase(DEFAULT_CHANNELCASE);
 		engineBuilder.transformChannelCase((type, data)->{ //TODO
 			if (data.getChannel().isPrivateChannel()) {

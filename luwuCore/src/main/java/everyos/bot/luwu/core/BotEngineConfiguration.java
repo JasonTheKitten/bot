@@ -5,6 +5,7 @@ import java.util.function.BiFunction;
 import everyos.bot.luwu.core.command.ChannelCase;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.command.UserCase;
+import everyos.bot.luwu.core.database.DBDatabase;
 import everyos.bot.luwu.core.entity.ClientWrapper;
 import reactor.core.publisher.Mono;
 
@@ -18,4 +19,6 @@ public interface BotEngineConfiguration {
 	String getDefaultChannelCaseName();
 	BiFunction<Mono<String>, CommandData, Mono<String>>[] getChannelCaseTransformers();
 	ChannelCase getChannelCase(String name);
+
+	DBDatabase getDatabase();
 }

@@ -39,8 +39,12 @@ public class Member extends User implements ChatInterfaceProvider {
 		return this.member;
 	}
 
-	public long getID() {
-		return this.member.getID();
+	public UserID getID() {
+		return new UserID() {
+			@Override public long getLong() {
+				return member.getID();
+			}
+		};
 	}
 
 	//Luwu-specific logic

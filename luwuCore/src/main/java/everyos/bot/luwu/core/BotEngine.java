@@ -9,6 +9,7 @@ import org.reactivestreams.Publisher;
 import everyos.bot.luwu.core.command.ChannelCase;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.command.UserCase;
+import everyos.bot.luwu.core.database.DBDatabase;
 import everyos.bot.luwu.core.entity.Client;
 import everyos.bot.luwu.core.entity.ClientWrapper;
 import everyos.bot.luwu.core.entity.Connection;
@@ -75,7 +76,7 @@ public class BotEngine {
 	}
 
 	public Mono<ChannelCase> getChannelCase(CommandData data) {
-		Mono<String> channelCaseNameMono = Mono.just(configuration.getDefaultChannelCaseName());
+		Mono<String> channelCaseNameMono = data.getChannel().getType();
 		for (BiFunction<Mono<String>, CommandData, Mono<String>> func: configuration.getChannelCaseTransformers()) {
 			channelCaseNameMono = func.apply(channelCaseNameMono, data);
 		}
@@ -89,6 +90,22 @@ public class BotEngine {
 			userCaseNameMono = func.apply(userCaseNameMono, data);
 		}
 		return userCaseNameMono.map(name->configuration.getUserCase(name));
+	}
+
+	//TODO: This doesn't feel like the right place to put this
+	//I would prefer to hide the database as much as possible, to be honest
+	//Putting this in BotEngine screams "Hey, this class is open to misuse and abuse!"
+	public DBDatabase getDatabase() {
+		return configuration.getDatabase();
+	}
+
+	public String getDefaultUserCaseName() {
+		return configuration.getDefaultUserCaseName();
+	}
+	
+	public Connection getConnectionByID(int connectionID) {
+		//TODO
+		return null;
 	}
 }
 

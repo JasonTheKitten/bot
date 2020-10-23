@@ -5,17 +5,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import everyos.bot.chat4j.functionality.channel.ChatChannelTextInterface;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
+import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.Client;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.entity.User;
+import everyos.bot.luwu.core.entity.UserID;
+import everyos.bot.luwu.core.exception.TextException;
 import reactor.core.publisher.Mono;
 
 public class HugCommand implements Command {
-	@SuppressWarnings("unused")
 	private static String[] hugs;
 
 	static {
@@ -30,6 +33,8 @@ public class HugCommand implements Command {
 	}
 
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
+		//TODO: Segregate argument parser from command: allows for running commands from more UIs
+		
 		//Parse arguments
 		//Choose the header
 		//Choose a random hug
@@ -43,13 +48,17 @@ public class HugCommand implements Command {
 			parseArgs(parser, invoker.getID(), locale)
 			.flatMap(id->data.getConnection().getUserByID(id))
 			.flatMap(member->determineHugMessage(data.getClient(), invoker, member, locale))
+			.flatMap(message->sendHugMessage(data.getChannel(), message, locale))
 			//TODO: Send the hug
 			.then();
 	}
 
-	private Mono<Long> parseArgs(ArgumentParser parser, long defaultID, Locale locale) {
+	private Mono<Long> parseArgs(ArgumentParser parser, UserID userID, Locale locale) {
+		//TODO: Method return type should be a UserID
 		//Parse arguments
-		return null;
+		if (parser.isEmpty()) return Mono.just(userID.getLong());
+		if (!parser.couldBeUserID()) return Mono.error(new TextException("Usage")); //TODO
+		return Mono.just(parser.eatUserID());
 	}
 	private Mono<String> determineHugMessage(Client client, User invoker, User member, Locale locale) {
 		//Choose the header
@@ -57,10 +66,20 @@ public class HugCommand implements Command {
 			return Mono.just(locale.localize("command.hug.selfhug"));
 		} else {
 			return client.getSelfAsUser()
-				.filter(botmember->botmember.getID()==member.getID())
-				.then(Mono.just(locale.localize("command.hug.bothug")))
+				.filter(botmember->botmember.getID().getLong()==member.getID().getLong())
+				.flatMap(v->Mono.just(locale.localize("command.hug.bothug")))
 				.switchIfEmpty(Mono.just(locale.localize("command.hug.userhug", "invoker", formatName(invoker), "recipient", formatName(member))));
 		}
+	}
+	
+	private Mono<Void> sendHugMessage(Channel channel, String message, Locale locale) {
+		ChatChannelTextInterface textGrip = channel.getInterface(ChatChannelTextInterface.class);
+		return textGrip.send(spec->{
+			spec.setContent(message);
+			spec.addAttachment("hug.gif", hugs[(int) (Math.round(Math.random()*hugs.length))]);
+			//TODO: Footer
+		})
+		.then();
 	}
 
 	private String formatName(User user) {

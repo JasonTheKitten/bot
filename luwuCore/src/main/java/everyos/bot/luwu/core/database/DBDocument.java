@@ -1,5 +1,9 @@
 package everyos.bot.luwu.core.database;
 
-public interface DBDocument {
+import reactor.core.publisher.Mono;
 
+public interface DBDocument {
+	Mono<Void> save();
+	DBObject getObject();
+	Mono<Void> delete();
 }

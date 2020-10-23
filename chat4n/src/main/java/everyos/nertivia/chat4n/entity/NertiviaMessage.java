@@ -35,12 +35,12 @@ public class NertiviaMessage implements ChatMessage {
 
 	@Override public Mono<ChatUser> getAuthor() {
 		// TODO Auto-generated method stub
-		return null;
+		return Mono.empty();
 	}
 
 	@Override public Mono<ChatMember> getAuthorAsMember() {
 		// TODO Auto-generated method stub
-		return null;
+		return Mono.empty();
 	}
 
 	@Override public long getTimestamp() {
@@ -62,6 +62,17 @@ public class NertiviaMessage implements ChatMessage {
 
 	@Override public ChatConnection getConnection() {
 		return connection;
+	}
+
+	@Override
+	public Mono<Void> pin() {
+		// TODO Auto-generated method stub
+		return Mono.empty();
+	}
+
+	@Override public long getChannelID() {
+		// TODO Auto-generated method stub
+		return message.getChannelID();
 	}
 
 }

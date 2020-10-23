@@ -1,5 +1,6 @@
 package everyos.bot.chat4j;
 
+import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.event.ChatEvent;
 import reactor.core.publisher.Flux;
@@ -24,6 +25,6 @@ public interface ChatConnection {
 	public <T extends ChatEvent> boolean supportsEvent(Class<T> cls);
 	public <T extends ChatEvent> Flux<T> generateEventListener(Class<T> cls);
 
-	//TODO: Move to interfaces
 	Mono<ChatUser> getUserByID(long id);
+	public Mono<ChatChannel> getChannelByID(long id);
 }

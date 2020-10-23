@@ -25,7 +25,7 @@ public class NertiviaTextInterface implements ChatChannelTextInterface {
 	}
 	@Override public Mono<ChatMessage> send(Consumer<MessageCreateSpec> spec) {
 		// TODO Auto-generated method stub
-		return null;
+		return Mono.empty();
 	}
 
 	@Override public ChatConnection getConnection() {

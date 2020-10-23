@@ -54,7 +54,7 @@ public class LinkJoinCommand implements Command {
 				}
 				
 				return
-					link.addChannel(channel.getID())
+					link.addChannel(channel)
 					.then(nextAction);
 			});
 	}

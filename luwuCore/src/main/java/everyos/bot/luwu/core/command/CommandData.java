@@ -1,7 +1,6 @@
 package everyos.bot.luwu.core.command;
 
 import everyos.bot.luwu.core.BotEngine;
-import everyos.bot.luwu.core.client.ClientBehaviour;
 import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.Client;
 import everyos.bot.luwu.core.entity.Connection;
@@ -33,7 +32,11 @@ public class CommandData {
 	public Locale getLocale() {
 		return new Locale() {
 			public String localize(String name, String... args) {
+				//TODO: I really need to rig up resource files
 				if (name.equals("command.ban")) return "ban";
+				if (name.equals("command.link.create")) return "create";
+				if (name.equals("command.easteregg.cat")) return "cat";
+				if (name.equals("command.hug")) return "hug";
 				StringBuilder b = new StringBuilder(name);
 				for (int i=0; i<args.length; i+=2) {
 					b.append(","+args[i]+":"+args[i+1]);
@@ -42,11 +45,7 @@ public class CommandData {
 			}
 		};
 	}
-	public ClientBehaviour getClientBehaviour() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
 	public Connection getConnection() {
 		return message.getConnection();
 	}

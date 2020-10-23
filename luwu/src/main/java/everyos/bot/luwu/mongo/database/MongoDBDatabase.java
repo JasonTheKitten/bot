@@ -25,9 +25,10 @@ public class MongoDBDatabase implements DBDatabase {
 	}
 	
 	@Override public DBCollection collection(@Nonnull String name) {
-		return collections.containsKey(name) ?
-			collections.get(name) :
+		if (!collections.containsKey(name)) {
 			collections.put(name, new MongoDBCollection(name, database.getCollection(name)));
+		}
+		return collections.get(name);
 	}
 	
 	@Override public Mono<Void> delete(@Nonnull String collection) {

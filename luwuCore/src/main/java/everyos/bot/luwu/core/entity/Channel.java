@@ -2,6 +2,7 @@ package everyos.bot.luwu.core.entity;
 
 import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.functionality.ChatInterface;
+import everyos.bot.luwu.core.database.DBDocument;
 import reactor.core.publisher.Mono;
 
 public class Channel {
@@ -31,15 +32,23 @@ public class Channel {
 		return Mono.just(new String[] {
 			//TODO: Query DB. Also, prefixes might belong to guild, based on model
 			//This would be better handled as a interface?
-			"luwu "
+			"luwu ",
+			"LUWU ",
+			"Luwu"
 		});
 	}
 	public Mono<String> getType() {
-		return null;
+		return getDocument()
+			.map(document->document.getObject().getOrDefaultString(
+				"type", connection.getBotEngine().getDefaultUserCaseName()));
 	}
 
 	public ChannelID getID() {
-		return null;
+		return new ChannelID() {
+			@Override public long getLong() {
+				return channel.getID();
+			}
+		};
 	}
 
 	public ChatChannel getRaw() {
@@ -56,6 +65,19 @@ public class Channel {
 
 	public boolean isPrivateChannel() {
 		return false;
+	}
+	
+	public Client getClient() {
+		return connection.getClient();
+	}
+	
+	protected Mono<DBDocument> getDocument() {
+		//TODO: Consider client id
+		return this.getClient().getBotEngine().getDatabase()
+			.collection("channels")
+			.scan()
+			.with("cid", getID().getLong())
+			.orCreate(obj->{});
 	}
 	
 	//TODO: Read+Edit

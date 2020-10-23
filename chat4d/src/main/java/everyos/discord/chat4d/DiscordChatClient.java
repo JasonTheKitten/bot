@@ -10,12 +10,14 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageEvent;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
+import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.event.ChatEvent;
 import everyos.bot.chat4j.event.ChatMessageCreateEvent;
 import everyos.bot.chat4j.event.ChatMessageEvent;
 import everyos.bot.chat4j.event.UnsupportedEventException;
 import everyos.bot.chat4j.functionality.ChatInterface;
+import everyos.discord.chat4d.entity.DiscordChannel;
 import everyos.discord.chat4d.entity.DiscordUser;
 import everyos.discord.chat4d.event.DiscordEvent;
 import everyos.discord.chat4d.event.DiscordMessageCreateEvent;
@@ -77,6 +79,10 @@ public class DiscordChatClient implements ChatClient {
 				
 				@Override public Mono<ChatUser> getUserByID(long id) {
 					return connection.getUserById(Snowflake.of(id)).map(user->new DiscordUser(this, user));
+				}
+
+				@Override public Mono<ChatChannel> getChannelByID(long id) {
+					return connection.getChannelById(Snowflake.of(id)).map(user->new DiscordChannel(this, user));
 				}
 			});
 		});

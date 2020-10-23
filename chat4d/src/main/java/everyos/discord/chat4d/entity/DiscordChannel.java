@@ -1,7 +1,7 @@
 package everyos.discord.chat4d.entity;
 
 import discord4j.core.object.entity.channel.Channel;
-import discord4j.core.object.entity.channel.PrivateChannel;
+import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
@@ -10,7 +10,6 @@ import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.bot.chat4j.functionality.UnsupportedInterfaceException;
 import everyos.bot.chat4j.functionality.channel.ChatChannelTextInterface;
-import everyos.discord.chat4d.functionality.channel.DiscordChannelPrivateTextInterface;
 import everyos.discord.chat4d.functionality.channel.DiscordChannelTextInterface;
 import reactor.core.publisher.Mono;
 
@@ -30,10 +29,8 @@ public class DiscordChannel implements ChatChannel {
 
 	@SuppressWarnings("unchecked")
 	@Override public <T extends ChatInterface> T getInterface(Class<T> cls) {
-		if (cls==ChatChannelTextInterface.class&&channel instanceof TextChannel) {
-			return (T) new DiscordChannelTextInterface(getConnection(), (TextChannel) channel);
-		} else if (cls==ChatChannelTextInterface.class&&channel instanceof PrivateChannel) {
-			return (T) new DiscordChannelPrivateTextInterface(getConnection(), (PrivateChannel) channel);
+		if (cls==ChatChannelTextInterface.class&&channel instanceof MessageChannel) {
+			return (T) new DiscordChannelTextInterface(getConnection(), (MessageChannel) channel);
 		}
 		throw new UnsupportedInterfaceException();
 	}
@@ -56,6 +53,6 @@ public class DiscordChannel implements ChatChannel {
 
 	@Override public Mono<ChatGuild> getGuild() {
 		// TODO Auto-generated method stub
-		return null;
+		return Mono.empty();
 	}
 }

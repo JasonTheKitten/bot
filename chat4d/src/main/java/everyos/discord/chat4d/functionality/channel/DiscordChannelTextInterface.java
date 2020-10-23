@@ -1,8 +1,10 @@
 package everyos.discord.chat4d.functionality.channel;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.function.Consumer;
 
-import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.core.object.entity.channel.MessageChannel;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatMessage;
@@ -12,20 +14,34 @@ import everyos.discord.chat4d.entity.DiscordMessage;
 import reactor.core.publisher.Mono;
 
 public class DiscordChannelTextInterface implements ChatChannelTextInterface {
-	private TextChannel channel;
+	private MessageChannel channel;
 	private ChatConnection connection;
 
-	public DiscordChannelTextInterface(ChatConnection connection, TextChannel channel) {
+	public DiscordChannelTextInterface(ChatConnection connection, MessageChannel channel) {
 		this.channel = channel;
 		this.connection = connection;
 	}
 
 	@Override public Mono<ChatMessage> send(String text) {
-		return channel.createMessage(text).map(message->new DiscordMessage(getConnection(), message));
+		return send(spec->spec.setContent(text));
 	}
-	@Override public Mono<ChatMessage> send(Consumer<MessageCreateSpec> spec) {
-		// TODO Auto-generated method stub
-		return null;
+	@Override public Mono<ChatMessage> send(Consumer<MessageCreateSpec> func) {
+		return channel.createMessage(spec->{
+			func.accept(new MessageCreateSpec() {
+				@Override public void setContent(String content) {
+					spec.setContent(content.replace("@", "@\u200E"));
+				}
+
+				@Override public void addAttachment(String name, String imageURL) {
+					try {
+						spec.addFile(name, new URL(imageURL).openStream());
+					} catch (IOException e) {
+						//TODO:
+						e.printStackTrace();
+					}
+				}
+			});
+		}).map(message->new DiscordMessage(connection, message));
 	}
 
 	@Override public ChatConnection getConnection() {
