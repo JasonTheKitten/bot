@@ -23,7 +23,7 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		//Collections.synchronizedMap(new WeakHashMap<Object, Object>());
 		return runCommands(commands, data, parser)
-			.filter(v->v)
+			.filter(v->!v)
 			.flatMap(v->{
 				return data.getChannel().as(ChatLinkChannel.type).getLink()
 					.flatMap(link->{

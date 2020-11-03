@@ -3,7 +3,6 @@ package everyos.bot.luwu.run.command.modules.moderation;
 import java.util.List;
 
 import everyos.bot.chat4j.enm.ChatPermission;
-import everyos.bot.chat4j.functionality.channel.ChatChannelTextInterface;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
@@ -11,6 +10,7 @@ import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.exception.TextException;
+import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -76,7 +76,7 @@ public abstract class ModerationCommandBase<T extends ModerationArguments> imple
 	protected Mono<Member> notifyMember(Member member, Locale locale) {
 		//Send a message to the user
 		return member.getPrivateChannel()
-			.map(pchannel->pchannel.getInterface(ChatChannelTextInterface.class))
+			.map(pchannel->pchannel.getInterface(ChannelTextInterface.class))
 			.flatMap(tchannel->tchannel.send(locale.localize("command.modlog.nosetreason")))
 			.onErrorResume(e->{e.printStackTrace(); return Mono.empty();})
 			.then(Mono.just(member));
@@ -93,7 +93,7 @@ public abstract class ModerationCommandBase<T extends ModerationArguments> imple
 	protected Mono<Void> sendActionSuccess(Channel channel, Locale locale, List<Result> l) {
 		//Indicate that our process has finished
 		//TODO: Indicate failures and usernames, and send mod-logs
-		ChatChannelTextInterface textGrip = channel.getInterface(ChatChannelTextInterface.class);
+		ChannelTextInterface textGrip = channel.getInterface(ChannelTextInterface.class);
 		int fails = 0;
 		for (Result b:l) {
 			if (!b.getSuccess()) fails++;

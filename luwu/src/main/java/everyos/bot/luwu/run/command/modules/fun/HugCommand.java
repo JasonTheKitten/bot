@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import everyos.bot.chat4j.functionality.channel.ChatChannelTextInterface;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
@@ -16,6 +15,7 @@ import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.entity.User;
 import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.core.exception.TextException;
+import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
 
 public class HugCommand implements Command {
@@ -73,7 +73,7 @@ public class HugCommand implements Command {
 	}
 	
 	private Mono<Void> sendHugMessage(Channel channel, String message, Locale locale) {
-		ChatChannelTextInterface textGrip = channel.getInterface(ChatChannelTextInterface.class);
+		ChannelTextInterface textGrip = channel.getInterface(ChannelTextInterface.class);
 		return textGrip.send(spec->{
 			spec.setContent(message);
 			spec.addAttachment("hug.gif", hugs[(int) (Math.round(Math.random()*hugs.length))]);

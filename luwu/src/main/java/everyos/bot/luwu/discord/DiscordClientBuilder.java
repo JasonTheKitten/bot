@@ -10,7 +10,7 @@ public class DiscordClientBuilder {
 		this.token = token;
 	}
 	
-	public ClientWrapper build(int i, String string) {
-		return new ClientWrapper(new DiscordChatClient(token), new DiscordClientBehaviour());
+	public ClientWrapper build(int id, String string) {
+		return new ClientWrapper(new DiscordChatClient(token), new DiscordClientBehaviour(), id);
 	}
 }

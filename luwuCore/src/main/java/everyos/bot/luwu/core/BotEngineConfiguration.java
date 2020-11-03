@@ -7,6 +7,7 @@ import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.command.UserCase;
 import everyos.bot.luwu.core.database.DBDatabase;
 import everyos.bot.luwu.core.entity.ClientWrapper;
+import everyos.bot.luwu.core.entity.Locale;
 import reactor.core.publisher.Mono;
 
 public interface BotEngineConfiguration {
@@ -21,4 +22,7 @@ public interface BotEngineConfiguration {
 	ChannelCase getChannelCase(String name);
 
 	DBDatabase getDatabase();
+
+	String getDefaultLocaleName();
+	Locale getLocale(String name);
 }

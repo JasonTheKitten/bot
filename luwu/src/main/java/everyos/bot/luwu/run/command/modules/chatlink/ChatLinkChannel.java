@@ -12,11 +12,15 @@ public class ChatLinkChannel extends Channel {
 	ChatLinkChannel(Connection connection, ChatChannel channel) {
 		super(connection, channel);
 	}
-	public long getLinkID() {
-		return -1L;
+	public Mono<Long> getLinkID() {
+		return getDocument().map(doc->{
+			DBObject data = doc.getObject().getOrDefaultObject("data", null);
+			System.out.println(data.getOrDefaultLong("chatlinkid", -1L));
+			return data.getOrDefaultLong("chatlinkid", -1L);
+		});
 	};
 	public Mono<ChatLink> getLink() {
-		return Mono.empty();
+		return getLinkID().flatMap(id->ChatLink.getByID(getClient().getBotEngine(), id));
 	}
 	
 	public Mono<Void> edit(Consumer<ChatLinkEditSpec> func) {

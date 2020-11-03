@@ -12,11 +12,13 @@ public class CommandData {
 	private Message message;
 	private Member sender;
 	private Channel channel;
+	private Locale locale;
 	
 	public CommandData(Message message, Member sender, Channel channel) {
 		this.message = message;
 		this.sender = sender;
 		this.channel = channel;
+		this.locale = determineLocale(sender, channel);
 	}
 
 	public Channel getChannel() {
@@ -30,20 +32,7 @@ public class CommandData {
 	}
 	
 	public Locale getLocale() {
-		return new Locale() {
-			public String localize(String name, String... args) {
-				//TODO: I really need to rig up resource files
-				if (name.equals("command.ban")) return "ban";
-				if (name.equals("command.link.create")) return "create";
-				if (name.equals("command.easteregg.cat")) return "cat";
-				if (name.equals("command.hug")) return "hug";
-				StringBuilder b = new StringBuilder(name);
-				for (int i=0; i<args.length; i+=2) {
-					b.append(","+args[i]+":"+args[i+1]);
-				}
-				return b.toString();
-			}
-		};
+		return locale;
 	}
 	
 	public Connection getConnection() {
@@ -56,5 +45,10 @@ public class CommandData {
 
 	public BotEngine getBotEngine() {
 		return getClient().getBotEngine();
+	}
+	
+	private Locale determineLocale(Member sender, Channel channel) {
+		BotEngine engine = sender.getClient().getBotEngine();
+		return engine.getLocale(engine.getDefaultLocaleName());
 	}
 }

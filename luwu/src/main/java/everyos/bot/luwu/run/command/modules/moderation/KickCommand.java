@@ -3,7 +3,6 @@ package everyos.bot.luwu.run.command.modules.moderation;
 import java.util.ArrayList;
 
 import everyos.bot.chat4j.enm.ChatPermission;
-import everyos.bot.chat4j.functionality.member.ChatMemberModerationInterface;
 import everyos.bot.luwu.core.annotation.CommandID;
 import everyos.bot.luwu.core.annotation.Help;
 import everyos.bot.luwu.core.annotation.Permissions;
@@ -65,8 +64,9 @@ public class KickCommand extends ModerationCommandBase<KickArguments> {
 	}
 	
 	@Override protected Mono<Result> performAction(KickArguments arguments, Member member, Locale locale) {
-		return member.getInterface(ChatMemberModerationInterface.class).kick(arguments.getReason())
-			.then(Mono.just(new Result(true, member)));
+		return null;
+		/*return member.getInterface(ChatMemberModerationInterface.class).kick(arguments.getReason())
+			.then(Mono.just(new Result(true, member)));*/
 	}
 	
 	static protected interface KickArguments extends ModerationArguments {

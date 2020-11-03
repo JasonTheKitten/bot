@@ -1,12 +1,12 @@
 package everyos.bot.luwu.run.command.channelcase;
 
-import everyos.bot.chat4j.functionality.channel.ChatChannelTextInterface;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.ChannelCase;
 import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.exception.TextException;
+import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
 
 public abstract class CommandChannelCase implements ChannelCase {
@@ -46,7 +46,7 @@ public abstract class CommandChannelCase implements ChannelCase {
 		return c.execute(data, parser)
 			//Handle errors
 			.onErrorResume(ex->{
-				ChatChannelTextInterface channel = data.getChannel().getInterface(ChatChannelTextInterface.class);
+				ChannelTextInterface channel = data.getChannel().getInterface(ChannelTextInterface.class);
 				if (ex instanceof TextException) return channel.send(ex.getMessage()).then();
 				return channel.send("Oops!, made an error. Logging that to console.").then(Mono.error(ex));
 				//data.getLocale().localize("bot.error.logged"));

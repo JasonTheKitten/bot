@@ -10,7 +10,7 @@ public class NertiviaClientBuilder {
 		this.token = token;
 	}
 	
-	public ClientWrapper build(int i, String string) {
-		return new ClientWrapper(new NertiviaChatClient(token), new NertiviaClientBehaviour());
+	public ClientWrapper build(int id, String string) {
+		return new ClientWrapper(new NertiviaChatClient(token), new NertiviaClientBehaviour(), id);
 	}
 }

@@ -1,11 +1,18 @@
 package everyos.bot.luwu.core.entity;
 
+import java.util.function.Consumer;
+
 import everyos.bot.chat4j.entity.ChatChannel;
-import everyos.bot.chat4j.functionality.ChatInterface;
+import everyos.bot.chat4j.entity.ChatMessage;
+import everyos.bot.chat4j.functionality.channel.ChatChannelTextInterface;
+import everyos.bot.chat4j.functionality.message.MessageCreateSpec;
 import everyos.bot.luwu.core.database.DBDocument;
+import everyos.bot.luwu.core.functionality.Interface;
+import everyos.bot.luwu.core.functionality.InterfaceProvider;
+import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
 
-public class Channel {
+public class Channel implements InterfaceProvider {
 	private Connection connection;
 	private ChatChannel channel;
 
@@ -14,11 +21,18 @@ public class Channel {
 		this.channel = channel;
 	}
 	
-	public <T extends ChatInterface> boolean supportsInterface(Class<T> cls) {
-		return channel.supportsInterface(cls);
+	public <T extends Interface> boolean supportsInterface(Class<T> cls) {
+		if (cls==ChannelTextInterface.class) {
+			return true;
+		}
+		return false;
 	};
-	public <T extends ChatInterface> T getInterface(Class<T> cls) {
-		return channel.getInterface(cls);
+	@SuppressWarnings("unchecked")
+	public <T extends Interface> T getInterface(Class<T> cls) {
+		if (cls==ChannelTextInterface.class) {
+			return (T) new ChannelTextInterfaceImp(this);
+		}
+		return null;
 	};
 	
 	public Mono<Member> getMember(long uid) {
@@ -82,4 +96,30 @@ public class Channel {
 	
 	//TODO: Read+Edit
 	
+	
+	private static class ChannelTextInterfaceImp implements ChannelTextInterface {
+		private Channel channel;
+		private ChatChannelTextInterface textGrip;
+
+		public ChannelTextInterfaceImp(Channel channel) {
+			this.channel = channel;
+			this.textGrip = channel.channel.getInterface(ChatChannelTextInterface.class);
+		}
+
+		@Override public Connection getConnection() {
+			return channel.connection;
+		}
+
+		@Override public Client getClient() {
+			return channel.getClient();
+		}
+
+		@Override public Mono<ChatMessage> send(String text) {
+			return textGrip.send(text);
+		}
+
+		@Override public Mono<ChatMessage> send(Consumer<MessageCreateSpec> spec) {
+			return textGrip.send(spec);
+		}
+	}
 }

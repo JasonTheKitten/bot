@@ -1,5 +1,6 @@
 package everyos.bot.luwu.core;
 
+import java.util.HashMap;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -13,6 +14,7 @@ import everyos.bot.luwu.core.database.DBDatabase;
 import everyos.bot.luwu.core.entity.Client;
 import everyos.bot.luwu.core.entity.ClientWrapper;
 import everyos.bot.luwu.core.entity.Connection;
+import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
 import everyos.bot.luwu.core.event.MessageCreateEventProcessor;
 import reactor.core.publisher.Flux;
@@ -21,9 +23,11 @@ import reactor.core.publisher.Mono;
 public class BotEngine {
 	private Client[] clients;
 	private BotEngineConfiguration configuration;
+	private HashMap<Integer, Connection> connections;
 	
 	public BotEngine(BotEngineConfiguration configuration) {
 		this.configuration = configuration;
+		this.connections = new HashMap<>();
 		
 		final ClientWrapper[] clientWrappers = configuration.getClients();
 		clients = new Client[clientWrappers.length];
@@ -36,7 +40,10 @@ public class BotEngine {
 	public Mono<Void> start() {
 		Mono<Void> mono = Mono.empty();
 		for(Client client: clients) {
-			mono = mono.and(client.login(connection->createHandlers(connection)));
+			mono = mono.and(client.login(connection->{
+				connections.put(client.getID(), connection);
+				return createHandlers(connection);
+			}));
 		}	
 		return mono;
 	}
@@ -104,8 +111,15 @@ public class BotEngine {
 	}
 	
 	public Connection getConnectionByID(int connectionID) {
-		//TODO
-		return null;
+		return connections.get(connectionID);
+	}
+
+	public String getDefaultLocaleName() {
+		return configuration.getDefaultLocaleName();
+	}
+
+	public Locale getLocale(String name) {
+		return configuration.getLocale(name);
 	}
 }
 

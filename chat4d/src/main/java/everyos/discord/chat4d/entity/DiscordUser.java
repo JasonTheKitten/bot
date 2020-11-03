@@ -48,4 +48,8 @@ public class DiscordUser implements ChatUser {
 	@Override public Mono<ChatChannel> getPrivateChannel() {
 		return user.getPrivateChannel().map(channel->new DiscordChannel(connection, channel));
 	}
+
+	@Override public boolean isBot() {
+		return user.isBot();
+	}
 }

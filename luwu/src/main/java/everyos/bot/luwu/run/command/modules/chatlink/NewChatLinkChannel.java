@@ -19,7 +19,7 @@ public class NewChatLinkChannel extends Channel {
 			DBObject channelObj = channelDoc.getObject();
 			channelObj.set("type", "chatlink");
 			DBObject channelData = channelObj.getOrCreateObject("data", obj->{});
-			channelData.set("id", link.getID());
+			channelData.set("chatlinkid", link.getID());
 					
 			return channelDoc.save();
 		}).then(Mono.just(this.as(ChatLinkChannel.type)));

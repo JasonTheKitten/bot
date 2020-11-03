@@ -25,4 +25,6 @@ public interface ChatUser extends ChatInterfaceProvider {
 	String getHumanReadableID();
 
 	Mono<ChatChannel> getPrivateChannel();
+
+	boolean isBot();
 }

@@ -3,9 +3,11 @@ package everyos.bot.luwu.core.entity;
 import java.util.Optional;
 
 import everyos.bot.chat4j.entity.ChatMessage;
+import everyos.bot.luwu.core.functionality.Interface;
+import everyos.bot.luwu.core.functionality.InterfaceProvider;
 import reactor.core.publisher.Mono;
 
-public class Message {
+public class Message implements InterfaceProvider {
 	private ChatMessage message;
 	private Connection connection;
 
@@ -50,5 +52,13 @@ public class Message {
 				return message.getChannelID();
 			}
 		};
+	}
+
+	@Override public <T extends Interface> boolean supportsInterface(Class<T> cls) {
+		return false;
+	}
+
+	@Override public <T extends Interface> T getInterface(Class<T> cls) {
+		return null;
 	}
 }

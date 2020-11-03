@@ -1,0 +1,7 @@
+{
+	"command.ban":  "ban",
+	"command.link.create": "create",
+	"command.link.join": "join",
+	"command.easteregg.cat": "cat",
+	"command.hug": "hug"
+}

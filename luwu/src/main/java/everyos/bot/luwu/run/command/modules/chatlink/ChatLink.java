@@ -1,16 +1,16 @@
 package everyos.bot.luwu.run.command.modules.chatlink;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.mongodb.client.model.Filters;
 
-import everyos.bot.chat4j.functionality.channel.ChatChannelTextInterface;
 import everyos.bot.luwu.core.BotEngine;
 import everyos.bot.luwu.core.database.DBDocument;
 import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.ChannelID;
-import everyos.bot.luwu.core.entity.Connection;
 import everyos.bot.luwu.core.entity.Message;
+import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import xyz.downgoon.snowflake.Snowflake;
@@ -21,12 +21,13 @@ public class ChatLink {
 	private BotEngine botEngine;
 	private long id;
 	
-	private ArrayList<ChatLinkChannel> channelCache = new ArrayList<>();
+	private List<ChatLinkChannel> channelCache = new ArrayList<>();
 	
-	public ChatLink(BotEngine botEngine, DBDocument document) {
+	public ChatLink(BotEngine botEngine, DBDocument document, List<ChatLinkChannel> channels) {
 		this.botEngine = botEngine;
 		this.document = document;
 		this.id = document.getObject().getOrDefaultLong("clid", -1L);
+		this.channelCache = channels;
 		//data.chatlinkid
 	}
 	
@@ -36,6 +37,7 @@ public class ChatLink {
 	
 	public Mono<Void> sendMessage(Message message) {
 		ChatLinkChannel[] channels = channelCache.toArray(new ChatLinkChannel[channelCache.size()]);
+		@SuppressWarnings("unused")
 		ChannelID exclusion = message.getChannelID();
 		
 		return Flux.fromArray(channels)
@@ -47,7 +49,7 @@ public class ChatLink {
 	}
 	
 	private Mono<Void> sendMessageToChannel(Channel channel, Message message) {
-		return channel.getInterface(ChatChannelTextInterface.class).send(message.getContent().orElse("Empty message"))
+		return channel.getInterface(ChannelTextInterface.class).send(message.getContent().orElse("<Empty message>"))
 			.then();
 	}
 	
@@ -77,9 +79,8 @@ public class ChatLink {
 	public static Mono<ChatLink> createChatLink(BotEngine engine) {
 		return Mono.just(true).flatMap(b->{
 			long linkID = new Snowflake(0, 0).nextId();
-			return engine.getDatabase().collection("chatlink").scan().filter(Filters.eq("clid", linkID)).orCreate(editSpec->{
-				editSpec.set("clid", linkID);
-			}).flatMap(doc->doc.save().then(loadFromDB(engine, doc)));
+			return engine.getDatabase().collection("chatlink").scan().with("clid", linkID).orCreate(editSpec->{})
+				.flatMap(doc->doc.save().then(loadFromDB(engine, doc)));
 		});
 	}
 	public static Mono<ChatLink> getByName(BotEngine engine, String name) {
@@ -93,15 +94,20 @@ public class ChatLink {
 	
 	private static Mono<ChatLink> loadFromDB(BotEngine engine, DBDocument document) {
 		long linkID = document.getObject().getOrDefaultLong("clid", -1L);
-		engine.getDatabase().collection("channel").scan()
-			.with("data.clid", linkID)
+		//Get channels
+		return engine.getDatabase().collection("channels").scan()
+			.with("data.chatlinkid", linkID)
 			.with("type", "chatlink")
 			.rest()
 			.flatMap(channelDocument->{
+				System.out.println(channelDocument);
 				int clientID = channelDocument.getObject().getOrDefaultInt("cliid", 0);
 				long channelID = channelDocument.getObject().getOrDefaultLong("cid", -1L);
 				return engine.getConnectionByID(clientID).getChannelByID(channelID);
-			});
-		return Mono.just(new ChatLink(engine, document));
+			})
+			.map(channel->channel.as(ChatLinkChannel.type))
+			.collectList()
+		//Get link
+			.map(list->new ChatLink(engine, document, list));
 	}
 }

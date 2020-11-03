@@ -14,6 +14,7 @@ public class MessageCreateEventProcessor {
 		return event.getMessage().flatMap(message->{
 			return message.getChannel().flatMap(channel->{
 				return event.getSender()
+					.filter(sender->!sender.isBot())
 					.flatMap(sender->sender.asMemberOf(channel))
 					.map(sender->new CommandData(message, sender, channel));
 			});

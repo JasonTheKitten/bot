@@ -13,7 +13,7 @@ public class Client {
 	private ClientBehaviour behaviour;
 	private int id;
 
-	public Client(BotEngine bot, ChatClient client, ClientBehaviour behaviour) {
+	public Client(BotEngine bot, ChatClient client, ClientBehaviour behaviour, int id) {
 		this.bot = bot;
 		this.client = client;
 		this.behaviour = behaviour;

@@ -65,8 +65,9 @@ public class BanCommand extends ModerationCommandBase<BanArguments> {
 	}
 	
 	@Override protected Mono<Result> performAction(BanArguments arguments, Member member, Locale locale) {
-		return member.getInterface(ChatMemberModerationInterface.class).ban(arguments.getReason())
-			.then(Mono.just(new Result(true, member)));
+		return null;
+		/*return member.getInterface(ChatMemberModerationInterface.class).ban(arguments.getReason())
+			.then(Mono.just(new Result(true, member)));*/
 	}
 	
 	static protected interface BanArguments extends ModerationArguments {

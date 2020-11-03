@@ -2,6 +2,8 @@ package everyos.bot.luwu.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 import everyos.bot.luwu.core.command.ChannelCase;
@@ -9,21 +11,24 @@ import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.command.UserCase;
 import everyos.bot.luwu.core.database.DBDatabase;
 import everyos.bot.luwu.core.entity.ClientWrapper;
+import everyos.bot.luwu.core.entity.Locale;
 import reactor.core.publisher.Mono;
 
 public class BotEngineBuilder {
-	private ArrayList<ClientWrapper> clients = new ArrayList<>();
+	private List<ClientWrapper> clients = new ArrayList<>();
 	
-	private HashMap<String, ChannelCase> channelCases = new HashMap<>();
+	private Map<String, ChannelCase> channelCases = new HashMap<>();
 	private String defaultChannelCase;
-	private ArrayList<BiFunction<Mono<String>, CommandData, Mono<String>>> channelCaseTransformers = new ArrayList<>();
+	private List<BiFunction<Mono<String>, CommandData, Mono<String>>> channelCaseTransformers = new ArrayList<>();
 	
-	private HashMap<String, UserCase> userCases = new HashMap<>();
+	private Map<String, UserCase> userCases = new HashMap<>();
 	private String defaultUserCase;
-	private ArrayList<BiFunction<Mono<String>, CommandData, Mono<String>>> userCaseTransformers = new ArrayList<>();
+	private List<BiFunction<Mono<String>, CommandData, Mono<String>>> userCaseTransformers = new ArrayList<>();
 
-	@SuppressWarnings("unused")
 	private DBDatabase database;
+	
+	private String defaultLocale;
+	private Map<String, Locale> locales = new HashMap<>();
 	
 	public BotEngine build() {	
 		final ClientWrapper[] clients = this.clients.toArray(new ClientWrapper[this.clients.size()]);
@@ -62,6 +67,13 @@ public class BotEngineBuilder {
 			@Override public DBDatabase getDatabase() {
 				return database;
 			}
+
+			@Override public String getDefaultLocaleName() {
+				return defaultLocale;
+			}
+			@Override public Locale getLocale(String name) {
+				return locales.get(name);
+			}
 		};
 		
 		return new BotEngine(configuration);
@@ -83,12 +95,12 @@ public class BotEngineBuilder {
 		
 	}
 
-	public void registerLanguage(String englishLanguage, Object object) {
-		
+	public void registerLanguage(String language, Locale locale) {
+		locales.put(language, locale);
 	}
 
-	public void setDefaultLanguage(String englishLanguage) {
-		
+	public void setDefaultLanguage(String defaultLocale) {
+		this.defaultLocale = defaultLocale;
 	}
 
 	public void setDefaultStatus(String string) {

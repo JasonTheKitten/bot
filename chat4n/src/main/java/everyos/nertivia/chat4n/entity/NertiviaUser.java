@@ -48,4 +48,8 @@ public class NertiviaUser implements ChatUser {
 	@Override public Mono<ChatChannel> getPrivateChannel() {
 		return null;
 	}
+
+	@Override public boolean isBot() {
+		return false;
+	}
 }

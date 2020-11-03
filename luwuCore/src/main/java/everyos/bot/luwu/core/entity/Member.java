@@ -2,15 +2,15 @@ package everyos.bot.luwu.core.entity;
 
 import everyos.bot.chat4j.enm.ChatPermission;
 import everyos.bot.chat4j.entity.ChatMember;
-import everyos.bot.chat4j.functionality.ChatInterface;
-import everyos.bot.chat4j.functionality.ChatInterfaceProvider;
+import everyos.bot.luwu.core.functionality.Interface;
+import everyos.bot.luwu.core.functionality.InterfaceProvider;
 import reactor.core.publisher.Mono;
 
 /**
  * Represents a member of either a channel or guild, depending on whether the channel has an associated guild
  * Stand-alone channels have their own "guilds"
  */
-public class Member extends User implements ChatInterfaceProvider {
+public class Member extends User implements InterfaceProvider {
 	private ChatMember member;
 	public Member(Connection connection, ChatMember member) {
 		super(connection, member);
@@ -27,12 +27,14 @@ public class Member extends User implements ChatInterfaceProvider {
 		return this.member.isHigherThan(member.getChatMember());
 	};
 
-	@Override public <T extends ChatInterface> boolean supportsInterface(Class<T> cls) {
-		return member.supportsInterface(cls);
+	@Override public <T extends Interface> boolean supportsInterface(Class<T> cls) {
+		//return member.supportsInterface(cls);
+		return false;
 	}
 
-	@Override public <T extends ChatInterface> T getInterface(Class<T> cls) {
-		return member.getInterface(cls);
+	@Override public <T extends Interface> T getInterface(Class<T> cls) {
+		//return member.getInterface(cls);
+		return null;
 	};
 	
 	protected ChatMember getChatMember() {
