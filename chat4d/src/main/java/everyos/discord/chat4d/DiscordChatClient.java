@@ -8,6 +8,10 @@ import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageEvent;
+import discord4j.core.shard.GatewayBootstrap;
+import discord4j.gateway.GatewayOptions;
+import discord4j.gateway.intent.Intent;
+import discord4j.gateway.intent.IntentSet;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
@@ -35,8 +39,9 @@ public class DiscordChatClient implements ChatClient {
 	
 	@Override public Mono<Void> login(Function<ChatConnection, Mono<?>> func) {
 		final ChatClient self = this;
-		//TODO: client.gateway().withEventDispatcher instead
-		return client.withGateway(connection->{
+		GatewayBootstrap<GatewayOptions> gb = client.gateway().setDisabledIntents(IntentSet.of(Intent.GUILD_PRESENCES));
+		return gb.withGateway(connection->{
+		//return client.withGateway(connection->{
 			final EventDispatcher dispatcher = connection.getEventDispatcher();
 			return func.apply(new ChatConnection() {
 				@Override public Mono<Void> logout() {

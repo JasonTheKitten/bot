@@ -3,7 +3,6 @@ package everyos.bot.luwu.core.entity;
 import java.util.function.Consumer;
 
 import everyos.bot.chat4j.entity.ChatChannel;
-import everyos.bot.chat4j.entity.ChatMessage;
 import everyos.bot.chat4j.functionality.channel.ChatChannelTextInterface;
 import everyos.bot.chat4j.functionality.message.MessageCreateSpec;
 import everyos.bot.luwu.core.database.DBDocument;
@@ -15,10 +14,12 @@ import reactor.core.publisher.Mono;
 public class Channel implements InterfaceProvider {
 	private Connection connection;
 	private ChatChannel channel;
+	private DBDocument document;
 
-	public Channel(Connection connection, ChatChannel channel) {
+	public Channel(Connection connection, ChatChannel channel, DBDocument document) {
 		this.connection = connection;
 		this.channel = channel;
+		this.document = document;
 	}
 	
 	public <T extends Interface> boolean supportsInterface(Class<T> cls) {
@@ -51,26 +52,25 @@ public class Channel implements InterfaceProvider {
 			"Luwu"
 		});
 	}
-	public Mono<String> getType() {
-		return getDocument()
-			.map(document->document.getObject().getOrDefaultString(
-				"type", connection.getBotEngine().getDefaultUserCaseName()));
+	public String getType() {
+		return document.getObject().getOrDefaultString(
+			"type", connection.getBotEngine().getDefaultUserCaseName());
 	}
 
 	public ChannelID getID() {
-		return new ChannelID() {
-			@Override public long getLong() {
-				return channel.getID();
-			}
-		};
+		return new ChannelID(channel.getID());
+	}
+	
+	public String getName() {
+		return channel.getName();
 	}
 
 	public ChatChannel getRaw() {
 		return channel;
 	}
 
-	public <T extends Channel> T as(ChannelFactory<T> factory) {
-		return factory.createChannel(connection, channel);
+	public <T extends Channel> Mono<T> as(ChannelFactory<T> factory) {
+		return factory.createChannel(connection, channel, getDocument());
 	}
 
 	public Mono<Server> getServer() {
@@ -85,13 +85,19 @@ public class Channel implements InterfaceProvider {
 		return connection.getClient();
 	}
 	
-	protected Mono<DBDocument> getDocument() {
+	protected DBDocument getDocument() {
+		return document;
+	}
+	
+	public static Mono<Channel> getChannel(Connection connection, ChatChannel channel) {
 		//TODO: Consider client id
-		return this.getClient().getBotEngine().getDatabase()
+		return connection.getClient().getBotEngine().getDatabase()
 			.collection("channels")
 			.scan()
-			.with("cid", getID().getLong())
-			.orCreate(obj->{});
+			.with("cid", channel.getID())
+			.orCreate(obj->{})
+			
+			.map(document->new Channel(connection, channel, document));
 	}
 	
 	//TODO: Read+Edit
@@ -114,12 +120,12 @@ public class Channel implements InterfaceProvider {
 			return channel.getClient();
 		}
 
-		@Override public Mono<ChatMessage> send(String text) {
-			return textGrip.send(text);
+		@Override public Mono<Message> send(String text) {
+			return textGrip.send(text).map(message->new Message(channel.connection, message));
 		}
 
-		@Override public Mono<ChatMessage> send(Consumer<MessageCreateSpec> spec) {
-			return textGrip.send(spec);
+		@Override public Mono<Message> send(Consumer<MessageCreateSpec> spec) {
+			return textGrip.send(spec).map(message->new Message(channel.connection, message));
 		}
 	}
 }

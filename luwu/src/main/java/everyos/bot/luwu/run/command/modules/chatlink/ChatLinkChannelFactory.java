@@ -1,11 +1,13 @@
 package everyos.bot.luwu.run.command.modules.chatlink;
 
 import everyos.bot.chat4j.entity.ChatChannel;
+import everyos.bot.luwu.core.database.DBDocument;
 import everyos.bot.luwu.core.entity.ChannelFactory;
 import everyos.bot.luwu.core.entity.Connection;
+import reactor.core.publisher.Mono;
 
 public class ChatLinkChannelFactory implements ChannelFactory<ChatLinkChannel> {
-	@Override public ChatLinkChannel createChannel(Connection connection, ChatChannel channel) {
-		return new ChatLinkChannel(connection, channel);
+	@Override public Mono<ChatLinkChannel> createChannel(Connection connection, ChatChannel channel, DBDocument document) {
+		return Mono.just(new ChatLinkChannel(connection, channel, document));
 	}
 }

@@ -20,7 +20,7 @@ public class Connection {
 		return connection.getUserByID(id).map(user->new User(this, user));
 	}
 	public Mono<Channel> getChannelByID(long id) {
-		return connection.getChannelByID(id).map(channel->new Channel(this, channel));
+		return connection.getChannelByID(id).flatMap(channel->Channel.getChannel(this, channel));
 	}
 	
 	public Client getClient() {

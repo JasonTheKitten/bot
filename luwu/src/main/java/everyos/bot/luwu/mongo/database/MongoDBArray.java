@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.bson.Document;
 
 import everyos.bot.luwu.core.database.DBArray;
+import everyos.bot.luwu.core.database.DBObject;
 
 public class MongoDBArray implements DBArray {
 	protected ArrayList<Object> data;
@@ -17,49 +18,49 @@ public class MongoDBArray implements DBArray {
 		this.data = new ArrayList<Object>();
 	}
 	
-	public void forEach(Consumer<Object> func) {
+	@Override public void forEach(Consumer<Object> func) {
 		this.data.forEach(func);
 	}
-	public boolean contains(Object o) {
+	@Override public boolean contains(Object o) {
 		return this.data.contains(o);
 	}
-	public void add(Object o) {
+	@Override public void add(Object o) {
 		this.data.add(o);
 	}
 	public void add(MongoDBObject o) {
 		this.data.add(o.document);
 	}
-	public void removeFirst(Object o) {
+	@Override public void removeFirst(Object o) {
 		this.data.remove(o);
 	}
-	public void removeAll(Object o) {
+	@Override public void removeAll(Object o) {
 		while(this.data.remove(o));
 	}
-	public void remove(int i) {
+	@Override public void remove(int i) {
 		data.remove(i);
 	}
-	public int getLength() {
+	@Override public int getLength() {
 		return this.data.size();
 	}
-	public <T> T[] toArray(T[] a) {
+	@Override public <T> T[] toArray(T[] a) {
 		return data.toArray(a);
 	}
-	public static <T> MongoDBArray from(T[] oarr) {
+	public static <T> DBArray from(T[] oarr) {
 		MongoDBArray arr = new MongoDBArray();
 		for (T obj: oarr) arr.add(obj);
 		return arr;
 	}
 	
-	public int getInt(int i) {
+	@Override public int getInt(int i) {
 		return (int) data.get(i);
 	}
-	public String getString(int i) {
+	@Override public String getString(int i) {
 		return (String) data.get(i);
 	}
-	public long getLong(int i) {
+	@Override public long getLong(int i) {
 		return (long) data.get(i);
 	}
-	public MongoDBObject getObject(int i) {
+	@Override public DBObject getObject(int i) {
 		return new MongoDBObject((Document) data.get(i));
 	}
 }

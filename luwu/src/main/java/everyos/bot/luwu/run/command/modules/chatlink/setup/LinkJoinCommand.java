@@ -35,7 +35,7 @@ public class LinkJoinCommand implements Command {
 	}
 	private Mono<String> parseArgs(ArgumentParser parser, Locale locale) {
 		if (parser.isEmpty()) {
-			return Mono.error(new TextException(locale.localize("command.error.usage", "expected", locale.localize("user"), "got", "nothing")));
+			return Mono.error(new TextException(locale.localize("command.error.usage", "expected", locale.localize("command.link.linkid"), "got", "nothing")));
 		}
 		return Mono.just(parser.getRemaining().trim());
 	}
@@ -48,13 +48,13 @@ public class LinkJoinCommand implements Command {
 		ChannelTextInterface textGrip = channel.getInterface(ChannelTextInterface.class);
 		
 		Mono<Void> nextAction =
-			textGrip.send(locale.localize("command.link.pleaseverify", "id", String.valueOf(link.getID())))
+			textGrip.send(locale.localize("command.link.pleaseverify", "id", String.valueOf(channel.getID())))
 			.then();
 		if (link.isAutoVerify()) {
 			nextAction = channel
 				.as(ChatLinkChannel.type)
-				.edit(spec->spec.setVerified(true))
-				.then(textGrip.send(locale.localize("command.link.autoverify", "id", String.valueOf(link.getID()))))
+				.flatMap(clchannel->clchannel.edit(spec->spec.setVerified(true)))
+				.then(textGrip.send(locale.localize("command.link.autoverify", "id", String.valueOf(channel.getID()))))
 				.then();
 		}
 		

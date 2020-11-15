@@ -49,4 +49,6 @@ public interface ChatMessage extends ChatInterfaceProvider {
 	public Mono<Void> pin();
 	
 	public long getChannelID();
+
+	public long getAuthorID();
 }

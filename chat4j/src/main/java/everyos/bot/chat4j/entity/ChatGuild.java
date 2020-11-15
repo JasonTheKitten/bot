@@ -8,4 +8,6 @@ public interface ChatGuild  extends ChatInterfaceProvider {
 	 * @return An ID representing this guild
 	 */
 	public long getID();
+
+	public String getName();
 }

@@ -28,7 +28,7 @@ public interface DBObject {
 	DBObject getOrDefaultObject(String name, DBObject def);
 	DBObject getOrCreateObject(String name, Consumer<DBObject> def);
 	DBArray getOrDefaultArray(String name, DBArray def);
-	DBArray getOrCreateArray(String name, Consumer<DBArray> def);
+	DBArray getOrCreateArray(String name);
 	void set(String key, Number i);
 	void set(String key, String str);
 	void set(String key, boolean bool);

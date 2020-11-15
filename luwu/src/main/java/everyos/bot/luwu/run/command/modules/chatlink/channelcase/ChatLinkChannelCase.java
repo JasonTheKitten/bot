@@ -1,8 +1,11 @@
 package everyos.bot.luwu.run.command.modules.chatlink.channelcase;
 
+import java.time.Duration;
+
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.core.command.CommandData;
+import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.run.command.channelcase.CommandChannelCase;
 import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannel;
 import everyos.bot.luwu.run.command.modules.chatlink.moderation.LinkModerationCommands;
@@ -24,12 +27,18 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 		//Collections.synchronizedMap(new WeakHashMap<Object, Object>());
 		return runCommands(commands, data, parser)
 			.filter(v->!v)
-			.flatMap(v->{
-				return data.getChannel().as(ChatLinkChannel.type).getLink()
+			.flatMap(v->data.getChannel().as(ChatLinkChannel.type))
+			.flatMap(clchannel->{
+				return clchannel.getLink()
 					.flatMap(link->{
-						return link.sendMessage(data.getMessage());
+						return Mono.just(clchannel.isVerified())
+							.filter(v2->v2)
+							.flatMap(v2->link.sendMessage(data.getMessage()))
+							.switchIfEmpty(Mono.error(new TextException("link.error.needverified")));
 					})
-					.then(data.getMessage().addReaction("v"))
+					.then(data.getMessage().addReaction("\u2611"))
+					.delayElement(Duration.ofMillis(1000))
+					.then(data.getMessage().removeReaction("\u2611"))
 					.onErrorResume(e->{
 						return data.getMessage().addReaction("x");
 					});

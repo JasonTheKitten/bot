@@ -5,8 +5,10 @@ import everyos.bot.luwu.core.functionality.Interface;
 import everyos.bot.luwu.core.functionality.InterfaceProvider;
 
 public class Server implements InterfaceProvider {
+	private ChatGuild guild;
+
 	public Server(ChatGuild guild) {
-		
+		this.guild = guild;
 	}
 
 	public ServerID getID() {
@@ -23,5 +25,9 @@ public class Server implements InterfaceProvider {
 
 	@Override public Client getClient() {
 		return null;
+	}
+
+	public String getName() {
+		return guild.getName();
 	}
 }

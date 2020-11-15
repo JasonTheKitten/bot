@@ -3,7 +3,6 @@ package everyos.bot.luwu.run.command.modules.moderation;
 import java.util.ArrayList;
 
 import everyos.bot.chat4j.enm.ChatPermission;
-import everyos.bot.chat4j.functionality.member.ChatMemberModerationInterface;
 import everyos.bot.luwu.core.annotation.CommandID;
 import everyos.bot.luwu.core.annotation.Help;
 import everyos.bot.luwu.core.annotation.Permissions;

@@ -1,7 +1,21 @@
 {
-	"command.ban":  "ban",
 	"command.link.create": "create",
+	"command.link.created": "Successfully created a new link whose ID is ${id}. To join this link from another channel, please run `link join ${id}` in the other channel, and follow the prompt it gives. For moderation or other help, please run `help link`.\nLuwu!",
 	"command.link.join": "join",
+	"command.link.linkid": "Link ID",
+	"command.link.accept": "accept",
+	"command.link.notjoining": "Sorry, but this channel does not appear to be attempting to join this link at this time. Please ensure that you entered the proper channel ID, and that you have run the join command in the other channel.",
+	"command.link.pleaseverify": "Almost there! Please verify this link by having an opted user or server run `link accept ${id}` in their chatlink channel.",
+	"command.link.verified": "Succesfully verified the channel whose ID is ${id}, name is ${name}, and server is ${server}",
+	"command.link.systemverified": "A new channel has been added to this link (Channel: ${name}, Server: ${server}, ID: ${id}). Don't forget to say hello!",
+	"command.link.systemheader": "**System** (System)\n${message}",
+	"command.link.permsmissing": "You do not have the permissions to do this. Please ensure that one of the following is true:\n**A)** You are a moderator in the current server, and this server is opted to manage this link\n**B)** You have been specifically opted to manage this link.",
 	"command.easteregg.cat": "cat",
-	"command.hug": "hug"
+	"command.ban":  "ban",
+	"command.error.banmin": "You must ban at least ${min} user(s) at a time!",
+	"command.error.banmax": "You may only ban up to ${max} user(s) at a time!",
+	"command.hug": "hug",
+	"command.error.usage": "That usage doesn't seem quite right. I expected a ${expected}, but got ${got}.",
+	"command.error.nothing": "nothing",
+	"command.error.channelid": "Channel ID"
 }

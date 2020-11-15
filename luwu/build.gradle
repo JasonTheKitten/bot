@@ -1,7 +1,6 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '6.0.0'
     id 'application'
-    id 'org.jetbrains.kotlin.jvm' version '1.4.20-M1'
 }
 
 dependencies {
@@ -19,23 +18,11 @@ dependencies {
     implementation project(':luwuCore')
     implementation project(':chat4d')
     implementation project(':chat4n')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 application {
     mainClassName 'everyos.bot.luwu.run.Main'
 }
 repositories {
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     mavenCentral()
-}
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
 }

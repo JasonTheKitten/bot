@@ -36,7 +36,7 @@ public class Message implements InterfaceProvider {
 	}
 
 	public Mono<Channel> getChannel() {
-		return message.getChannel().map(channel->new Channel(connection, channel));
+		return message.getChannel().flatMap(channel->Channel.getChannel(connection, channel));
 	}
 
 	public Mono<Void> addReaction(String string) {
@@ -44,14 +44,28 @@ public class Message implements InterfaceProvider {
 		// TODO: Also, move this to a feature
 		return Mono.empty();
 	}
+	public Mono<Void> removeReaction(String string) {
+		return Mono.empty();
+	}
 
 	public ChannelID getChannelID() {
-		// TODO Auto-generated method stub
-		return new ChannelID() {
+		return new ChannelID(message.getChannelID());
+	}
+	
+	public UserID getAuthorID() {
+		return new UserID() {
 			@Override public long getLong() {
-				return message.getChannelID();
+				return message.getAuthorID();
 			}
 		};
+	}
+	
+	public Mono<User> getAuthor() {
+		return message.getAuthor().map(user->new User(connection, user));
+	}
+	
+	public Mono<Void> pin() {
+		return message.pin();
 	}
 
 	@Override public <T extends Interface> boolean supportsInterface(Class<T> cls) {

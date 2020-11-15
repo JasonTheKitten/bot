@@ -1,6 +1,7 @@
 package everyos.discord.chat4d.entity;
 
 import discord4j.core.object.entity.channel.Channel;
+import discord4j.core.object.entity.channel.GuildChannel;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import everyos.bot.chat4j.ChatClient;
@@ -52,7 +53,12 @@ public class DiscordChannel implements ChatChannel {
 	}
 
 	@Override public Mono<ChatGuild> getGuild() {
-		// TODO Auto-generated method stub
-		return Mono.empty();
+		//TODO
+		return ((GuildChannel) channel).getGuild().map(guild->new DiscordGuild(connection, guild));
+	}
+
+	@Override public String getName() {
+		//TODO
+		return ((GuildChannel) channel).getName();
 	}
 }

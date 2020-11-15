@@ -64,13 +64,16 @@ public class DiscordMessage implements ChatMessage {
 		return connection;
 	}
 
-	@Override
-	public Mono<Void> pin() {
-		// TODO Auto-generated method stub
+	@Override public Mono<Void> pin() {
 		return message.pin();
 	}
 
 	@Override public long getChannelID() {
 		return message.getChannelId().asLong();
+	}
+
+	@Override public long getAuthorID() {
+		if (!message.getAuthor().isPresent()) return -1L;
+		return message.getAuthor().get().getId().asLong();
 	}
 }

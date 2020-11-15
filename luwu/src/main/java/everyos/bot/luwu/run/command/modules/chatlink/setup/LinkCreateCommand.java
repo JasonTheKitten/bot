@@ -14,7 +14,8 @@ public class LinkCreateCommand implements Command {
 				ChannelTextInterface channel = data.getChannel().getInterface(ChannelTextInterface.class);
 				return link.addChannel(data.getChannel())
 					.flatMap(linkChannel->linkChannel.edit(spec->spec.setVerified(true)))
-					.then(channel.send(data.getLocale().localize("command.chatlink.created", "id", String.valueOf(link.getID()))))
+					.and(link.addAdmin(data.getChannel().getID()))
+					.then(channel.send(data.getLocale().localize("command.link.created", "id", String.valueOf(link.getID()))))
 					.flatMap(message->message.pin());
 			});
 	}

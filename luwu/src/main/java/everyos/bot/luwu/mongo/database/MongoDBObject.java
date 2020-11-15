@@ -108,7 +108,7 @@ public class MongoDBObject implements DBObject {
     	return def;
     }
 	@SuppressWarnings("unchecked")
-	@Override public DBArray getOrCreateArray(@Nonnull String name, Consumer<DBArray> def) {
+	@Override public DBArray getOrCreateArray(@Nonnull String name) {
 		MongoDBArray array = new MongoDBArray();
     	if (!document.containsKey(name)) {
     		document.put(name, array.data);

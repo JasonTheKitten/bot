@@ -17,12 +17,16 @@ public class ResourceLocale implements Locale {
 	@Override public String localize(String name, String... args) {
 		if (json.has(name)) {
 			name = json.get(name).getAsString();
+			for (int i=0; i<args.length; i+=2) {
+				name = name.replace("${"+args[i]+"}", args[i+1]);
+			}
+			return name;
+		} else {
+			StringBuilder b = new StringBuilder(name);
+			for (int i=0; i<args.length; i+=2) {
+				b.append(","+args[i]+":"+args[i+1]);
+			}
+			return b.toString();
 		}
-		
-		StringBuilder b = new StringBuilder(name);
-		for (int i=0; i<args.length; i+=2) {
-			b.append(","+args[i]+":"+args[i+1]);
-		}
-		return b.toString();
 	}
 }

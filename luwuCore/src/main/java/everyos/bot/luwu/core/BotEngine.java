@@ -83,7 +83,7 @@ public class BotEngine {
 	}
 
 	public Mono<ChannelCase> getChannelCase(CommandData data) {
-		Mono<String> channelCaseNameMono = data.getChannel().getType();
+		Mono<String> channelCaseNameMono = Mono.just(data.getChannel().getType());
 		for (BiFunction<Mono<String>, CommandData, Mono<String>> func: configuration.getChannelCaseTransformers()) {
 			channelCaseNameMono = func.apply(channelCaseNameMono, data);
 		}

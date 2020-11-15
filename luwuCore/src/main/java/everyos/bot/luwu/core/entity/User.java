@@ -15,7 +15,7 @@ public class User implements InterfaceProvider {
 	}
 	
 	public Mono<Channel> getPrivateChannel() {
-		return user.getPrivateChannel().map(channel->new Channel(connection, channel));
+		return user.getPrivateChannel().flatMap(channel->Channel.getChannel(connection, channel));
 	}
 
 	@Override public <T extends Interface> boolean supportsInterface(Class<T> cls) {

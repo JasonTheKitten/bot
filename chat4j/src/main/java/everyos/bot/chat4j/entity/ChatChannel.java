@@ -17,4 +17,6 @@ public interface ChatChannel extends ChatInterfaceProvider {
 	public ChatConnection getConnection();
 	
 	public Mono<ChatGuild> getGuild();
+
+	public String getName();
 }

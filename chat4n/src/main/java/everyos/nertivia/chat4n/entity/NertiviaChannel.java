@@ -47,6 +47,10 @@ public class NertiviaChannel implements ChatChannel {
 	}
 
 	@Override public Mono<ChatGuild> getGuild() {
-		return Mono.empty();
+		return Mono.empty(); //TODO
+	}
+
+	@Override public String getName() {
+		return "TODO"; //TODO
 	}
 }

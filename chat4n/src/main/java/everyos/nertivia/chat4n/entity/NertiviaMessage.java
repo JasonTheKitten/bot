@@ -66,13 +66,15 @@ public class NertiviaMessage implements ChatMessage {
 
 	@Override
 	public Mono<Void> pin() {
-		// TODO Auto-generated method stub
 		return Mono.empty();
 	}
 
 	@Override public long getChannelID() {
-		// TODO Auto-generated method stub
 		return message.getChannelID();
+	}
+
+	@Override public long getAuthorID() {
+		return message.getAuthorID();
 	}
 
 }
