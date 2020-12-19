@@ -7,9 +7,13 @@ import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.entity.Message;
 import everyos.bot.luwu.core.exception.TextException;
+import everyos.bot.luwu.core.functionality.channel.ChannelVoiceInterface;
+import everyos.bot.luwu.core.functionality.member.MemberVoiceConnectionInterface;
 import reactor.core.publisher.Mono;
 
 public abstract class GenericMusicCommand implements Command {
+	private static MusicCache cache = new MusicCache(); //TODO: Move this to the bot instance
+	
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		Message message = data.getMessage();
 		Member invoker = data.getInvoker();
@@ -38,7 +42,31 @@ public abstract class GenericMusicCommand implements Command {
 	}
 
 	private Mono<MusicManager> createConnection(Member invoker, Locale locale) {
-		return null;
+		//Get MusicManager of User
+		//If does not exist, get MusicManager of Channel, and set User
+		//If does not exist, create MusicManager for voicestate. Set User and Channel
+		//If voicestate did not exist, error
+		//If the MusicManager already existed, ensure that it is the same channel as the user was in.
+		//If command requires connection, connect
+		//If command does not require connection, and not connected, error
+		
+		return invoker.getServer().flatMap(server->{
+			//TODO: Logic for if not connected or createsConnection
+			Mono<MusicManager> createToCache = invoker.getInterface(MemberVoiceConnectionInterface.class).getVoiceState()
+				.flatMap(voiceState->voiceState.getChannel())
+				.flatMap(channel->{
+					return cache.createToCache(server).flatMap(manager->{
+						return channel.getInterface(ChannelVoiceInterface.class)
+							.connect(manager.getBridge())
+							.doOnNext(connection->manager.addCleanupListener(()->connection.leave().subscribe()))
+							.then(Mono.just(manager));
+					});
+				});
+			
+			return cache.getFromCache(invoker)
+				.switchIfEmpty(cache.getFromCache(server))
+				.switchIfEmpty(createToCache);
+		});
 	}
 
 	private Mono<Void> suppressEmbeds(Message message) {

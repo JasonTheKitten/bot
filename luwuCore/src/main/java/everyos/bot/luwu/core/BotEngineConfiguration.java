@@ -25,4 +25,6 @@ public interface BotEngineConfiguration {
 
 	String getDefaultLocaleName();
 	Locale getLocale(String name);
+
+	HookBinding<?>[] getHooks();
 }

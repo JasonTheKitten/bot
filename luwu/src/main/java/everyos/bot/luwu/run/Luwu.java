@@ -5,12 +5,15 @@ import java.util.Optional;
 import ch.qos.logback.classic.Logger;
 import everyos.bot.luwu.core.BotEngineBuilder;
 import everyos.bot.luwu.core.Configuration;
+import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
 import everyos.bot.luwu.discord.DiscordClientBuilder;
 import everyos.bot.luwu.language.ResourceLocale;
 import everyos.bot.luwu.mongo.MongoDatabaseBuilder;
 import everyos.bot.luwu.nertivia.NertiviaClientBuilder;
 import everyos.bot.luwu.run.command.channelcase.DefaultChannelCase;
+import everyos.bot.luwu.run.command.channelcase.PrivateChannelCase;
 import everyos.bot.luwu.run.command.modules.chatlink.channelcase.ChatLinkChannelCase;
+import everyos.bot.luwu.run.command.modules.levelling.LevelHooks;
 import everyos.bot.luwu.run.command.usercase.DefaultUserCase;
 import reactor.core.publisher.Mono;
 
@@ -57,7 +60,7 @@ public class Luwu {
 		
 		// Register languages
 		engineBuilder.registerLanguage(ENGLISH_LANGUAGE, new ResourceLocale("language/en_US.json"));
-		engineBuilder.registerLanguage(TURKISH_LANGUAGE, null);
+		engineBuilder.registerLanguage(TURKISH_LANGUAGE, new ResourceLocale("language/tr_TR.json"));
 		engineBuilder.setDefaultLanguage(ENGLISH_LANGUAGE);
 		
 		// Set the bot's status
@@ -67,6 +70,7 @@ public class Luwu {
 		// Register channel behaviours
 		engineBuilder.registerChannelCase(DEFAULT_CHANNELCASE, DefaultChannelCase.get());
 		engineBuilder.registerChannelCase(CHATLINK_CHANNELCASE, ChatLinkChannelCase.get());
+		engineBuilder.registerChannelCase(PRIVATE_CHANNELCASE, PrivateChannelCase.get());
 		engineBuilder.setDefaultChannelCase(DEFAULT_CHANNELCASE);
 		engineBuilder.transformChannelCase((type, data)->{ //TODO
 			if (data.getChannel().isPrivateChannel()) {
@@ -78,6 +82,9 @@ public class Luwu {
 		// Register user behaviours
 		engineBuilder.registerUserCase(DEFAULT_USERCASE, DefaultUserCase.get());
 		engineBuilder.setDefaultUserCase(DEFAULT_USERCASE);
+		
+		// Register hooks
+		engineBuilder.registerHook(MessageCreateEvent.class, LevelHooks::levelHook);
 		
 		// Start the bot
 		return engineBuilder.build().start();

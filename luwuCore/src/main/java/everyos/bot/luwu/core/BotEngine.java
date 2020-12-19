@@ -1,6 +1,7 @@
 package everyos.bot.luwu.core;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -15,6 +16,7 @@ import everyos.bot.luwu.core.entity.Client;
 import everyos.bot.luwu.core.entity.ClientWrapper;
 import everyos.bot.luwu.core.entity.Connection;
 import everyos.bot.luwu.core.entity.Locale;
+import everyos.bot.luwu.core.entity.event.Event;
 import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
 import everyos.bot.luwu.core.event.MessageCreateEventProcessor;
 import reactor.core.publisher.Flux;
@@ -23,11 +25,13 @@ import reactor.core.publisher.Mono;
 public class BotEngine {
 	private Client[] clients;
 	private BotEngineConfiguration configuration;
-	private HashMap<Integer, Connection> connections;
+	private Map<Integer, Connection> connections;
+	private HookBinding<?>[] hooks;
 	
 	public BotEngine(BotEngineConfiguration configuration) {
 		this.configuration = configuration;
 		this.connections = new HashMap<>();
+		this.hooks = configuration.getHooks();
 		
 		final ClientWrapper[] clientWrappers = configuration.getClients();
 		clients = new Client[clientWrappers.length];
@@ -49,13 +53,26 @@ public class BotEngine {
 	}
 
 	//Creating event handlers
-	private static Mono<Void> createHandlers(Connection connection) {
+	private Mono<Void> createHandlers(Connection connection) {
 		//Message event handler
 		Flux<?> m1 = BotEngine.<MessageCreateEvent, Void>handleErrors(
-			connection.generateEventListener(MessageCreateEvent.class), 
+			hook(connection, MessageCreateEvent.class), 
 			MessageCreateEventProcessor::apply);
 		
 		return Mono.when(m1);
+	}
+
+	private <T extends Event> Flux<T> hook(Connection connection, Class<T> eventClass) {
+		Flux<T> eventFlux = connection.generateEventListener(eventClass);
+		return eventFlux.flatMap(event->{
+			Mono<Void> m1 = Mono.empty();
+			for (HookBinding<?> hook: hooks) {
+				m1 = hook.apply(m1, event);
+			}
+			return m1
+				.onErrorResume(e->Mono.empty())
+				.then(Mono.just(event));
+		});
 	}
 
 	//Error handling

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import everyos.bot.luwu.core.command.ChannelCase;
 import everyos.bot.luwu.core.command.CommandData;
@@ -12,6 +13,7 @@ import everyos.bot.luwu.core.command.UserCase;
 import everyos.bot.luwu.core.database.DBDatabase;
 import everyos.bot.luwu.core.entity.ClientWrapper;
 import everyos.bot.luwu.core.entity.Locale;
+import everyos.bot.luwu.core.entity.event.Event;
 import reactor.core.publisher.Mono;
 
 public class BotEngineBuilder {
@@ -29,6 +31,8 @@ public class BotEngineBuilder {
 	
 	private String defaultLocale;
 	private Map<String, Locale> locales = new HashMap<>();
+	
+	private List<HookBinding<?>> hookBindings = new ArrayList<>();
 	
 	public BotEngine build() {	
 		final ClientWrapper[] clients = this.clients.toArray(new ClientWrapper[this.clients.size()]);
@@ -73,6 +77,10 @@ public class BotEngineBuilder {
 			}
 			@Override public Locale getLocale(String name) {
 				return locales.get(name);
+			}
+			
+			@Override public HookBinding<?>[] getHooks() {
+				return hookBindings.toArray(new HookBinding[hookBindings.size()]);
 			}
 		};
 		
@@ -129,5 +137,12 @@ public class BotEngineBuilder {
 
 	public void setServerCountStatus(String string) {
 		
+	}
+
+	public <T extends Event> void registerHook(Class<T> event, Function<T, Mono<Void>> func) {
+		hookBindings.add(new HookBinding<T>(false, event, func));
+	}
+	public <T extends Event> void registerSequencedHook(Class<T> event, Function<T, Mono<Void>> func) {
+		hookBindings.add(new HookBinding<T>(true, event, func));
 	}
 }

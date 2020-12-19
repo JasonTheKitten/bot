@@ -2,6 +2,7 @@ package everyos.bot.luwu.core.functionality;
 
 import everyos.bot.chat4j.functionality.UnsupportedInterfaceException;
 import everyos.bot.luwu.core.entity.Client;
+import everyos.bot.luwu.core.entity.Connection;
 
 public interface InterfaceProvider {
 	/**
@@ -26,4 +27,6 @@ public interface InterfaceProvider {
 	 * @return The client associated with this entity
 	 */
 	public Client getClient();
+
+	Connection getConnection();
 }

@@ -63,7 +63,7 @@ public class Message {
 			return req
 				.header("authorization", instance.token);
 		}).flatMap(resp->{
-			String response = resp.getBody();
+			//String response = resp.getBody();
 			return Mono.empty();
 		});
 	}

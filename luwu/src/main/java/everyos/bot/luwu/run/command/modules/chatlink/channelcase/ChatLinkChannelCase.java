@@ -25,7 +25,7 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 	
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		//Collections.synchronizedMap(new WeakHashMap<Object, Object>());
-		return runCommands(commands, data, parser)
+		return runCommands(data, parser)
 			.filter(v->!v)
 			.flatMap(v->data.getChannel().as(ChatLinkChannel.type))
 			.flatMap(clchannel->{
@@ -48,5 +48,10 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 
 	public static ChatLinkChannelCase get() { //TODO: No need to make this a singleton
 		return ChatLinkChannelCase.instance ;
+	}
+
+	@Override
+	public CommandContainer getCommands() {
+		return commands;
 	}
 }

@@ -6,10 +6,13 @@ import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.object.entity.channel.GuildChannel;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
+import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.bot.chat4j.functionality.member.ChatMemberModerationInterface;
+import everyos.bot.chat4j.functionality.member.ChatMemberVoiceConnectionInterface;
 import everyos.discord.chat4d.functionality.member.DiscordGuildMemberModerationInterface;
+import everyos.discord.chat4d.functionality.member.DiscordGuildMemberVoiceConnectionInterface;
 import reactor.core.publisher.Mono;
 
 public class DiscordMember extends DiscordUser implements ChatMember {
@@ -28,6 +31,8 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 	@Override public <T extends ChatInterface> T getInterface(Class<T> cls) {
 		if (cls==ChatMemberModerationInterface.class) {
 			return (T) new DiscordGuildMemberModerationInterface(getConnection(), member);
+		} else if (cls==ChatMemberVoiceConnectionInterface.class) {
+			return (T) new DiscordGuildMemberVoiceConnectionInterface(getConnection(), member);
 		}
 		return super.getInterface(cls);
 	}
@@ -57,5 +62,10 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 	
 	private Member getMember() {
 		return this.member;
+	}
+
+	@Override public Mono<ChatGuild> getServer() {
+		//TODO: Not available outside of guilds
+		return member.getGuild().map(guild->new DiscordGuild(getConnection(), guild));
 	}
 }

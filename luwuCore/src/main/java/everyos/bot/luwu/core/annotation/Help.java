@@ -8,5 +8,4 @@ import java.lang.annotation.Retention;
 public @interface Help {
 	String help();
 	String ehelp();
-	String usage();
 }

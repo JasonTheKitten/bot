@@ -30,10 +30,11 @@ public class Connection {
 		return client.getBotEngine();
 	}
 
-	public <T extends Event> Flux<MessageCreateEvent> generateEventListener(Class<T> cls) {
+	@SuppressWarnings("unchecked")
+	public <T extends Event> Flux<T> generateEventListener(Class<T> cls) {
 		//TODO: I don't like this
 		if (cls==MessageCreateEvent.class) {
-			return connection.generateEventListener(ChatMessageCreateEvent.class)
+			return (Flux<T>) connection.generateEventListener(ChatMessageCreateEvent.class)
 				.map(event->new MessageCreateEvent(this, event));
 		}
 		return null;

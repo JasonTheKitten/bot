@@ -1,9 +1,13 @@
 package everyos.bot.luwu.run.command.modules.music;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.playback.NonAllocatingAudioFrameBuffer;
 
 import everyos.bot.chat4j.audio.AudioBridge;
@@ -12,14 +16,17 @@ import everyos.bot.luwu.run.command.modules.music.MusicCache.MusicCacheFinalizer
 public class MusicManager {
 	private static AudioPlayerManager manager;
 	
-	private MusicCacheFinalizer finalizer;
-	private AudioPlayer player;
-	private AudioBridge bridge;
+	private final MusicTrackScheduler scheduler;
+	private final MusicCacheFinalizer finalizer;
+	private final AudioPlayer player;
+	private final AudioBridge bridge;
 	
-	private MusicQueue queue;
-	private MusicTrack playing;
-	private boolean repeat;
-	private boolean radio;
+	private final List<Runnable> cleanupListeners = new ArrayList<>();
+	private final MusicQueue queue = new MusicQueue();
+	private MusicTrack playing = null;
+	private AudioTrack audio = null;
+	private boolean repeat = false;
+	private boolean radio = false;
 	
 	static {
 		manager = new DefaultAudioPlayerManager();
@@ -33,7 +40,12 @@ public class MusicManager {
 		player = manager.createPlayer();
 		bridge = new LavaPlayerAudioBridge(player);
 		
-		player.addListener(new MusicTrackScheduler(player, this));
+		this.scheduler = new MusicTrackScheduler(player, this);
+		player.addListener(scheduler);
+	}
+	
+	public void addCleanupListener(Runnable r) {
+		cleanupListeners.add(r);
 	}
 	
 	public MusicQueue getQueue() {
@@ -66,6 +78,9 @@ public class MusicManager {
 	}
 
 	public void stop() {
+		for (Runnable r: cleanupListeners ) {
+			r.run();
+		}
 		player.destroy();
 		finalizer.cleanup();
 	}
@@ -73,14 +88,32 @@ public class MusicManager {
 	public MusicTrack getPlaying() {
 		return this.playing;
 	}
-	protected void setPlaying(MusicTrack track) { //TODO: This should not exist
-		this.playing = track;
+	public AudioTrack getPlayingAudio() {
+		return this.audio;
 	}
 
 	public void pause() {
-		
+		player.setPaused(true);
 	}
 	public void unpause() {
-		
+		player.setPaused(false);
+	}
+
+	//TODO: None of the below should exist
+	protected void setPlaying(MusicTrack track) {
+		this.playing = track;
+	}
+	protected void setPlayingAudio(AudioTrack track) {
+		this.audio = track;
+	}
+	
+	public void ready() {
+		if (this.playing==null) {
+			scheduler.playNext();
+		}
+	}
+	
+	public void playNext() {
+		scheduler.playNext();
 	}
 }

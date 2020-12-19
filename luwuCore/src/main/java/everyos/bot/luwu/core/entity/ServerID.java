@@ -1,5 +1,5 @@
 package everyos.bot.luwu.core.entity;
 
-public class ServerID {
-
+public interface ServerID {
+	public long getLong();
 }

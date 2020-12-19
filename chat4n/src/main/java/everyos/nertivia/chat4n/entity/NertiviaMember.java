@@ -2,6 +2,7 @@ package everyos.nertivia.chat4n.entity;
 		
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
+import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.nertivia.nertivia4j.entity.Member;
@@ -40,5 +41,10 @@ public class NertiviaMember extends NertiviaUser implements ChatMember {
 		}
 		return user.asMember(((ServerChannel) channel).getServerID())
 			.map(member->new NertiviaMember(connection, user));
+	}
+
+	@Override
+	public Mono<ChatGuild> getServer() {
+		return null;
 	}
 }

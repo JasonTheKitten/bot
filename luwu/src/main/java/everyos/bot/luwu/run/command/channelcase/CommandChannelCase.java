@@ -5,12 +5,13 @@ import everyos.bot.luwu.core.command.ChannelCase;
 import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.core.command.CommandData;
+import everyos.bot.luwu.core.command.GroupCommand;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
 
-public abstract class CommandChannelCase implements ChannelCase {
-	public Mono<Boolean> runCommands(CommandContainer commands, CommandData data, ArgumentParser parser) {
+public abstract class CommandChannelCase implements ChannelCase, GroupCommand {
+	public Mono<Boolean> runCommands(CommandData data, ArgumentParser parser) {
 		//Here we must
 		// a) Query the prefixes, most likely a data.getChannel().getPrefixes()
 		// b) Check if we match the prefixes
@@ -18,7 +19,7 @@ public abstract class CommandChannelCase implements ChannelCase {
 		
 		return eatPrefix(data, parser)
 			.filter(v -> v)
-			.flatMap(v -> runCommand(commands, data, parser))
+			.flatMap(v -> runCommand(getCommands(), data, parser))
 			.defaultIfEmpty(false);
 	}
 	

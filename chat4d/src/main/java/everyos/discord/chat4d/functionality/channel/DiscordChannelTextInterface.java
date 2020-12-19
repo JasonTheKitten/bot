@@ -29,7 +29,11 @@ public class DiscordChannelTextInterface implements ChatChannelTextInterface {
 		return channel.createMessage(spec->{
 			func.accept(new MessageCreateSpec() {
 				@Override public void setContent(String content) {
-					spec.setContent(content.replace("@", "@\u200E"));
+					setPresanitizedContent(content.replace("@", "@\u200E"));
+				}
+				
+				@Override public void setPresanitizedContent(String content) {
+					spec.setContent(content);
 				}
 
 				@Override public void addAttachment(String name, String imageURL) {

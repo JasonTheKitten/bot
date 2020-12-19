@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 @CommandID(id=1)
 @Permissions(permissions={ChatPermission.BAN})
-@Help(help="command.ban.help", ehelp="command.ban.ehelp", usage="command.ban.usage")
+@Help(help="command.ban.help", ehelp="command.ban.ehelp")
 public class BanCommand extends ModerationCommandBase<BanArguments> {
 	private BanCommand() {
 		super(new ChatPermission[] {ChatPermission.BAN});

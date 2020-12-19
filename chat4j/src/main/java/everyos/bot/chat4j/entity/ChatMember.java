@@ -9,4 +9,6 @@ public interface ChatMember extends ChatUser {
 	 * @return A mono that, when subscribed to, emits a boolean representing if this member has less permission
 	 */
 	public Mono<Boolean> isHigherThan(ChatMember chatMember);
+
+	public Mono<ChatGuild> getServer();
 }

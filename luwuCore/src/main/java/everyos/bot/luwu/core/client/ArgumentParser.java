@@ -1,10 +1,12 @@
 package everyos.bot.luwu.core.client;
 
 public abstract class ArgumentParser {
+	private final String original;
 	private String argument;
 	
 	public ArgumentParser(String argument) {
 		this.argument = argument.trim();
+		this.original = argument;
 	}
 	
 	public boolean isEmpty() {
@@ -36,6 +38,9 @@ public abstract class ArgumentParser {
 		return false;
 	};
 	
+	public String getOriginal() {
+		return original;
+	}
 	public String getRemaining() {
 		return argument;
 	}

@@ -20,12 +20,12 @@ import xyz.downgoon.snowflake.Snowflake;
 public class ChatLink {
 	//Static Methods
 	public static Mono<ChatLink> getByName(BotEngine engine, String name) {
-		return engine.getDatabase().collection("chatlink").scan().filter(Filters.eq("name", name)).orEmpty()
+		return engine.getDatabase().collection("chatlinks").scan().filter(Filters.eq("name", name)).orEmpty()
 			.flatMap(doc -> loadFromDB(engine, doc));
 	}
 
 	public static Mono<ChatLink> getByID(BotEngine engine, long id) {
-		return engine.getDatabase().collection("chatlink").scan().filter(Filters.eq("clid", id)).orEmpty()
+		return engine.getDatabase().collection("chatlinks").scan().filter(Filters.eq("clid", id)).orEmpty()
 			.flatMap(doc -> loadFromDB(engine, doc));
 	}
 	
@@ -33,7 +33,7 @@ public class ChatLink {
 	public static Mono<ChatLink> createChatLink(BotEngine engine) {
 		return Mono.just(true).flatMap(b -> {
 			long linkID = new Snowflake(0, 0).nextId();
-			return engine.getDatabase().collection("chatlink").scan().with("clid", linkID).orCreate(editSpec -> {
+			return engine.getDatabase().collection("chatlinks").scan().with("clid", linkID).orCreate(editSpec -> {
 			}).flatMap(doc -> doc.save().then(loadFromDB(engine, doc)));
 		});
 	}
@@ -43,7 +43,7 @@ public class ChatLink {
 		// Get channels
 		return engine.getDatabase().collection("channels").scan()
 			.with("data.chatlinkid", linkID)
-			.with("type", "chatlink").rest().flatMap(channelDocument -> {
+			.with("type", "chatlinks").rest().flatMap(channelDocument -> {
 				int clientID = channelDocument.getObject().getOrDefaultInt("cliid", 0);
 				long channelID = channelDocument.getObject().getOrDefaultLong("cid", -1L);
 				return engine.getConnectionByID(clientID).getChannelByID(channelID);
@@ -150,7 +150,7 @@ public class ChatLink {
 	}
 	private Mono<Void> checkUserGlobalMuted(Message message) {
 		if (document.getObject().getOrCreateArray("muted").contains(message.getAuthorID())) {
-			return Mono.error(new TextException("link.error.gmuted"));
+			return Mono.error(new TextException("command.link.error.gmuted"));
 		}
 		return Mono.empty();
 	}
@@ -166,7 +166,7 @@ public class ChatLink {
 			.flatMap(v->{
 				return v?
 					Mono.empty():
-					Mono.error(new TextException("TODO: Set message"));
+					Mono.error(new TextException("TODO: Localize error message (We can not access locales in this portion of the code)"));
 			});
 	}
 	

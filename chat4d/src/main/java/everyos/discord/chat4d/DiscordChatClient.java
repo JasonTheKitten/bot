@@ -39,9 +39,9 @@ public class DiscordChatClient implements ChatClient {
 	
 	@Override public Mono<Void> login(Function<ChatConnection, Mono<?>> func) {
 		final ChatClient self = this;
-		GatewayBootstrap<GatewayOptions> gb = client.gateway().setDisabledIntents(IntentSet.of(Intent.GUILD_PRESENCES));
+		GatewayBootstrap<GatewayOptions> gb = client.gateway()
+			.setDisabledIntents(IntentSet.of(Intent.GUILD_PRESENCES));
 		return gb.withGateway(connection->{
-		//return client.withGateway(connection->{
 			final EventDispatcher dispatcher = connection.getEventDispatcher();
 			return func.apply(new ChatConnection() {
 				@Override public Mono<Void> logout() {

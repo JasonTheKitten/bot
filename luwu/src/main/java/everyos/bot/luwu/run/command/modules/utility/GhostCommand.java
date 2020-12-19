@@ -15,6 +15,6 @@ public class GhostCommand implements Command {
 	}
 
 	private Mono<?> checkPerms(Member invoker, Locale locale) {
-		return Mono.empty();
+		return Mono.empty(); //TODO
 	}
 }
