@@ -1,47 +1,31 @@
 package everyos.bot.luwu.run.command.modules.levelling;
 
-import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandContainer;
-import everyos.bot.luwu.core.command.CommandData;
-import everyos.bot.luwu.core.entity.Locale;
-import everyos.bot.luwu.core.exception.TextException;
-import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
-import reactor.core.publisher.Mono;
+import everyos.bot.luwu.run.command.MultiCommand;
 
-public class LevelCommand implements Command {
-	private CommandContainer commands;
+public class LevelCommand extends MultiCommand {
+	private final CommandContainer commands;
 
 	public LevelCommand() {
+		super("command.level");
+		
 		this.commands = new CommandContainer();
 
         //Commands
         Command levelCheckCommand = new LevelCheckCommand();
+        Command levelEnableCommand = new LevelEnableCommand(true);
+        Command levelDisableCommand = new LevelEnableCommand(false);
+        Command levelMessageCommand = new LevelMessageCommand();
         
-
         commands.registerCommand("command.level.check", levelCheckCommand);
-        
+        commands.registerCommand("command.level.enable", levelEnableCommand);
+        commands.registerCommand("command.level.disable", levelDisableCommand);
+        commands.registerCommand("command.level.message", levelMessageCommand);
 	}
-	
-	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
-		if (parser.isEmpty()) {
-        	return data.getChannel().getInterface(ChannelTextInterface.class)
-        		.send(data.getLocale().localize("command.error.missingsubcommand"))
-        		.then();
-		}
-		
-		String cmd = parser.eat();
-        
-		Command command = commands.getCommand(cmd, data.getLocale()); //TODO: Detect preferred locale
-        
-        if (command==null) {
-        	Locale locale = data.getLocale();
-        	return Mono.error(new TextException(locale.localize("command.error.invalidsubcommand",
-        		"command", cmd,
-        		"parent", locale.localize("command.level"))));
-        }
-        	
-	    
-        return command.execute(data, parser);
+
+	@Override
+	public CommandContainer getCommands() {
+		return commands;
 	}
 }

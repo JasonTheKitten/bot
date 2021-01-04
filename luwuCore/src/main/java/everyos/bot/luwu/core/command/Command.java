@@ -4,5 +4,14 @@ import everyos.bot.luwu.core.client.ArgumentParser;
 import reactor.core.publisher.Mono;
 
 public interface Command {
-	public Mono<Void> execute(CommandData data, ArgumentParser parser);
+	default Mono<Void> run(CommandData data, ArgumentParser parser) {
+		return execute(data, parser);
+	};
+	
+	Mono<Void> execute(CommandData data, ArgumentParser parser);
+	
+	
+	default String getID() {
+		return null;
+	}
 }

@@ -10,11 +10,16 @@ import everyos.bot.luwu.core.entity.Message;
 import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
+import everyos.bot.luwu.run.command.CommandBase;
 import everyos.bot.luwu.run.command.modules.chatlink.ChatLink;
 import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannel;
 import reactor.core.publisher.Mono;
 
-public class LinkAcceptCommand implements Command {
+public class LinkAcceptCommand extends CommandBase {
+	public LinkAcceptCommand() {
+		super("command.link.accept");
+	}
+
 	private static LinkAcceptCommand instance;
 
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {

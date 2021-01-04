@@ -1,5 +1,22 @@
 package everyos.bot.luwu.run.command.modules.role.reaction;
 
-public class ReactionCommand {
+import everyos.bot.luwu.core.command.Command;
+import everyos.bot.luwu.core.command.CommandContainer;
+import everyos.bot.luwu.run.command.MultiCommand;
 
+public class ReactionCommand extends MultiCommand {
+	private CommandContainer commands;
+
+	public ReactionCommand(String unlocalizedName) {
+		super("command.role.reaction");
+		
+		this.commands = new CommandContainer();
+		
+		Command reactionAddCommand = new ReactionAddCommand();
+	}
+
+	@Override
+	public CommandContainer getCommands() {
+		return null;
+	}
 }

@@ -1,20 +1,17 @@
 package everyos.bot.luwu.run.command.modules.music;
 
-import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandContainer;
-import everyos.bot.luwu.core.command.CommandData;
-import everyos.bot.luwu.core.entity.Locale;
-import everyos.bot.luwu.core.exception.TextException;
-import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
+import everyos.bot.luwu.run.command.MultiCommand;
 import everyos.bot.luwu.run.command.modules.music.playlist.MusicPlaylistCommand;
 import everyos.bot.luwu.run.command.modules.music.volume.MusicVolumeCommand;
-import reactor.core.publisher.Mono;
 
-public class MusicCommand implements Command {
+public class MusicCommand extends MultiCommand {
 	private CommandContainer commands;
 
 	public MusicCommand() {
+		super("command.music");
+		
 		this.commands = new CommandContainer();
 
         //Commands
@@ -50,26 +47,9 @@ public class MusicCommand implements Command {
         commands.registerCommand("command.music.volume", musicVolumeCommand);
         commands.registerCommand("command.music.restart", musicRestartCommand);
 	}
-	
-	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
-		if (parser.isEmpty()) {
-        	return data.getChannel().getInterface(ChannelTextInterface.class)
-        		.send(data.getLocale().localize("command.error.missingsubcommand"))
-        		.then();
-		}
-		
-		String cmd = parser.eat();
-        
-		Command command = commands.getCommand(cmd, data.getLocale()); //TODO: Detect preferred locale
-        
-        if (command==null) {
-        	Locale locale = data.getLocale();
-        	return Mono.error(new TextException(locale.localize("command.error.invalidsubcommand",
-        		"command", cmd,
-        		"parent", locale.localize("command.music"))));
-        }
-        	
-	    
-        return command.execute(data, parser);
+
+	@Override
+	public CommandContainer getCommands() {
+		return this.commands;
 	}
 }

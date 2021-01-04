@@ -18,7 +18,7 @@ public class CatCommand implements Command {
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		return data.getChannel().getInterface(ChannelTextInterface.class)
 			.send(spec->{
-				spec.setContent("This command does not exist, but take a cat anyways! (Image from Fandom)"); //TODO: Localize
+				spec.setContent("This command does not exist, but take a cat anyways! (Image from WixMP)"); //TODO: Localize
 				spec.addAttachment("cat.gif", URL);
 			})
 			.then();

@@ -5,5 +5,5 @@ import everyos.bot.luwu.core.functionality.Interface;
 import reactor.core.publisher.Mono;
 
 public interface MemberVoiceConnectionInterface extends Interface {
-	public Mono<VoiceState> getVoiceState();
+	Mono<VoiceState> getVoiceState();
 }

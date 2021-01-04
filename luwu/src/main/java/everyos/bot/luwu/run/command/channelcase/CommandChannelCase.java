@@ -44,7 +44,7 @@ public abstract class CommandChannelCase implements ChannelCase, GroupCommand {
 		if (c==null) return Mono.just(false);
 		
 		//Execute the command
-		return c.execute(data, parser)
+		return c.run(data, parser)
 			//Handle errors
 			.onErrorResume(ex->{
 				ChannelTextInterface channel = data.getChannel().getInterface(ChannelTextInterface.class);

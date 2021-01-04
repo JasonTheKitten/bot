@@ -2,6 +2,7 @@ package everyos.bot.luwu.run.command.modules.levelling;
 
 import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
+import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
 
 public abstract class LevelHooks {
@@ -10,27 +11,46 @@ public abstract class LevelHooks {
 	private LevelHooks() {}
 	
 	public static Mono<Void> levelHook(MessageCreateEvent event) {
-		//TODO: Ensure that the guild is opted first.
 		return event.getSenderAsMember().flatMap(senderMaybe->{
 			if (!senderMaybe.isPresent()) return Mono.empty();
 			Member sender = senderMaybe.get();
 			if (sender.isBot()) return Mono.empty();
 			
-			sender.getServer()
-				.map(server->server.getWithExtension(LevelServer.type));
-			
 			LevelMember member = sender.getWithExtension(LevelMember.type);
-			return member.getLevelState().flatMap(oldLevelState->{
-				long time = System.currentTimeMillis();
-				if (oldLevelState.getTimestamp()+COOLDOWN_SECONDS*1000>time) {
-					return Mono.empty();
-				}
-				LevelState newLevelState = new LevelState(oldLevelState.getXPTotal()+1,time);
-				Mono<Void> m1 = Mono.empty();
-				if (newLevelState.getXPLeveled()==0) {
-					//TODO: Level messages
-				}
-				return m1.and(member.setLevelState(newLevelState));
+			
+			return sender.getServer().map(server->server.getWithExtension(LevelServer.type)).flatMap(server->{
+				return server.getLevelInfo().flatMap(info->{
+					if (!info.getLevellingEnabled()) {
+						return Mono.empty();
+					}
+					
+					return member.getLevelState().flatMap(oldLevelState->{
+						long time = System.currentTimeMillis();
+						if (oldLevelState.getTimestamp()+COOLDOWN_SECONDS*1000>time) {
+							return Mono.empty();
+						}
+						LevelState newLevelState = new LevelState(oldLevelState.getXPTotal()+1,time);
+						Mono<Void> m1 = Mono.empty();
+						if (newLevelState.getXPLeveled()==0) {
+							/*locale.localize(
+								"command.level.levelupmessage",
+								"message", info.getLevelMessage(),
+								"user.ping", "<@"+String.valueOf(sender.getID().getLong())+">",
+								"user.level", String.valueOf(newLevelState.getLevel())
+								);*/
+							
+							String resolved = info.getLevelMessage()
+								.replace("${user.ping}", "<@"+String.valueOf(sender.getID().getLong())+">") //TODO
+								.replace("${user.level}", String.valueOf(newLevelState.getLevel()));
+								//TODO: XP, Previous Level, Server Name, User ID, User Name No Ping, etc
+							m1 = event.getConnection().getChannelByID(info.getMessageChannelID().getLong())
+								.map(channel->channel.getInterface(ChannelTextInterface.class))
+								.flatMap(tg->tg.send(spec->spec.setPresanitizedContent(resolved+" (Message set by guild admin)"))) //TODO: Localize
+								.then();
+						}
+						return m1.and(member.setLevelState(newLevelState));
+					});
+				});
 			});
 		});
 	}

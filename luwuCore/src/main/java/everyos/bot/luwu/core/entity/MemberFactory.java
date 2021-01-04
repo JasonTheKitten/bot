@@ -6,5 +6,5 @@ import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.luwu.core.database.DBDocument;
 
 public interface MemberFactory<T> {
-	public T create(Connection connection, ChatMember member, Map<String, DBDocument> documents);
+	T create(Connection connection, ChatMember member, Map<String, DBDocument> documents);
 }

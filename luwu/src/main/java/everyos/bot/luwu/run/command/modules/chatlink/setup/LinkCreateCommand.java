@@ -1,13 +1,17 @@
 package everyos.bot.luwu.run.command.modules.chatlink.setup;
 
 import everyos.bot.luwu.core.client.ArgumentParser;
-import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
+import everyos.bot.luwu.run.command.CommandBase;
 import everyos.bot.luwu.run.command.modules.chatlink.ChatLink;
 import reactor.core.publisher.Mono;
 
-public class LinkCreateCommand implements Command {
+public class LinkCreateCommand extends CommandBase {
+	public LinkCreateCommand() {
+		super("command.link.create");
+	}
+
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		return ChatLink.createChatLink(data.getBotEngine())
 			.flatMap(link->{
