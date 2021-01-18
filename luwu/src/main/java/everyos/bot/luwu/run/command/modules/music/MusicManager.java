@@ -100,11 +100,9 @@ public class MusicManager {
 	}
 
 	//TODO: None of the below should exist
-	protected void setPlaying(MusicTrack track) {
+	protected void setPlaying(MusicTrack track, AudioTrack atrack) {
 		this.playing = track;
-	}
-	protected void setPlayingAudio(AudioTrack track) {
-		this.audio = track;
+		this.audio = atrack;
 	}
 	
 	public void ready() {

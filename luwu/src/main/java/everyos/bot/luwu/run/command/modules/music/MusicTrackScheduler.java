@@ -69,7 +69,6 @@ public class MusicTrackScheduler extends AudioEventAdapter {
 			
 			MusicUtil.lookup(radioSongs[selectedSong]).doOnNext(atrack->{
 				MusicTrack track = new MusicTrack(atrack);
-				manager.setPlaying(track);
 				playTrack(track);
 			}).subscribe();
 			
@@ -79,7 +78,6 @@ public class MusicTrackScheduler extends AudioEventAdapter {
 		}
 		if (queue.size()>0) {
 			MusicTrack track = queue.pop();
-			manager.setPlaying(track);
 			playTrack(track);
 		} else {
 			stop();
@@ -87,7 +85,7 @@ public class MusicTrackScheduler extends AudioEventAdapter {
 	}
 	private void playTrack(MusicTrack mtrack) {
 		AudioTrack track = mtrack.getAudioPart().makeClone();
-		manager.setPlayingAudio(track);
+		manager.setPlaying(mtrack, track);
 		track.setPosition(mtrack.getTrimLeft());
 		track.setMarker(new TrackMarker(mtrack.getTrimRight(), state->{
 			if (manager.getPlayingAudio()==track) {

@@ -39,25 +39,21 @@ public class Message implements InterfaceProvider {
 		return message.getChannel().flatMap(channel->Channel.getChannel(connection, channel));
 	}
 
-	public Mono<Void> addReaction(String string) {
+	public Mono<Void> addReaction(EmojiID reaction) {
 		// TODO: Auto-generated method stub
 		// TODO: Also, move this to a feature
 		return Mono.empty();
 	}
-	public Mono<Void> removeReaction(String string) {
+	public Mono<Void> removeReaction(EmojiID reaction) {
 		return Mono.empty();
 	}
 
 	public ChannelID getChannelID() {
-		return new ChannelID(message.getChannelID());
+		return new ChannelID(connection, message.getChannelID());
 	}
 	
 	public UserID getAuthorID() {
-		return new UserID() {
-			@Override public long getLong() {
-				return message.getAuthorID();
-			}
-		};
+		return new UserID(connection, message.getAuthorID());
 	}
 	
 	public Mono<User> getAuthor() {

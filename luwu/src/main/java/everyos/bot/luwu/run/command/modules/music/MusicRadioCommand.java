@@ -6,6 +6,10 @@ import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
 
 public class MusicRadioCommand extends GenericMusicCommand {
+	public MusicRadioCommand() {
+		super("command.music.radio");
+	}
+
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		manager.setRadio(!manager.getRadio());
 		manager.ready();

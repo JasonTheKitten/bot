@@ -9,8 +9,10 @@ import everyos.bot.luwu.core.BotEngine;
 import everyos.bot.luwu.core.database.DBDocument;
 import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.ChannelID;
+import everyos.bot.luwu.core.entity.Connection;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Message;
+import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Flux;
@@ -46,7 +48,8 @@ public class ChatLink {
 			.with("type", "chatlinks").rest().flatMap(channelDocument -> {
 				int clientID = channelDocument.getObject().getOrDefaultInt("cliid", 0);
 				long channelID = channelDocument.getObject().getOrDefaultLong("cid", -1L);
-				return engine.getConnectionByID(clientID).getChannelByID(channelID);
+				Connection connection = engine.getConnectionByID(clientID);
+				return new ChannelID(connection, channelID).getChannel();
 			}).flatMap(channel->channel.as(ChatLinkChannel.type)).collectList()
 			// Get link
 			.map(list->new ChatLink(engine, document, list));
@@ -169,16 +172,6 @@ public class ChatLink {
 					Mono.error(new TextException("TODO: Localize error message (We can not access locales in this portion of the code)"));
 			});
 	}
-	
-	private Flux<ChatLinkChannel> getChannelFlux() {
-		ChatLinkChannel[] channels = channelCache.toArray(new ChatLinkChannel[channelCache.size()]);
-		return Flux.fromArray(channels);
-	}
-	
-	private Locale getDefaultLocale() {	
-		return botEngine.getLocale(botEngine.getDefaultLocaleName());
-		//TODO
-	}
 
 	public boolean isAdmin(ChannelID channelID) {
 		return document.getObject().getOrCreateObject("data", obj->{}).getOrCreateArray("admins").contains(channelID.getLong());
@@ -188,6 +181,22 @@ public class ChatLink {
 	public Mono<Void> addAdmin(ChannelID channelID) {
 		document.getObject().getOrCreateObject("data", obj->{}).getOrCreateArray("admins").add(channelID.getLong());
 		return document.save();
+		//TODO
+	}
+
+	public Mono<Void> addMutedUser(UserID user) {
+		//TODO: Dealing with multiple client types
+		document.getObject().getOrCreateArray("muted").add(user.getLong());
+		return document.save();
+	}
+	
+	private Flux<ChatLinkChannel> getChannelFlux() {
+		ChatLinkChannel[] channels = channelCache.toArray(new ChatLinkChannel[channelCache.size()]);
+		return Flux.fromArray(channels);
+	}
+	
+	private Locale getDefaultLocale() {	
+		return botEngine.getLocale(botEngine.getDefaultLocaleName());
 		//TODO
 	}
 }

@@ -6,6 +6,10 @@ import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
 
 public class MusicRepeatCommand extends GenericMusicCommand {
+	public MusicRepeatCommand() {
+		super("command.music.repeat");
+	}
+
 	@Override Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		manager.setRepeat(!manager.getRepeat());
 		ChannelTextInterface channel = data.getChannel().getInterface(ChannelTextInterface.class);

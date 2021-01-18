@@ -37,8 +37,8 @@ public class Channel implements InterfaceProvider {
 		return null;
 	};
 	
-	public Mono<Member> getMember(long uid) {
-		return channel.getConnection().getUserByID(uid)
+	public Mono<Member> getMember(UserID uid) {
+		return channel.getConnection().getUserByID(uid.getLong())
 			.flatMap(user->user.asMemberOf(channel))
 			.map(member->new Member(connection, member));
 	}
@@ -48,6 +48,7 @@ public class Channel implements InterfaceProvider {
 		return Mono.just(new String[] {
 			//TODO: Query DB. Also, prefixes might belong to guild, based on model
 			//This would be better handled as a interface?
+			//TODO: Perhaps read this from JSON?
 			"luwu ",
 			"LUWU ",
 			"Luwu"
@@ -59,7 +60,7 @@ public class Channel implements InterfaceProvider {
 	}
 
 	public ChannelID getID() {
-		return new ChannelID(channel.getID());
+		return new ChannelID(connection, channel.getID());
 	}
 	
 	public String getName() {

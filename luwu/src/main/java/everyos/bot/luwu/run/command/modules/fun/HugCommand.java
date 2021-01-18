@@ -46,17 +46,16 @@ public class HugCommand implements Command {
 		
 		return
 			parseArgs(parser, invoker.getID(), locale)
-			.flatMap(id->data.getConnection().getUserByID(id))
+			.flatMap(id->id.getUser())
 			.flatMap(member->determineHugMessage(data.getClient(), invoker, member, locale))
 			.flatMap(message->sendHugMessage(data.getChannel(), message, locale))
 			//TODO: Send the hug
 			.then();
 	}
 
-	private Mono<Long> parseArgs(ArgumentParser parser, UserID userID, Locale locale) {
-		//TODO: Method return type should be a UserID
+	private Mono<UserID> parseArgs(ArgumentParser parser, UserID userID, Locale locale) {
 		//Parse arguments
-		if (parser.isEmpty()) return Mono.just(userID.getLong());
+		if (parser.isEmpty()) return Mono.just(userID);
 		if (!parser.couldBeUserID()) return Mono.error(new TextException("Usage")); //TODO
 		return Mono.just(parser.eatUserID());
 	}
@@ -76,7 +75,7 @@ public class HugCommand implements Command {
 		ChannelTextInterface textGrip = channel.getInterface(ChannelTextInterface.class);
 		return textGrip.send(spec->{
 			spec.setContent(message);
-			spec.addAttachment("hug.gif", hugs[(int) (Math.round(Math.random()*hugs.length))]);
+			spec.addAttachment("hug.gif", hugs[(int) (Math.floor((Math.random()*.999999)*hugs.length))]);
 			//TODO: Footer
 		})
 		.then();

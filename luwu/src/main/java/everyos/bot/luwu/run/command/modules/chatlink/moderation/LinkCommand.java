@@ -14,8 +14,14 @@ public class LinkCommand extends MultiCommand implements Command {
 
         //Commands
         Command linkAcceptCommand = new LinkAcceptCommand();
+        Command linkGlobalMuteCommand = new LinkGlobalMuteCommand();
+        Command linkLocalMuteCommand = new LinkLocalMuteCommand();
+        Command linkOptCommand = new LinkOptCommand();
         
         commands.registerCommand("command.link.accept", linkAcceptCommand);
+        commands.registerCommand("command.link.mute.global", linkGlobalMuteCommand);
+        commands.registerCommand("command.link.mute.local", linkLocalMuteCommand);
+        commands.registerCommand("command.link.opt", linkOptCommand);
 	}
 
 	@Override

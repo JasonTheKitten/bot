@@ -6,6 +6,10 @@ import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
 
 public class MusicRequeueCommand extends GenericMusicCommand {
+	public MusicRequeueCommand() {
+		super("command.music.requeue");
+	}
+
 	@Override
 	public Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		//TODO: Allow the user to specify the position

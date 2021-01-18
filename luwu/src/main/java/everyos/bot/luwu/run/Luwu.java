@@ -32,6 +32,9 @@ public class Luwu {
 		
 		BotEngineBuilder engineBuilder = new BotEngineBuilder();
 		
+		// Stuff that should not exist
+		engineBuilder.setConfiguration(configuration);
+		
 		// Register database
 		MongoDatabaseBuilder dbBuilder = new MongoDatabaseBuilder();
 		dbBuilder.setURL(configuration.getDatabaseURL());

@@ -16,11 +16,11 @@ public class Connection {
 		this.client = client;
 	}
 
-	public Mono<User> getUserByID(long id) {
-		return connection.getUserByID(id).map(user->new User(this, user));
+	protected Mono<User> getUserByID(UserID id) {
+		return connection.getUserByID(id.getLong()).map(user->new User(this, user));
 	}
-	public Mono<Channel> getChannelByID(long id) {
-		return connection.getChannelByID(id).flatMap(channel->Channel.getChannel(this, channel));
+	protected Mono<Channel> getChannelByID(ChannelID id) {
+		return connection.getChannelByID(id.getLong()).flatMap(channel->Channel.getChannel(this, channel));
 	}
 	
 	public Client getClient() {

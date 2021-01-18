@@ -1,7 +1,6 @@
 package everyos.bot.luwu.run.command.modules.music;
 
 import everyos.bot.luwu.core.client.ArgumentParser;
-import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
@@ -9,10 +8,15 @@ import everyos.bot.luwu.core.entity.Message;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelVoiceInterface;
 import everyos.bot.luwu.core.functionality.member.MemberVoiceConnectionInterface;
+import everyos.bot.luwu.run.command.CommandBase;
 import reactor.core.publisher.Mono;
 
-public abstract class GenericMusicCommand implements Command {
+public abstract class GenericMusicCommand extends CommandBase {
 	private static MusicCache cache = new MusicCache(); //TODO: Move this to the bot instance
+	
+	public GenericMusicCommand(String id) {
+		super(id);
+	}
 	
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		Message message = data.getMessage();

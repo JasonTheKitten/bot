@@ -6,6 +6,10 @@ import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
 
 public class MusicRestartCommand extends GenericMusicCommand {
+	public MusicRestartCommand() {
+		super("command.music.restart");
+	}
+
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		manager.getPlayingAudio().setPosition(0);
 		

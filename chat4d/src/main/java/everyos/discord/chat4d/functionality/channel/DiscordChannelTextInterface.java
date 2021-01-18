@@ -5,10 +5,14 @@ import java.net.URL;
 import java.util.function.Consumer;
 
 import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.rest.util.Color;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
+import everyos.bot.chat4j.entity.ChatColor;
 import everyos.bot.chat4j.entity.ChatMessage;
 import everyos.bot.chat4j.functionality.channel.ChatChannelTextInterface;
+import everyos.bot.chat4j.functionality.message.EmbedSpec;
 import everyos.bot.chat4j.functionality.message.MessageCreateSpec;
 import everyos.discord.chat4d.entity.DiscordMessage;
 import reactor.core.publisher.Mono;
@@ -44,6 +48,11 @@ public class DiscordChannelTextInterface implements ChatChannelTextInterface {
 						e.printStackTrace();
 					}
 				}
+
+				@Override
+				public void setEmbed(Consumer<EmbedSpec> embedSpec) {
+					spec.setEmbed(eSpec->embedSpec.accept(new DiscordEmbedSpec(eSpec)));
+				}
 			});
 		}).map(message->new DiscordMessage(connection, message));
 	}
@@ -54,5 +63,44 @@ public class DiscordChannelTextInterface implements ChatChannelTextInterface {
 
 	@Override public ChatClient getClient() {
 		return getConnection().getClient();
+	}
+	
+	private static class DiscordEmbedSpec implements EmbedSpec {
+		private EmbedCreateSpec spec = null;
+		private String footer = null;
+
+		public DiscordEmbedSpec(EmbedCreateSpec spec) {
+			this.spec = spec;
+		}
+
+		@Override
+		public void setTitle(String title) {
+			spec.setTitle(title);
+		}
+
+		@Override
+		public void setColor(ChatColor color) {
+			spec.setColor(Color.of(color.getRed(), color.getGreen(), color.getBlue()));
+		}
+		
+		@Override
+		public void setDescription(String description) {
+			spec.setDescription(description);
+		}
+
+		@Override
+		public void addField(String name, String content, boolean inline) {
+			spec.addField(name, content, inline);
+		}
+
+		@Override
+		public void setFooter(String footer) {
+			this.footer = footer;
+			updateFooter();
+		}
+
+		private void updateFooter() {
+			spec.setFooter(footer, null);
+		}
 	}
 }

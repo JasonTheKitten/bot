@@ -1,25 +1,25 @@
 package everyos.bot.luwu.core.entity;
 
-import java.util.Objects;
+import reactor.core.publisher.Mono;
 
 public class ChannelID {
+	private Connection connection;
 	private long id;
-	public ChannelID(long id) {
+
+	public ChannelID(Connection connection, long id) {
+		this.connection = connection;
 		this.id = id;
 	}
-	public long getLong() {
-		return this.id;
+	
+	public Mono<Channel> getChannel() {
+		return connection.getChannelByID(this);
 	};
 	
-	@Override public boolean equals(Object object) {
-		if (!(object instanceof ChannelID)) return false;
-		ChannelID otherID = (ChannelID) object;
-		return otherID.getLong()==getLong();
+	public long getLong() {
+		return id;
 	}
-	@Override public int hashCode() {
-		return Objects.hash(id);
-	}
-	@Override public String toString() {
-		return String.valueOf(id);
+
+	public Connection getConnection() {
+		return this.connection;
 	}
 }

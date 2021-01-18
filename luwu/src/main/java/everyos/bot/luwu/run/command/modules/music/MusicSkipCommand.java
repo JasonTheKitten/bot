@@ -8,6 +8,10 @@ import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
 
 public class MusicSkipCommand extends GenericMusicCommand {
+	public MusicSkipCommand() {
+		super("command.music.skip");
+	}
+
 	@Override
 	public Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		Locale locale = data.getLocale();

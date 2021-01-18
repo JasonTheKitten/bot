@@ -29,4 +29,9 @@ public class ResourceLocale implements Locale {
 			return b.toString();
 		}
 	}
+
+	@Override
+	public boolean canLocalize(String name) {
+		return json.has(name);
+	}
 }

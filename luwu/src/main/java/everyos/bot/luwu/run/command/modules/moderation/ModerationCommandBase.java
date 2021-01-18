@@ -4,22 +4,23 @@ import java.util.List;
 
 import everyos.bot.chat4j.enm.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
-import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
+import everyos.bot.luwu.run.command.CommandBase;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public abstract class ModerationCommandBase<T extends ModerationArguments> implements Command {
+public abstract class ModerationCommandBase<T extends ModerationArguments> extends CommandBase {
 	private String moderationName = "command.moderation.unknown";
 	private String successMessage = "command.moderation.unknown";
 	private ChatPermission[] permissions;
 	
-	public ModerationCommandBase(ChatPermission[] permissions) {
+	public ModerationCommandBase(String id, ChatPermission[] permissions) {
+		super(id);
 		this.permissions = permissions;
 	}
 	

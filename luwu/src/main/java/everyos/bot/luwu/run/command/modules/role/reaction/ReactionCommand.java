@@ -13,10 +13,12 @@ public class ReactionCommand extends MultiCommand {
 		this.commands = new CommandContainer();
 		
 		Command reactionAddCommand = new ReactionAddCommand();
+		
+		commands.registerCommand("command.role.reaction.add", reactionAddCommand);
 	}
 
 	@Override
 	public CommandContainer getCommands() {
-		return null;
+		return commands;
 	}
 }

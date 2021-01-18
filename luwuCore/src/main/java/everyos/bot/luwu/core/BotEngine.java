@@ -138,6 +138,12 @@ public class BotEngine {
 	public Locale getLocale(String name) {
 		return configuration.getLocale(name);
 	}
+
+	//TODO: Should this exist?
+	@Deprecated
+	public Configuration getConfiguration() {
+		return configuration.getConfiguration();
+	}
 }
 
 

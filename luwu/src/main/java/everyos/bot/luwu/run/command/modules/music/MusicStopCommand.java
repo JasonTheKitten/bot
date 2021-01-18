@@ -6,6 +6,10 @@ import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
 
 public class MusicStopCommand extends GenericMusicCommand {
+	public MusicStopCommand() {
+		super("command.music.stop");
+	}
+
 	@Override
 	Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		manager.stop();

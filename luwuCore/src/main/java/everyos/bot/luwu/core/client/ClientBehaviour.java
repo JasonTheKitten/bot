@@ -1,5 +1,7 @@
 package everyos.bot.luwu.core.client;
 
+import everyos.bot.luwu.core.entity.Connection;
+
 public interface ClientBehaviour {
-	public ArgumentParser createParser(String argument);
+	ArgumentParser createParser(Connection connection, String argument);
 }

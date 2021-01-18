@@ -3,9 +3,9 @@ package everyos.bot.luwu.run.command.channelcase;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.core.command.CommandData;
-import everyos.bot.luwu.run.command.modules.fun.CatCommand;
+import everyos.bot.luwu.run.command.modules.easteregg.CatCommand;
+import everyos.bot.luwu.run.command.modules.easteregg.UwUCommand;
 import everyos.bot.luwu.run.command.modules.fun.HugCommand;
-import everyos.bot.luwu.run.command.modules.fun.UwUCommand;
 import everyos.bot.luwu.run.command.modules.music.MusicCommands;
 import reactor.core.publisher.Mono;
 

@@ -33,7 +33,9 @@ public class BotEngineBuilder {
 	private Map<String, Locale> locales = new HashMap<>();
 	
 	private List<HookBinding<?>> hookBindings = new ArrayList<>();
-	
+
+	private Configuration globalConfiguration; //TODO: Should not exist
+
 	public BotEngine build() {	
 		final ClientWrapper[] clients = this.clients.toArray(new ClientWrapper[this.clients.size()]);
 		
@@ -81,6 +83,10 @@ public class BotEngineBuilder {
 			
 			@Override public HookBinding<?>[] getHooks() {
 				return hookBindings.toArray(new HookBinding[hookBindings.size()]);
+			}
+			
+			@Override public Configuration getConfiguration() {
+				return globalConfiguration;
 			}
 		};
 		
@@ -144,5 +150,10 @@ public class BotEngineBuilder {
 	}
 	public <T extends Event> void registerSequencedHook(Class<T> event, Function<T, Mono<Void>> func) {
 		hookBindings.add(new HookBinding<T>(true, event, func));
+	}
+
+	// TODO: Should Not Exist //
+	public void setConfiguration(Configuration configuration) {
+		this.globalConfiguration = configuration;
 	}
 }

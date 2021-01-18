@@ -1,14 +1,18 @@
 package everyos.bot.luwu.run.command.modules.levelling;
 
 import everyos.bot.luwu.core.client.ArgumentParser;
-import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
+import everyos.bot.luwu.run.command.CommandBase;
 import reactor.core.publisher.Mono;
 
-public class LevelCheckCommand implements Command {
+public class LevelCheckCommand extends CommandBase {
+	public LevelCheckCommand() {
+		super("command.level.check");
+	}
+
 	@Override
 	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		Locale locale = data.getLocale();

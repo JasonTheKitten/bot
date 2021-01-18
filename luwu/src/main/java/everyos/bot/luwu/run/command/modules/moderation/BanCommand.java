@@ -3,22 +3,19 @@ package everyos.bot.luwu.run.command.modules.moderation;
 import java.util.ArrayList;
 
 import everyos.bot.chat4j.enm.ChatPermission;
-import everyos.bot.luwu.core.annotation.CommandID;
-import everyos.bot.luwu.core.annotation.Help;
 import everyos.bot.luwu.core.annotation.Permissions;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
+import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.run.command.modules.moderation.BanCommand.BanArguments;
 import reactor.core.publisher.Mono;
 
-@CommandID(id=1)
 @Permissions(permissions={ChatPermission.BAN})
-@Help(help="command.ban.help", ehelp="command.ban.ehelp")
 public class BanCommand extends ModerationCommandBase<BanArguments> {
 	private BanCommand() {
-		super(new ChatPermission[] {ChatPermission.BAN});
+		super("command.ban", new ChatPermission[] {ChatPermission.BAN});
 	}
 	
 	private static BanCommand instance;
@@ -29,7 +26,7 @@ public class BanCommand extends ModerationCommandBase<BanArguments> {
 	
 	@Override protected Mono<BanArguments> parseArgs(ArgumentParser parser, Locale locale) {
 		//Read each of the users that must be banned
-		ArrayList<Long> ids = new ArrayList<>();
+		ArrayList<UserID> ids = new ArrayList<>();
 		String reason = null;
 		while (!parser.isEmpty()) {
 			if (!parser.couldBeUserID()) {
@@ -53,8 +50,8 @@ public class BanCommand extends ModerationCommandBase<BanArguments> {
 		
 		String freason = reason;
 		return Mono.just(new BanArguments() {
-			@Override public Long[] getUsers() {
-				return ids.toArray(new Long[ids.size()]);
+			@Override public UserID[] getUsers() {
+				return ids.toArray(new UserID[ids.size()]);
 			}
 
 			@Override public String getReason() {

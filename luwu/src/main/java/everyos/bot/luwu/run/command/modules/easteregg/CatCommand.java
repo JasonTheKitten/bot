@@ -1,12 +1,16 @@
-package everyos.bot.luwu.run.command.modules.fun;
+package everyos.bot.luwu.run.command.modules.easteregg;
 
 import everyos.bot.luwu.core.client.ArgumentParser;
-import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
+import everyos.bot.luwu.run.command.CommandBase;
 import reactor.core.publisher.Mono;
 
-public class CatCommand implements Command {
+public class CatCommand extends CommandBase {
+	public CatCommand() {
+		super("command.easteregg.cat");
+	}
+
 	static final String URL =
 		"https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/67401945-34fc-46b8-8e8f-19828472"+
 		"77d4/ddba22b-2fad9d00-1d3f-4ec8-a65d-199a09dfa4e1.gif?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI"+
@@ -15,7 +19,8 @@ public class CatCommand implements Command {
 		"OWRmYTRlMS5naWYifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6ZmlsZS5kb3dubG9hZCJdfQ._-whxwEBEaTLWUvSWL80K"+
 		"TGiwpoy9dSPzXSRhfTAzeM";
 	
-	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
+	@Override
+	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		return data.getChannel().getInterface(ChannelTextInterface.class)
 			.send(spec->{
 				spec.setContent("This command does not exist, but take a cat anyways! (Image from WixMP)"); //TODO: Localize

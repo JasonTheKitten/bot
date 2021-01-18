@@ -15,6 +15,8 @@ public interface Configuration {
 	public String getDatabaseURL();
 	public String getDatabasePassword();
 	public String getDatabaseName();
+	@Deprecated
+	public String getCustomField(String fieldName); //TODO: Just doing this for quick programming, should not exist
 	
 	public static Configuration loadFrom(File file) throws IOException {
 		JsonObject config = JsonParser.parseReader(new InputStreamReader(new FileInputStream(file))).getAsJsonObject();
@@ -36,6 +38,13 @@ public interface Configuration {
 			}
 			@Override public String getDatabaseName() {
 				return config.get("database-name").getAsString();
+			}
+			
+			@Override public String getCustomField(String fieldName) {
+				if (!config.has(fieldName)) {
+					return null;
+				}
+				return config.get(fieldName).getAsString();
 			}
 		};
 	}

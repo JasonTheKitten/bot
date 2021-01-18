@@ -7,6 +7,7 @@ import everyos.bot.luwu.core.database.DBDocument;
 import everyos.bot.luwu.core.database.DBObject;
 import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.Connection;
+import everyos.bot.luwu.core.entity.UserID;
 import reactor.core.publisher.Mono;
 
 public class ChatLinkChannel extends Channel {
@@ -26,12 +27,19 @@ public class ChatLinkChannel extends Channel {
 		DBObject channelData = document.getObject().getOrDefaultObject("data", null);
 		if (channelData==null) return Mono.error(new Exception("Channel data was null"));
 		func.accept(new ChatLinkEditSpec() {
-			@Override public void setVerified(boolean b) {
+			@Override
+			public void setVerified(boolean b) {
 				if (b) {
 					channelData.set("verified", b);
 				} else {
 					channelData.remove("verified");
 				}
+			}
+
+			@Override
+			public void addMutedUser(UserID user) {
+				//TODO: Connection ID
+				channelData.getOrCreateArray("muted").add(user.getLong());
 			}
 		});
 		return document.save();

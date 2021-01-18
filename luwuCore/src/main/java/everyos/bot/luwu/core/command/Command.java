@@ -10,7 +10,7 @@ public interface Command {
 	
 	Mono<Void> execute(CommandData data, ArgumentParser parser);
 	
-	
+	//String getID();
 	default String getID() {
 		return null;
 	}

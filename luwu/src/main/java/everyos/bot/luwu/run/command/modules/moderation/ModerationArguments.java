@@ -1,6 +1,8 @@
 package everyos.bot.luwu.run.command.modules.moderation;
 
+import everyos.bot.luwu.core.entity.UserID;
+
 public interface ModerationArguments {
-	public Long[] getUsers();
+	public UserID[] getUsers();
 	public String getReason();
 }

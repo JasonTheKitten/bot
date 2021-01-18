@@ -9,6 +9,7 @@ public class MusicPauseCommand extends GenericMusicCommand {
 	private boolean doPause;
 
 	public MusicPauseCommand(boolean b) {
+		super(b?"command.music.paused":"command.music.unpaused");
 		this.doPause = b;
 	}
 

@@ -3,22 +3,19 @@ package everyos.bot.luwu.run.command.modules.moderation;
 import java.util.ArrayList;
 
 import everyos.bot.chat4j.enm.ChatPermission;
-import everyos.bot.luwu.core.annotation.CommandID;
-import everyos.bot.luwu.core.annotation.Help;
 import everyos.bot.luwu.core.annotation.Permissions;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
+import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.run.command.modules.moderation.KickCommand.KickArguments;
 import reactor.core.publisher.Mono;
 
-@CommandID(id=1)
 @Permissions(permissions={ChatPermission.BAN})
-@Help(help="command.kick.help", ehelp="command.kick.ehelp")
 public class KickCommand extends ModerationCommandBase<KickArguments> {
 	private KickCommand() {
-		super(new ChatPermission[] {ChatPermission.KICK});
+		super("command.kick", new ChatPermission[] {ChatPermission.KICK});
 	}
 	
 	private static KickCommand instance;
@@ -29,7 +26,7 @@ public class KickCommand extends ModerationCommandBase<KickArguments> {
 	
 	@Override protected Mono<KickArguments> parseArgs(ArgumentParser parser, Locale locale) {
 		//Read each of the users that must be kicked
-		ArrayList<Long> ids = new ArrayList<>();
+		ArrayList<UserID> ids = new ArrayList<>();
 		String reason = null;
 		while (!parser.isEmpty()) {
 			if (!parser.couldBeUserID()) {
@@ -53,8 +50,8 @@ public class KickCommand extends ModerationCommandBase<KickArguments> {
 		
 		String freason = reason;
 		return Mono.just(new KickArguments() {
-			@Override public Long[] getUsers() {
-				return ids.toArray(new Long[ids.size()]);
+			@Override public UserID[] getUsers() {
+				return ids.toArray(new UserID[ids.size()]);
 			}
 
 			@Override public String getReason() {

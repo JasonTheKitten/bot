@@ -5,6 +5,10 @@ import everyos.bot.luwu.core.command.CommandData;
 import reactor.core.publisher.Mono;
 
 public class MusicShuffleCommand extends GenericMusicCommand {
+	public MusicShuffleCommand() {
+		super("command.music.shuffle");
+	}
+
 	@Override
 	Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		//manager.getQueue().

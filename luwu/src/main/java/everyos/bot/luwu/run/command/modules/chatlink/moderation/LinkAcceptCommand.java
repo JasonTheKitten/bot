@@ -35,7 +35,7 @@ public class LinkAcceptCommand extends CommandBase {
 			.flatMap(link->{
 				return checkPerms(link, data.getChannel().getID(), data.getInvoker().getID(), locale)
 					.then(parseArguments(parser, locale))
-					.flatMap(id->data.getConnection().getChannelByID(id.getLong()))
+					.flatMap(id->id.getChannel())
 					.flatMap(channel->channel.as(ChatLinkChannel.type))
 					
 					.filter(channel->channel.getLinkID()==link.getID())
@@ -54,7 +54,7 @@ public class LinkAcceptCommand extends CommandBase {
 				"expected", locale.localize("command.error.channelid"),
 				"got", got)));
 		}
-		return Mono.just(new ChannelID(parser.eatChannelID()));
+		return Mono.just(parser.eatChannelID());
 	}
 	
 	private Mono<Void> checkPerms(ChatLink link, ChannelID channelID, UserID userID, Locale locale) {

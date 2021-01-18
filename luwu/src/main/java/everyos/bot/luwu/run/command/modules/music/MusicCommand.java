@@ -37,8 +37,8 @@ public class MusicCommand extends MultiCommand {
         commands.registerCommand("command.music.shuffle", musicShuffleCommand);
         commands.registerCommand("command.music.pause", musicPauseCommand);
         commands.registerCommand("command.music.unpause", musicUnpauseCommand);
-        commands.registerCommand("command.music.np", musicNpCommand);
         commands.registerCommand("command.music.nowplaying", musicNpCommand);
+        commands.registerCommand("command.music.nowplaying.alias", musicNpCommand);
         commands.registerCommand("command.music.repeat", musicRepeatCommand);
         commands.registerCommand("command.music.requeue", musicRequeueCommand);
         commands.registerCommand("command.music.queue", musicQueueCommand);

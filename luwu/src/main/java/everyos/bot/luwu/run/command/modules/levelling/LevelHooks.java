@@ -43,7 +43,7 @@ public abstract class LevelHooks {
 								.replace("${user.ping}", "<@"+String.valueOf(sender.getID().getLong())+">") //TODO
 								.replace("${user.level}", String.valueOf(newLevelState.getLevel()));
 								//TODO: XP, Previous Level, Server Name, User ID, User Name No Ping, etc
-							m1 = event.getConnection().getChannelByID(info.getMessageChannelID().getLong())
+							m1 = info.getMessageChannelID().getChannel()
 								.map(channel->channel.getInterface(ChannelTextInterface.class))
 								.flatMap(tg->tg.send(spec->spec.setPresanitizedContent(resolved+" (Message set by guild admin)"))) //TODO: Localize
 								.then();

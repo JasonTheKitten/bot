@@ -19,7 +19,7 @@ public class MessageCreateEventProcessor {
 					.map(sender->new CommandData(message, sender, channel));
 			});
 		}).flatMap(data->{
-			ArgumentParser parser = event.getClient().getBehaviour().createParser(data.getMessage().getContent().orElse(""));
+			ArgumentParser parser = event.getClient().getBehaviour().createParser(event.getConnection(), data.getMessage().getContent().orElse(""));
 			return event.getConnection().getBotEngine().getUserCase(data)
 				.flatMap(command->command.execute(data, parser)); //Step 2: We execute the default command
 		}).then();

@@ -47,15 +47,11 @@ public class User implements InterfaceProvider {
 	}
 	
 	public Mono<Member> asMemberOf(Channel channel) {
-		return channel.getMember(user.getID());
+		return channel.getMember(getID());
 	}
 
 	public UserID getID() {
-		return new UserID() {
-			@Override public long getLong() {
-				return user.getID();
-			}
-		};
+		return new UserID(connection, user.getID());
 	}
 
 	public String getHumanReadableID() {

@@ -1,5 +1,12 @@
 package everyos.bot.luwu.core.client;
 
+import everyos.bot.luwu.core.entity.ChannelID;
+import everyos.bot.luwu.core.entity.MessageID;
+import everyos.bot.luwu.core.entity.RoleID;
+import everyos.bot.luwu.core.entity.EmojiID;
+import everyos.bot.luwu.core.entity.ServerID;
+import everyos.bot.luwu.core.entity.UserID;
+
 public abstract class ArgumentParser {
 	private final String original;
 	private String argument;
@@ -100,19 +107,22 @@ public abstract class ArgumentParser {
     }
 	
 	public abstract boolean couldBeUserID();
-	public abstract long eatUserID();
+	public abstract UserID eatUserID();
 	
 	public abstract boolean couldBeChannelID();
-	public abstract long eatChannelID();
+	public abstract ChannelID eatChannelID();
 	
 	public abstract boolean couldBeGuildID();
-	public abstract long eatGuildID();
+	public abstract ServerID eatGuildID();
 	
 	public abstract boolean couldBeRoleID();
-	public abstract long eatRoleID();
+	public abstract RoleID eatRoleID();
 	
 	public abstract boolean couldBeEmojiID();
-	public abstract String eatEmojiID();
+	public abstract EmojiID eatEmojiID();
+	
+	public abstract boolean couldBeMessageID();
+	public abstract MessageID eatMessageID();
 	
 	protected String next() {
 		int ind = argument.indexOf(' ');

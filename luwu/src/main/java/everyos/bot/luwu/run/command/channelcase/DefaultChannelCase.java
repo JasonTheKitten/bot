@@ -3,12 +3,11 @@ package everyos.bot.luwu.run.command.channelcase;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.core.command.CommandData;
-import everyos.bot.luwu.run.command.modules.chatlink.setup.LinkCreateCommand;
-import everyos.bot.luwu.run.command.modules.chatlink.setup.LinkJoinCommand;
-import everyos.bot.luwu.run.command.modules.fun.CatCommand;
-import everyos.bot.luwu.run.command.modules.fun.HugCommand;
-import everyos.bot.luwu.run.command.modules.fun.UwUCommand;
-import everyos.bot.luwu.run.command.modules.levelling.LevelCommand;
+import everyos.bot.luwu.run.command.modules.chatlink.setup.LinkSetupCommands;
+import everyos.bot.luwu.run.command.modules.easteregg.EasterEggCommands;
+import everyos.bot.luwu.run.command.modules.fun.FunCommands;
+import everyos.bot.luwu.run.command.modules.info.InfoCommands;
+import everyos.bot.luwu.run.command.modules.levelling.LevelCommands;
 import everyos.bot.luwu.run.command.modules.moderation.ModerationCommands;
 import everyos.bot.luwu.run.command.modules.music.MusicCommands;
 import reactor.core.publisher.Mono;
@@ -19,14 +18,25 @@ public class DefaultChannelCase extends CommandChannelCase {
 	
 	public DefaultChannelCase() {
 		this.commands = new CommandContainer();
+		
+		commands.category("moderation");
 		ModerationCommands.installTo(commands);
+		
+		commands.category("fun");
 		MusicCommands.installTo(commands);
-		commands.registerCommand("command.link.create", new LinkCreateCommand());
-		commands.registerCommand("command.link.join", new LinkJoinCommand());
-		commands.registerCommand("command.easteregg.cat", new CatCommand());
-		commands.registerCommand("command.easteregg.uwu", new UwUCommand());
-		commands.registerCommand("command.level", new LevelCommand());
-		commands.registerCommand("command.hug", new HugCommand());
+		FunCommands.installTo(commands);
+		
+		commands.category("info");
+		InfoCommands.installTo(commands);
+		
+		commands.category("channel");
+		LinkSetupCommands.installTo(commands);
+		
+		commands.category("utility");
+		LevelCommands.installTo(commands);
+		
+		commands.category(null);
+		EasterEggCommands.installTo(commands);
 	}
 
 	@Override
@@ -37,6 +47,11 @@ public class DefaultChannelCase extends CommandChannelCase {
 	@Override
 	public CommandContainer getCommands() {
 		return commands;
+	}
+	
+	@Override
+	public String getID() {
+		return "command.channelcase.default";
 	}
 
 	public static DefaultChannelCase get() {

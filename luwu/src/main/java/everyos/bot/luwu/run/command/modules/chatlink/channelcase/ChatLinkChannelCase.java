@@ -5,6 +5,7 @@ import java.time.Duration;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.core.command.CommandData;
+import everyos.bot.luwu.core.entity.EmojiID;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.run.command.channelcase.CommandChannelCase;
 import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannel;
@@ -36,11 +37,11 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 							.flatMap(v2->link.sendMessage(data.getMessage()))
 							.switchIfEmpty(Mono.error(new TextException("link.error.needverified")));
 					})
-					.then(data.getMessage().addReaction("\u2611"))
+					.then(data.getMessage().addReaction(EmojiID.of("\u2611")))
 					.delayElement(Duration.ofMillis(1000))
-					.then(data.getMessage().removeReaction("\u2611"))
+					.then(data.getMessage().removeReaction(EmojiID.of("\u2611")))
 					.onErrorResume(e->{
-						return data.getMessage().addReaction("x");
+						return data.getMessage().addReaction(EmojiID.of("x"));
 					});
 			})
 			.then();

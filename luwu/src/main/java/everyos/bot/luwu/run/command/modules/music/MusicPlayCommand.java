@@ -7,6 +7,10 @@ import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
 
 public class MusicPlayCommand extends GenericMusicCommand {
+	public MusicPlayCommand() {
+		super("command.music.play");
+	}
+
 	@Override
 	Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		Locale locale = data.getLocale();
