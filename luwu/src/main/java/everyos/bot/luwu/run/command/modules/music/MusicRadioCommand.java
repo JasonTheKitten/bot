@@ -10,7 +10,8 @@ public class MusicRadioCommand extends GenericMusicCommand {
 		super("command.music.radio");
 	}
 
-	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
+	@Override
+	public Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		manager.setRadio(!manager.getRadio());
 		manager.ready();
 		ChannelTextInterface channel = data.getChannel().getInterface(ChannelTextInterface.class);

@@ -1,10 +1,10 @@
-package everyos.bot.luwu.run.command.modules.levelling;
+package everyos.bot.luwu.run.command.modules.leveling;
 
 import everyos.bot.luwu.util.Tuple;
 
 public class LevelState {
 	private static final int XP_BASE = 3;
-	private static final double XP_SPEED = 1.4;
+	private static final double XP_SPEED = 1.35;
 	
 	private long xp;
 	private long timestamp;

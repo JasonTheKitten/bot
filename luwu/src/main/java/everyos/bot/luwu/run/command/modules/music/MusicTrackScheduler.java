@@ -11,6 +11,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 
 public class MusicTrackScheduler extends AudioEventAdapter {
@@ -45,10 +46,17 @@ public class MusicTrackScheduler extends AudioEventAdapter {
 		radioIntervalWidth = radioSongs.length/maxSongFrequency;
 		radioIntervalIndex = (int)(Math.random()*radioSongs.length);
 	}
+	
+	@Override
+	public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+		if (endReason == AudioTrackEndReason.LOAD_FAILED) {
+			playNext();
+		}
+	}
 
 	@Override
 	public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
-		playNext();
+		playNext();	
 	}
 	
 	@Override
@@ -76,6 +84,7 @@ public class MusicTrackScheduler extends AudioEventAdapter {
 			
 			return;
 		}
+		
 		if (queue.size()>0) {
 			MusicTrack track = queue.pop();
 			playTrack(track);

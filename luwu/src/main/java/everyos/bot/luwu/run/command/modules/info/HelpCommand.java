@@ -1,5 +1,9 @@
 package everyos.bot.luwu.run.command.modules.info;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import everyos.bot.chat4j.entity.ChatColor;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.Command;
@@ -56,7 +60,7 @@ public class HelpCommand extends CommandBase {
 		});
 	}
 	
-	private Mono<Void> showHelpForCommand(Channel channel, Command command, String category, Locale locale) {
+	public static Mono<Void> showHelpForCommand(Channel channel, Command command, String category, Locale locale) {
 		if (command == null) {
 			return Mono.error(new TextException(locale.localize("command.help.nosuchcommand")));
 		}
@@ -86,10 +90,12 @@ public class HelpCommand extends CommandBase {
 		}).then();
 	}
 
-	private Mono<Void> showGroupCommandHelp(Channel channel, GroupCommand command, String category, Locale locale) {
+	public static Mono<Void> showGroupCommandHelp(Channel channel, GroupCommand command, String categoryb, Locale locale) {
 		if (command == null) {
-			return Mono.error(new TextException(locale.localize("command.help.nosuchcommand")));
+			return Mono.error(new TextException(locale.localize("command.help.error.nosuchcommand")));
 		}
+		
+		String category = categoryb==null?"":categoryb;
 		
 		String id = command.getID();
 		
@@ -97,8 +103,55 @@ public class HelpCommand extends CommandBase {
 		
 		//TODO: Command groups
 		
-		StringBuilder helpBuilder = new StringBuilder("\n");
 		CommandEntry[] entries = command.getCommands().getAll();
+		HashMap<String, ArrayList<CommandEntry>> groups = new HashMap<>();
+		
+		for (CommandEntry subcommandEntry: entries) {
+			if (subcommandEntry.getCategory()==null) continue;
+			groups
+				.computeIfAbsent(subcommandEntry.getCategory(), key->new ArrayList<>())
+				.add(subcommandEntry);
+		}
+		
+		List<CommandEntry> group = groups.getOrDefault(category.isEmpty()?"default":category, new ArrayList<>());
+		CommandEntry[] groupArray = group.toArray(new CommandEntry[group.size()]);
+		String helpTextInitial = constructHelpForCommands(groupArray, locale);
+		
+		StringBuilder listingsBuilder = new StringBuilder();
+		if (category.equals("")) {
+			for (String key: groups.keySet()) {
+				if (key.equals("default")) continue;
+				//TODO
+				listingsBuilder.append("\n**"+key+"** - `help >"+key+"`");
+			}
+		}
+		String listings = listingsBuilder.toString().isEmpty()?"":"\n"+listingsBuilder.toString();
+		
+		String helpText = !(listings.isEmpty()&&helpTextInitial.isEmpty())?
+			helpTextInitial:
+			"\n\n"+locale.localize("command.help.error.nosubcommands");
+		
+		
+		return textGrip.send(spec->{
+			spec.setEmbed(embedSpec->{
+				String desc = getOrUndocumented(id==null?null:(id+".help.extended"), locale);
+				//TODO: Localize
+				embedSpec.setTitle("Help"+
+					(id==null||!locale.canLocalize(id)?"":" - "+locale.localize(id))+
+					(category.isEmpty()?"":(" - >"+category)));
+				if (listings.isEmpty()) {
+					embedSpec.setColor(ChatColor.of(50, 80, 145));
+				} else {
+					embedSpec.setColor(ChatColor.of(80, 0, 70));
+				}
+				embedSpec.setDescription(desc+listings+helpText);
+				embedSpec.setFooter("Luwu is written by EveryOS");
+			});
+		}).then();
+	};
+	
+	private static String constructHelpForCommands(CommandEntry[] entries, Locale locale) {
+		StringBuilder helpBuilder = new StringBuilder("\n");
 		for (CommandEntry subcommandEntry: entries) {
 			if (subcommandEntry.getCategory()==null) continue;
 			String subcommandTitle = locale.localize(subcommandEntry.getLabel());
@@ -108,22 +161,13 @@ public class HelpCommand extends CommandBase {
 		}
 		
 		if (entries.length==0) {
-			helpBuilder.append("\nNo subcommands listed!");
+			return "";
 		}
 		
-		return textGrip.send(spec->{
-			spec.setEmbed(embedSpec->{
-				String desc = getOrUndocumented(id==null?null:(id+".help.extended"), locale);
-				//TODO: Localize
-				embedSpec.setTitle("Help"+(id==null||!locale.canLocalize(id)?"":" - "+locale.localize(id)));
-				embedSpec.setColor(ChatColor.of(50, 80, 145));
-				embedSpec.setDescription(desc+helpBuilder.toString());
-				embedSpec.setFooter("Luwu is written by EveryOS");
-			});
-		}).then();
-	};
+		return helpBuilder.toString();
+	}
 	
-	private String getOrUndocumented(String label, Locale locale) {
+	private static String getOrUndocumented(String label, Locale locale) {
 		if (label==null || !locale.canLocalize(label)) {
 			return locale.localize("command.help.error.undocumented");
 		}

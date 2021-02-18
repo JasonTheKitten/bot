@@ -49,8 +49,7 @@ public abstract class CommandChannelCase implements ChannelCase, GroupCommand {
 			.onErrorResume(ex->{
 				ChannelTextInterface channel = data.getChannel().getInterface(ChannelTextInterface.class);
 				if (ex instanceof TextException) return channel.send(ex.getMessage()).then();
-				return channel.send("Oops!, made an error. Logging that to console.").then(Mono.error(ex));
-				//data.getLocale().localize("bot.error.logged"));
+				return channel.send(data.getLocale().localize("command.error.logged")).then(Mono.error(ex));
 			})
 			.then(Mono.just(true));
 	}

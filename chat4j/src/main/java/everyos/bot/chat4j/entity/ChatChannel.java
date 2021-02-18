@@ -19,4 +19,8 @@ public interface ChatChannel extends ChatInterfaceProvider {
 	public Mono<ChatGuild> getGuild();
 
 	public String getName();
+	
+	public boolean isPrivate();
+
+	public Mono<ChatMessage> getMessageByID(long long1);
 }

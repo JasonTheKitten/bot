@@ -15,6 +15,7 @@ import discord4j.gateway.intent.IntentSet;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
+import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.event.ChatEvent;
 import everyos.bot.chat4j.event.ChatMessageCreateEvent;
@@ -22,6 +23,7 @@ import everyos.bot.chat4j.event.ChatMessageEvent;
 import everyos.bot.chat4j.event.UnsupportedEventException;
 import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.discord.chat4d.entity.DiscordChannel;
+import everyos.discord.chat4d.entity.DiscordGuild;
 import everyos.discord.chat4d.entity.DiscordUser;
 import everyos.discord.chat4d.event.DiscordEvent;
 import everyos.discord.chat4d.event.DiscordMessageCreateEvent;
@@ -82,12 +84,19 @@ public class DiscordChatClient implements ChatClient {
 					throw new UnsupportedEventException();
 				}
 				
-				@Override public Mono<ChatUser> getUserByID(long id) {
+				@Override
+				public Mono<ChatUser> getUserByID(long id) {
 					return connection.getUserById(Snowflake.of(id)).map(user->new DiscordUser(this, user));
 				}
 
-				@Override public Mono<ChatChannel> getChannelByID(long id) {
+				@Override
+				public Mono<ChatChannel> getChannelByID(long id) {
 					return connection.getChannelById(Snowflake.of(id)).map(user->new DiscordChannel(this, user));
+				}
+				
+				@Override
+				public Mono<ChatGuild> getGuildByID(long id) {
+					return connection.getGuildById(Snowflake.of(id)).map(guild->new DiscordGuild(this, guild));
 				}
 			});
 		});

@@ -12,6 +12,7 @@ public class MusicRestartCommand extends GenericMusicCommand {
 
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		manager.getPlayingAudio().setPosition(0);
+		manager.unpause();
 		
 		ChannelTextInterface channel = data.getChannel().getInterface(ChannelTextInterface.class);
 		return channel.send(data.getLocale().localize("command.music.restarted"))

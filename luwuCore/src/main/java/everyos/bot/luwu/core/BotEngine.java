@@ -100,20 +100,24 @@ public class BotEngine {
 	}
 
 	public Mono<ChannelCase> getChannelCase(CommandData data) {
-		Mono<String> channelCaseNameMono = Mono.just(data.getChannel().getType());
-		for (BiFunction<Mono<String>, CommandData, Mono<String>> func: configuration.getChannelCaseTransformers()) {
-			channelCaseNameMono = func.apply(channelCaseNameMono, data);
-		}
-		return channelCaseNameMono.map(name->configuration.getChannelCase(name));
+		return Mono.defer(()->{
+			Mono<String> channelCaseNameMono = data.getChannel().getType();
+			for (BiFunction<Mono<String>, CommandData, Mono<String>> func: configuration.getChannelCaseTransformers()) {
+				channelCaseNameMono = func.apply(channelCaseNameMono, data);
+			}
+			return channelCaseNameMono.map(name->configuration.getChannelCase(name));
+		});
 	}
 	
 	public Mono<UserCase> getUserCase(CommandData data) {
-		// TODO: Look up the user case in database, and only use default if not present
-		Mono<String> userCaseNameMono = Mono.just(configuration.getDefaultUserCaseName());
-		for (BiFunction<Mono<String>, CommandData, Mono<String>> func: configuration.getUserCaseTransformers()) {
-			userCaseNameMono = func.apply(userCaseNameMono, data);
-		}
-		return userCaseNameMono.map(name->configuration.getUserCase(name));
+		return Mono.defer(()->{
+			// TODO: Look up the user case in database, and only use default if not present
+			Mono<String> userCaseNameMono = Mono.just(configuration.getDefaultUserCaseName());
+			for (BiFunction<Mono<String>, CommandData, Mono<String>> func: configuration.getUserCaseTransformers()) {
+				userCaseNameMono = func.apply(userCaseNameMono, data);
+			}
+			return userCaseNameMono.map(name->configuration.getUserCase(name));
+		});
 	}
 
 	//TODO: This doesn't feel like the right place to put this

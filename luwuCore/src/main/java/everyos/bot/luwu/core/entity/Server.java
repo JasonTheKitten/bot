@@ -25,7 +25,7 @@ public class Server implements InterfaceProvider {
 	}
 
 	public ServerID getID() {
-		return ()->guild.getID(); 
+		return new ServerID(connection, guild.getID()); 
 	}
 
 	@Override public <T extends Interface> boolean supportsInterface(Class<T> cls) {

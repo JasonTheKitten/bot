@@ -1,4 +1,4 @@
-package everyos.bot.luwu.run.command.modules.levelling;
+package everyos.bot.luwu.run.command.modules.leveling;
 
 import everyos.bot.luwu.core.command.CommandContainer;
 

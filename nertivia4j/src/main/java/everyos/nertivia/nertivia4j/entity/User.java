@@ -14,11 +14,14 @@ public class User {
 	private long userID;
 	private NertiviaClient client;
 	private NertiviaInstance instance;
+	
+	private boolean isBot;
 
-	public User(NertiviaClient client, NertiviaInstance instance, long userID) {
+	public User(NertiviaClient client, NertiviaInstance instance, long userID, boolean isBot) {
 		this.client = client;
 		this.instance = instance;
 		this.userID = userID;
+		this.isBot = isBot;
 	}
 	
 	public static Mono<User> of(NertiviaClient client, NertiviaInstance instance, long userID) {
@@ -26,8 +29,11 @@ public class User {
 			return req
 				.header("authorization", instance.token);
 		}).flatMap(resp->{
+			//System.out.println(resp.getBody());
 			JsonObject object = JsonParser.parseString(resp.getBody()).getAsJsonObject();
-			return Mono.just(new User(client, instance, object.get("user").getAsJsonObject().get("uniqueID").getAsLong()));
+			return Mono.just(new User(client, instance,
+				object.get("user").getAsJsonObject().get("uniqueID").getAsLong(),
+				object.get("user").getAsJsonObject().has("bot")));
 		});
 	}
 	
@@ -45,6 +51,10 @@ public class User {
 	}
 
 	public Mono<Member> asMember(long serverID) {
-		return Mono.just(new Member(client, instance, userID, serverID));
+		return Mono.just(new Member(client, instance, userID, serverID, isBot));
+	}
+
+	public boolean isBot() {
+		return isBot;
 	}
 }

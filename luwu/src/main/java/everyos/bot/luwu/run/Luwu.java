@@ -13,7 +13,7 @@ import everyos.bot.luwu.nertivia.NertiviaClientBuilder;
 import everyos.bot.luwu.run.command.channelcase.DefaultChannelCase;
 import everyos.bot.luwu.run.command.channelcase.PrivateChannelCase;
 import everyos.bot.luwu.run.command.modules.chatlink.channelcase.ChatLinkChannelCase;
-import everyos.bot.luwu.run.command.modules.levelling.LevelHooks;
+import everyos.bot.luwu.run.command.modules.leveling.LevelHooks;
 import everyos.bot.luwu.run.command.usercase.DefaultUserCase;
 import reactor.core.publisher.Mono;
 

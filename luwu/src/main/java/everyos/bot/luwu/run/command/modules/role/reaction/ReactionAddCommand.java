@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
+import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.EmojiID;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.MessageID;
@@ -22,13 +23,13 @@ public class ReactionAddCommand extends CommandBase {
 	@Override
 	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		return
-			parseArguments(parser, data.getLocale())
+			parseArguments(data.getChannel(), parser, data.getLocale())
 			.flatMap(args->createReaction(args));
 	}
 
 	
 
-	private Mono<Tuple<MessageID, Tuple<EmojiID, RoleID>[]>> parseArguments(ArgumentParser parser, Locale locale) {
+	private Mono<Tuple<MessageID, Tuple<EmojiID, RoleID>[]>> parseArguments(Channel channel, ArgumentParser parser, Locale locale) {
 		/*
 		 reaction add [mid]
 		 	[emoji] [roleid]
@@ -36,10 +37,12 @@ public class ReactionAddCommand extends CommandBase {
 		 */
 		
 		//TODO: Validate input
+		//TODO: Test why (some) errors are not notifying the user
+		//TODO: Modifiers: Switch, Permanent
 		
 		ArrayList<Tuple<EmojiID, RoleID>> reactionRoles = new ArrayList<>();
 		
-		MessageID messageID = parser.eatMessageID();
+		MessageID messageID = parser.eatMessageID(channel.getID());
 		
 		while (!parser.isEmpty()) {
 			EmojiID reactionID = parser.eatEmojiID();
@@ -58,7 +61,9 @@ public class ReactionAddCommand extends CommandBase {
 	private Mono<Void> createReaction(Tuple<MessageID, Tuple<EmojiID, RoleID>[]> args) {
 		MessageID messageID = args.getT1();
 		return messageID.getMessage().flatMapMany(message->{
+			message.as(ReactionMessage.type);
 			return Flux.fromArray(args.getT2()).flatMap(tup->{
+				
 				return message.addReaction(tup.getT1());
 			});
 		}).then();

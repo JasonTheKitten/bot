@@ -1,9 +1,14 @@
 package everyos.bot.luwu.core.entity;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
+
 import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.functionality.channel.ChatChannelVoiceInterface;
 import everyos.bot.luwu.core.database.DBDocument;
 import everyos.bot.luwu.core.entity.imp.ChannelTextInterfaceImp;
+import everyos.bot.luwu.core.entity.imp.ChannelVoiceInterfaceImp;
 import everyos.bot.luwu.core.functionality.Interface;
 import everyos.bot.luwu.core.functionality.InterfaceProvider;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
@@ -13,14 +18,20 @@ import reactor.core.publisher.Mono;
 public class Channel implements InterfaceProvider {
 	private Connection connection;
 	private ChatChannel channel;
-	private DBDocument document;
+	private Map<String, DBDocument> documents;
 
-	public Channel(Connection connection, ChatChannel channel, DBDocument document) {
+	protected Channel(Connection connection, ChatChannel channel, Map<String, DBDocument> documents) {
 		this.connection = connection;
 		this.channel = channel;
-		this.document = document;
+		this.documents = documents==null?
+			Collections.synchronizedMap(new WeakHashMap<>()):
+			documents;
 	}
 	
+	public Channel(Connection connection, ChatChannel channel) {
+		this(connection, channel, null);
+	}
+
 	public <T extends Interface> boolean supportsInterface(Class<T> cls) {
 		return
 			(cls==ChannelTextInterface.class) &&
@@ -54,13 +65,14 @@ public class Channel implements InterfaceProvider {
 			"Luwu"
 		});
 	}
-	public String getType() {
-		return document.getObject().getOrDefaultString(
-			"type", connection.getBotEngine().getDefaultUserCaseName());
+	public Mono<String> getType() {
+		return getGlobalDocument()
+			.map(document->document.getObject().getOrDefaultString(
+				"type", connection.getBotEngine().getDefaultUserCaseName()));
 	}
 
 	public ChannelID getID() {
-		return new ChannelID(connection, channel.getID());
+		return new ChannelID(connection, channel.getID(), getClient().getID());
 	}
 	
 	public String getName() {
@@ -72,7 +84,7 @@ public class Channel implements InterfaceProvider {
 	}
 
 	public <T extends Channel> Mono<T> as(ChannelFactory<T> factory) {
-		return factory.createChannel(connection, channel, getDocument());
+		return factory.createChannel(connection, channel, getDocuments());
 	}
 
 	public Mono<Server> getServer() {
@@ -81,7 +93,7 @@ public class Channel implements InterfaceProvider {
 	}
 
 	public boolean isPrivateChannel() {
-		return false;
+		return channel.isPrivate();
 	}
 	
 	public Connection getConnection() {
@@ -92,19 +104,30 @@ public class Channel implements InterfaceProvider {
 		return connection.getClient();
 	}
 	
-	protected DBDocument getDocument() {
-		return document;
+	protected Map<String, DBDocument> getDocuments() {
+		return documents;
 	}
 	
-	public static Mono<Channel> getChannel(Connection connection, ChatChannel channel) {
+	protected Mono<DBDocument> getNamedDocument(String name) {
+		if (documents.containsKey(name)) {
+			return Mono.just(documents.get(name));
+		}
 		//TODO: Consider client id
-		return connection.getClient().getBotEngine().getDatabase()
-			.collection("channels")
-			.scan()
+		return getConnection().getBotEngine().getDatabase()
+			.collection(name).scan()
 			.with("cid", channel.getID())
-			.orCreate(obj->{})
-			
-			.map(document->new Channel(connection, channel, document));
+			.with("cliid", getClient().getID())
+			.orCreate(document->{})
+			.doOnNext(document->documents.put(name, document));
+	}
+	
+	protected Mono<DBDocument> getGlobalDocument() {
+		return getNamedDocument("channels");
+	}
+	
+	public Mono<Message> getMessageByID(MessageID messageID) {
+		return channel.getMessageByID(messageID.getLong())
+			.map(message->new Message(connection, message));
 	}
 	
 	//TODO: Read+Edit

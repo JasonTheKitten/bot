@@ -9,6 +9,7 @@ import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.entity.ChatMessage;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.functionality.ChatInterface;
+import everyos.bot.chat4j.functionality.message.ChatMessageReactionInterface;
 import everyos.nertivia.nertivia4j.entity.Message;
 import reactor.core.publisher.Mono;
 
@@ -21,46 +22,91 @@ public class NertiviaMessage implements ChatMessage {
 		this.connection = connection;
 	}
 
-	@Override public Optional<String> getContent() {
+	@Override
+	public Optional<String> getContent() {
 		return message.getContent();
 	}
 
-	@Override public Mono<Void> delete() {
+	@Override
+	public Mono<Void> delete() {
 		return message.delete();
 	}
 
-	@Override public Mono<ChatChannel> getChannel() {
+	@Override
+	public Mono<ChatChannel> getChannel() {
 		return message.getChannel().map(channel->new NertiviaChannel(getConnection(), channel));
 	}
 
-	@Override public Mono<ChatUser> getAuthor() {
+	@Override
+	public Mono<ChatUser> getAuthor() {
+		return message.getAuthor().map(user->new NertiviaUser(connection, user));
+	}
+
+	@Override
+	public Mono<ChatMember> getAuthorAsMember() {
 		// TODO Auto-generated method stub
 		return Mono.empty();
 	}
 
-	@Override public Mono<ChatMember> getAuthorAsMember() {
-		// TODO Auto-generated method stub
-		return Mono.empty();
-	}
-
-	@Override public long getTimestamp() {
+	@Override
+	public long getTimestamp() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override public <T extends ChatInterface> boolean supportsInterface(Class<T> cls) {
+	@Override
+	public <T extends ChatInterface> boolean supportsInterface(Class<T> cls) {
 		return false;
 	}
 
-	@Override public <T extends ChatInterface> T getInterface(Class<T> cls) {
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends ChatInterface> T getInterface(Class<T> cls) {
+		if (cls==ChatMessageReactionInterface.class) {
+			return (T) new ChatMessageReactionInterface() {
+
+				@Override
+				public ChatConnection getConnection() {
+					return connection;
+				}
+
+				@Override
+				public ChatClient getClient() {
+					return connection.getClient();
+				}
+
+				@Override
+				public Mono<Void> addReaction(String name) {
+					return Mono.empty();
+				}
+
+				@Override
+				public Mono<Void> addReaction(long id) {
+					return Mono.empty();
+				}
+
+				@Override
+				public Mono<Void> removeReaction(String name) {
+					return Mono.empty();
+				}
+
+				@Override
+				public Mono<Void> removeReaction(long id) {
+					return Mono.empty();
+				}
+				
+			};
+		}
 		return null;
 	}
 	
-	@Override public ChatClient getClient() {
+	@Override
+	public ChatClient getClient() {
 		return getConnection().getClient();
 	}
 
-	@Override public ChatConnection getConnection() {
+	@Override
+	public ChatConnection getConnection() {
 		return connection;
 	}
 
@@ -77,4 +123,8 @@ public class NertiviaMessage implements ChatMessage {
 		return message.getAuthorID();
 	}
 
+	@Override
+	public long getID() {
+		return message.getID();
+	}
 }

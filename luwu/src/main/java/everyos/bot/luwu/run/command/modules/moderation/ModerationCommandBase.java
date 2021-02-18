@@ -76,6 +76,9 @@ public abstract class ModerationCommandBase<T extends ModerationArguments> exten
 	
 	protected Mono<Member> notifyMember(Member member, Locale locale) {
 		//Send a message to the user
+		if (member.isBot()) {
+			return Mono.empty();
+		}
 		return member.getPrivateChannel()
 			.map(pchannel->pchannel.getInterface(ChannelTextInterface.class))
 			.flatMap(tchannel->tchannel.send(locale.localize("command.modlog.nosetreason")))

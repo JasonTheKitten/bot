@@ -7,7 +7,7 @@ public class MusicQueue {
 	
 	public void queue(MusicTrack track) {
 		synchronized(queue) {
-			queue(queue.size(), track);
+			queue.add(queue.size(), track);
 		}
 	}
 	public void queue(int i, MusicTrack track) {

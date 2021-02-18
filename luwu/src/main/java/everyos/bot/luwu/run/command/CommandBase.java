@@ -29,8 +29,12 @@ public abstract class CommandBase implements Command {
 	}
 	
 	protected <T> Mono<T> expect(Locale locale, ArgumentParser parser, String error) {
+		String got = parser.getRemaining();
+		if (got.isEmpty()) {
+			got = locale.localize("command.error.nothing");
+		}
 		return Mono.error(new TextException(locale.localize("command.error.usage",
 			"expected", locale.localize(error),
-			"got", parser.getRemaining())));
+			"got", got)));
 	}
 }

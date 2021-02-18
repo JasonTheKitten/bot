@@ -16,12 +16,17 @@ public class UwUCommand extends CommandBase {
 	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		Locale locale = data.getLocale();
 		
+		String text = locale.localize("bot.name.playful");
+		if (parser.getRemaining().equals("green")) { // Doesn't get localized
+			text = "Green is not a creative color.";
+		}
+		
 		return data.getChannel().getInterface(ChannelTextInterface.class)
 			.send(
 				String.format("> %s (User ID: %s)\n %s",
 					parser.getOriginal(),
 					data.getInvoker().getID().getLong(),
-					locale.localize("bot.name.playful")))
+					text))
 			.then();
 	}
 }

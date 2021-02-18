@@ -1,6 +1,7 @@
 package everyos.bot.chat4j;
 
 import everyos.bot.chat4j.entity.ChatChannel;
+import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.event.ChatEvent;
 import reactor.core.publisher.Flux;
@@ -27,4 +28,5 @@ public interface ChatConnection {
 
 	Mono<ChatUser> getUserByID(long id);
 	public Mono<ChatChannel> getChannelByID(long id);
+	public Mono<ChatGuild> getGuildByID(long long1);
 }

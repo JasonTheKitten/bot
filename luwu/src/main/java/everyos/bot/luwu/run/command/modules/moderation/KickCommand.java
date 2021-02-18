@@ -9,6 +9,7 @@ import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.core.exception.TextException;
+import everyos.bot.luwu.core.functionality.member.MemberModerationInterface;
 import everyos.bot.luwu.run.command.modules.moderation.KickCommand.KickArguments;
 import reactor.core.publisher.Mono;
 
@@ -37,7 +38,7 @@ public class KickCommand extends ModerationCommandBase<KickArguments> {
 			//TODO: Temp time
 			
 			//We have found a mod-log reason
-			if (!parser.isEmpty()&&parser.peek().equals(";")) {
+			if (!parser.isEmpty()&&parser.peek(1).equals(";")) {
 				parser.eat();
 				reason = parser.toString();
 				break;
@@ -61,9 +62,8 @@ public class KickCommand extends ModerationCommandBase<KickArguments> {
 	}
 	
 	@Override protected Mono<Result> performAction(KickArguments arguments, Member member, Locale locale) {
-		return null;
-		/*return member.getInterface(ChatMemberModerationInterface.class).kick(arguments.getReason())
-			.then(Mono.just(new Result(true, member)));*/
+		return member.getInterface(MemberModerationInterface.class).kick(arguments.getReason())
+			.then(Mono.just(new Result(true, member)));
 	}
 	
 	static protected interface KickArguments extends ModerationArguments {

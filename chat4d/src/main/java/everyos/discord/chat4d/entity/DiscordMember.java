@@ -29,10 +29,12 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 
 	@SuppressWarnings("unchecked")
 	@Override public <T extends ChatInterface> T getInterface(Class<T> cls) {
-		if (cls==ChatMemberModerationInterface.class) {
-			return (T) new DiscordGuildMemberModerationInterface(getConnection(), member);
-		} else if (cls==ChatMemberVoiceConnectionInterface.class) {
-			return (T) new DiscordGuildMemberVoiceConnectionInterface(getConnection(), member);
+		if (member!=null) {
+			if (cls==ChatMemberModerationInterface.class) {
+				return (T) new DiscordGuildMemberModerationInterface(getConnection(), member);
+			} else if (cls==ChatMemberVoiceConnectionInterface.class) {
+				return (T) new DiscordGuildMemberVoiceConnectionInterface(getConnection(), member);
+			}
 		}
 		return super.getInterface(cls);
 	}
@@ -42,7 +44,6 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 			throw new IllegalArgumentException("Two incompatible objects being compared!");
 		}
 		return member.isHigher(((DiscordMember) chatMember).getMember())
-			.doOnNext(a->System.out.println(a))
 			.doOnError((e)->e.printStackTrace());
 	}
 	
@@ -54,7 +55,7 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 		if (!(cchannel instanceof DiscordChannel)) throw new IllegalArgumentException();
 		Channel channel = ((DiscordChannel) cchannel).getChannel();
 		if (!(channel instanceof GuildChannel)) {
-			return Mono.just(new DiscordMember(connection, user)).cast(ChatMember.class);
+			return Mono.just(new DiscordMember(connection, user));
 		}
 		return user.asMember(((GuildChannel) channel).getGuildId())
 			.map(member->new DiscordMember(connection, member));
@@ -66,6 +67,9 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 
 	@Override public Mono<ChatGuild> getServer() {
 		//TODO: Not available outside of guilds
+		if (member==null) {
+			return Mono.empty();
+		}
 		return member.getGuild().map(guild->new DiscordGuild(getConnection(), guild));
 	}
 }

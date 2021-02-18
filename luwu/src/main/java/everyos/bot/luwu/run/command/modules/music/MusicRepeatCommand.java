@@ -10,7 +10,8 @@ public class MusicRepeatCommand extends GenericMusicCommand {
 		super("command.music.repeat");
 	}
 
-	@Override Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
+	@Override
+	public Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		manager.setRepeat(!manager.getRepeat());
 		ChannelTextInterface channel = data.getChannel().getInterface(ChannelTextInterface.class);
 		return channel.send(data.getLocale().localize(
@@ -19,7 +20,8 @@ public class MusicRepeatCommand extends GenericMusicCommand {
 			.then();
 	}
 
-	@Override boolean requiresDJ() {
+	@Override
+	boolean requiresDJ() {
 		return true;
 	}
 }

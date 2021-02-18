@@ -20,13 +20,19 @@ public abstract class ArgumentParser {
 		return argument.isEmpty();
 	};
 	
+	private int nextToken() {
+		int ind = argument.indexOf(' ');
+		int nl = argument.indexOf('\n');
+		int fin = (nl<ind&&nl!=-1)?nl:ind;
+		return fin==-1?argument.length():fin;
+	}
 	public String peek(int len) {
 		if (len>argument.length()) return argument;
 		return argument.substring(0, len);
 	};
 	public String peek() {
-		return peek(1);
-	};
+		return peek(nextToken());
+	}
 	public String eat(int len) {
 		if (len==0) return "";
 		String rtn = peek(len);
@@ -34,8 +40,7 @@ public abstract class ArgumentParser {
 		return rtn;
 	}
 	public String eat() {
-		int ind = argument.indexOf(' ');
-		return eat(ind==-1?argument.length():ind);
+		return eat(nextToken());
 	};
 	public boolean eatString(String match) {
 		if (argument.startsWith(match)) {
@@ -95,7 +100,7 @@ public abstract class ArgumentParser {
 	
 	public boolean isNumerical() {
         try {
-            Long.valueOf(next());
+            Long.valueOf(peek());
             return true;
         } catch (NumberFormatException e) {
             return false;
@@ -103,7 +108,7 @@ public abstract class ArgumentParser {
     }
 
     public long eatNumerical() {
-        return Long.valueOf(next());
+        return Long.valueOf(peek());
     }
 	
 	public abstract boolean couldBeUserID();
@@ -122,10 +127,5 @@ public abstract class ArgumentParser {
 	public abstract EmojiID eatEmojiID();
 	
 	public abstract boolean couldBeMessageID();
-	public abstract MessageID eatMessageID();
-	
-	protected String next() {
-		int ind = argument.indexOf(' ');
-		return peek(ind==-1?argument.length():ind);
-	}
+	public abstract MessageID eatMessageID(ChannelID id);
 }

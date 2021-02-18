@@ -3,6 +3,8 @@ package everyos.bot.luwu.run.command.modules.music;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.client.config.RequestConfig;
+
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -31,6 +33,11 @@ public class MusicManager {
 	static {
 		manager = new DefaultAudioPlayerManager();
         manager.getConfiguration().setFrameBufferFactory(NonAllocatingAudioFrameBuffer::new);
+        manager.setHttpRequestConfigurator(config->{
+        	return RequestConfig.copy(config)
+        		.setConnectTimeout(10000)
+        		.build();
+        });
         AudioSourceManagers.registerRemoteSources(manager);
 	}
 	
@@ -53,10 +60,11 @@ public class MusicManager {
 	}
 	
 	public void setRepeat(boolean repeat) {
+		System.out.println(this);
 		this.repeat = repeat;
 	}
 	public boolean getRepeat() {
-		return repeat;
+		return this.repeat;
 	}
 	
 	public void setRadio(boolean radio) {

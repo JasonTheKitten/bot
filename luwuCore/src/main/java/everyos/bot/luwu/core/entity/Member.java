@@ -4,11 +4,14 @@ import java.util.Map;
 
 import everyos.bot.chat4j.enm.ChatPermission;
 import everyos.bot.chat4j.entity.ChatMember;
+import everyos.bot.chat4j.functionality.member.ChatMemberModerationInterface;
 import everyos.bot.chat4j.functionality.member.ChatMemberVoiceConnectionInterface;
 import everyos.bot.luwu.core.database.DBDocument;
+import everyos.bot.luwu.core.entity.imp.MemberModerationInterfaceImp;
 import everyos.bot.luwu.core.entity.imp.MemberVoiceConnectionInterfaceImp;
 import everyos.bot.luwu.core.functionality.Interface;
 import everyos.bot.luwu.core.functionality.InterfaceProvider;
+import everyos.bot.luwu.core.functionality.member.MemberModerationInterface;
 import everyos.bot.luwu.core.functionality.member.MemberVoiceConnectionInterface;
 import reactor.core.publisher.Mono;
 
@@ -42,17 +45,23 @@ public class Member extends User implements InterfaceProvider {
 			.map(member->new Server(getConnection(), member));
 	}
 
-	@Override public <T extends Interface> boolean supportsInterface(Class<T> cls) {
+	@Override
+	public <T extends Interface> boolean supportsInterface(Class<T> cls) {
 		return
 			(cls==MemberVoiceConnectionInterface.class&&member.supportsInterface(ChatMemberVoiceConnectionInterface.class));
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override public <T extends Interface> T getInterface(Class<T> cls) {
+	@Override
+	public <T extends Interface> T getInterface(Class<T> cls) {
 		if (cls==MemberVoiceConnectionInterface.class) {
 			return (T) new MemberVoiceConnectionInterfaceImp(
 				getConnection(),
 				member.getInterface(ChatMemberVoiceConnectionInterface.class));
+		} else if (cls==MemberModerationInterface.class) {
+			return (T) new MemberModerationInterfaceImp(
+					getConnection(),
+					member.getInterface(ChatMemberModerationInterface.class));
 		}
 		return null;
 	};

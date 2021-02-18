@@ -2,9 +2,11 @@ package everyos.discord.chat4d.entity;
 
 import java.nio.ByteBuffer;
 
+import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.object.entity.channel.GuildChannel;
 import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.core.object.entity.channel.PrivateChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.entity.channel.VoiceChannel;
 import discord4j.voice.AudioProvider;
@@ -13,6 +15,7 @@ import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.audio.AudioBridge;
 import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatGuild;
+import everyos.bot.chat4j.entity.ChatMessage;
 import everyos.bot.chat4j.entity.ChatVoiceConnection;
 import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.bot.chat4j.functionality.UnsupportedInterfaceException;
@@ -102,5 +105,16 @@ public class DiscordChannel implements ChatChannel {
 	@Override public String getName() {
 		//TODO
 		return ((GuildChannel) channel).getName();
+	}
+
+	@Override
+	public boolean isPrivate() {
+		return channel instanceof PrivateChannel;
+	}
+
+	@Override
+	public Mono<ChatMessage> getMessageByID(long id) {
+		return channel.getClient().getMessageById(channel.getId(), Snowflake.of(id))
+			.map(message->new DiscordMessage(connection, message));
 	}
 }

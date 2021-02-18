@@ -51,4 +51,6 @@ public interface ChatMessage extends ChatInterfaceProvider {
 	public long getChannelID();
 
 	public long getAuthorID();
+
+	public long getID();
 }

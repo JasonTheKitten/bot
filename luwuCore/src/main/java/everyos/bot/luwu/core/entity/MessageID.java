@@ -1,5 +1,8 @@
 package everyos.bot.luwu.core.entity;
 
+
+import java.util.Objects;
+
 import reactor.core.publisher.Mono;
 
 public class MessageID {
@@ -24,6 +27,19 @@ public class MessageID {
 	}
 
 	public Mono<Message> getMessage() {
-		return Mono.empty();
+		return getConnection().getChannelByID(channelID)
+			.flatMap(channel->channel.getMessageByID(this));
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return
+			(o instanceof MessageID) &&
+			(((MessageID) o).getLong() == getLong());
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(messageID);
 	}
 }

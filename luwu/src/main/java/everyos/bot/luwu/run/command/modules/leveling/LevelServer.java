@@ -1,4 +1,4 @@
-package everyos.bot.luwu.run.command.modules.levelling;
+package everyos.bot.luwu.run.command.modules.leveling;
 
 import java.util.Map;
 
@@ -29,7 +29,7 @@ public class LevelServer extends Server {
 			long levelMessageChannelID = levelObject.getOrDefaultLong("cid", 0L);
 			String levelMessage = levelObject.getOrDefaultString("msg", null);
 			
-			return new LevelInfo(levellingEnabled, new ChannelID(getConnection(), levelMessageChannelID), levelMessage);
+			return new LevelInfo(levellingEnabled, new ChannelID(getConnection(), levelMessageChannelID, getClient().getID()), levelMessage);
 		});
 	}
 

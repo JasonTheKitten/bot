@@ -20,7 +20,11 @@ public class Connection {
 		return connection.getUserByID(id.getLong()).map(user->new User(this, user));
 	}
 	protected Mono<Channel> getChannelByID(ChannelID id) {
-		return connection.getChannelByID(id.getLong()).flatMap(channel->Channel.getChannel(this, channel));
+		return client.getBotEngine().getConnectionByID(id.getConnectionID()).connection
+			.getChannelByID(id.getLong()).map(channel->new Channel(this, channel));
+	}
+	public Mono<Server> getServerByID(ServerID id) {
+		return connection.getGuildByID(id.getLong()).map(server->new Server(this, server));
 	}
 	
 	public Client getClient() {

@@ -43,10 +43,12 @@ public class GiphyCommand extends CommandBase {
 	
 	private Mono<Void> sendEmbed(Channel channel, String search, String url, Locale locale) {
 		return channel.getInterface(ChannelTextInterface.class).send(spec->{
-			spec.setContent("Giphy - "+search+" (Powered by Giphy)"); //TODO: Localize
-			String burl = url.replaceFirst(".+/media/", "https://i.giphy.com/media/").replace("giphy.gif", "200.gif");
-			System.out.println(burl);
-			spec.addAttachment("giphy.gif", burl);
+			spec.setEmbed(embed->{
+				embed.setTitle("Giphy - "+search);
+				String burl = url.replaceFirst(".+/media/", "https://i.giphy.com/media/").replace("giphy.gif", "200.gif");
+				embed.setImage(burl);
+				embed.setFooter("Powered by Giphy"); //TODO: Localize
+			});
 		})
 		.then();
 	}

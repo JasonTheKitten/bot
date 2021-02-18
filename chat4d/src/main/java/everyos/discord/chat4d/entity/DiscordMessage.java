@@ -10,6 +10,8 @@ import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.entity.ChatMessage;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.functionality.ChatInterface;
+import everyos.bot.chat4j.functionality.message.ChatMessageReactionInterface;
+import everyos.discord.chat4d.functionality.message.DiscordMessageReactionInterface;
 import reactor.core.publisher.Mono;
 
 public class DiscordMessage implements ChatMessage {
@@ -21,59 +23,88 @@ public class DiscordMessage implements ChatMessage {
 		this.connection = connection;
 	}
 	
-	@Override public Optional<String> getContent() {
+	@Override
+	public Optional<String> getContent() {
 		return Optional.of(message.getContent());
 	}
 
-	@Override public Mono<Void> delete() {
+	@Override
+	public Mono<Void> delete() {
 		return message.delete();
 	}
 
-	@Override public Mono<ChatChannel> getChannel() {
+	@Override
+	public Mono<ChatChannel> getChannel() {
 		return message.getChannel()
 			.map(member->new DiscordChannel(getConnection(), member));
 	}
 
-	@Override public Mono<ChatUser> getAuthor() {
-		return message.getAuthorAsMember()
+	@Override
+	public Mono<ChatUser> getAuthor() {
+		Optional<ChatUser> author = message.getAuthor()
 			.map(member->new DiscordUser(getConnection(), member));
+		if (author.isEmpty()) {
+			return Mono.empty();
+		}
+		return Mono.just(author.get());
 	}
 
-	@Override public Mono<ChatMember> getAuthorAsMember() {
+	@Override
+	public Mono<ChatMember> getAuthorAsMember() {
 		return message.getAuthorAsMember()
 			.map(member->DiscordMember.instatiate(getConnection(), member));
 	}
 
-	@Override public long getTimestamp() {
+	@Override
+	public long getTimestamp() {
 		return message.getTimestamp().toEpochMilli();
 	}
 
-	@Override public <T extends ChatInterface> boolean supportsInterface(Class<T> cls) {
+	@Override
+	public <T extends ChatInterface> boolean supportsInterface(Class<T> cls) {
+		if (cls == ChatMessageReactionInterface.class) {
+			return true;
+		}
 		return false;
 	}
 
-	@Override public <T extends ChatInterface> T getInterface(Class<T> cls) {
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends ChatInterface> T getInterface(Class<T> cls) {
+		if (cls == ChatMessageReactionInterface.class) {
+			return (T) new DiscordMessageReactionInterface(connection, message);
+		}
 		return null;
 	}
 
-	@Override public ChatClient getClient() {
+	@Override
+	public ChatClient getClient() {
 		return getConnection().getClient();
 	}
 
-	@Override public ChatConnection getConnection() {
+	@Override
+	public ChatConnection getConnection() {
 		return connection;
 	}
 
-	@Override public Mono<Void> pin() {
+	@Override
+	public Mono<Void> pin() {
 		return message.pin();
 	}
 
-	@Override public long getChannelID() {
+	@Override
+	public long getChannelID() {
 		return message.getChannelId().asLong();
 	}
 
-	@Override public long getAuthorID() {
+	@Override
+	public long getAuthorID() {
 		if (!message.getAuthor().isPresent()) return -1L;
 		return message.getAuthor().get().getId().asLong();
+	}
+
+	@Override
+	public long getID() {
+		return message.getId().asLong();
 	}
 }

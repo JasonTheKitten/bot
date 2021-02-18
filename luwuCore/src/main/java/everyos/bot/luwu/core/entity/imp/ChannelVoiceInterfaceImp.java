@@ -1,7 +1,11 @@
-package everyos.bot.luwu.core.entity;
+package everyos.bot.luwu.core.entity.imp;
 
 import everyos.bot.chat4j.audio.AudioBridge;
 import everyos.bot.chat4j.functionality.channel.ChatChannelVoiceInterface;
+import everyos.bot.luwu.core.entity.Channel;
+import everyos.bot.luwu.core.entity.Client;
+import everyos.bot.luwu.core.entity.Connection;
+import everyos.bot.luwu.core.entity.VoiceConnection;
 import everyos.bot.luwu.core.functionality.channel.ChannelVoiceInterface;
 import reactor.core.publisher.Mono;
 

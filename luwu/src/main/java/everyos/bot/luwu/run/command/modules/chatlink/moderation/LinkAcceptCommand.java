@@ -37,8 +37,8 @@ public class LinkAcceptCommand extends CommandBase {
 					.then(parseArguments(parser, locale))
 					.flatMap(id->id.getChannel())
 					.flatMap(channel->channel.as(ChatLinkChannel.type))
-					
-					.filter(channel->channel.getLinkID()==link.getID())
+					.filterWhen(channel->channel.getInfo()
+						.map(info->info.getLinkID()==link.getID()))
 					.switchIfEmpty(Mono.error(new TextException(locale.localize("command.link.notjoining"))))
 					.flatMap(channel->verify(channel, data.getChannel(), locale)
 						.then(sendSystemMessage(link, channel, locale)));
@@ -54,7 +54,19 @@ public class LinkAcceptCommand extends CommandBase {
 				"expected", locale.localize("command.error.channelid"),
 				"got", got)));
 		}
-		return Mono.just(parser.eatChannelID());
+		ChannelID id = parser.eatChannelID();
+		
+		int cliid = id.getConnectionID();
+		if (!parser.isEmpty()) {
+			String n = parser.eat();
+			if (n.equals("d")) {
+				cliid = 0;
+			} else if (n.equals("n")) {
+				cliid = 1;
+			}
+		}
+		
+		return Mono.just(new ChannelID(id.getConnection(), id.getLong(), cliid));
 	}
 	
 	private Mono<Void> checkPerms(ChatLink link, ChannelID channelID, UserID userID, Locale locale) {

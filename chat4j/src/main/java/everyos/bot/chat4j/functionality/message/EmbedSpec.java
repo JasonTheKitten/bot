@@ -8,4 +8,5 @@ public interface EmbedSpec {
 	public void setDescription(String string);
 	public void addField(String name, String content, boolean inline);
 	public void setFooter(String footer);
+	public void setImage(String burl);
 }

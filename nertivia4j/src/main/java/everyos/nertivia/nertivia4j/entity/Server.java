@@ -12,14 +12,14 @@ import reactor.core.publisher.Mono;
 
 public class Server {
 	private NertiviaInstance instance;
-	private long guildID;
+	private long serverID;
 	private long primaryChannelID;
 	private NertiviaClient client;
 
-	private Server(NertiviaClient client, NertiviaInstance instance, long guildID) {
+	private Server(NertiviaClient client, NertiviaInstance instance, long serverID) {
 		this.client = client;
 		this.instance = instance;
-		this.guildID = guildID;
+		this.serverID = serverID;
 	}
 	
 	public static Mono<Server> of(NertiviaClient client, NertiviaInstance instance, long gid) {
@@ -35,7 +35,7 @@ public class Server {
 	}
 	
 	public Mono<Void> delete() {
-		return UnirestUtil.delete(NertiviaInstance.REST_ENDPOINT+"/servers/"+guildID, req->{
+		return UnirestUtil.delete(NertiviaInstance.REST_ENDPOINT+"/servers/"+serverID, req->{
 			return req
 				.header("authorization", instance.token);
 		}).flatMap(resp->{
@@ -51,7 +51,7 @@ public class Server {
 	}
 	
 	public Mono<Channel[]> getChannels() {
-		return UnirestUtil.get(NertiviaInstance.REST_ENDPOINT+"/servers/"+guildID+"/channels", req->{
+		return UnirestUtil.get(NertiviaInstance.REST_ENDPOINT+"/servers/"+serverID+"/channels", req->{
 			return req
 				.header("authorization", instance.token);
 		}).flatMap(resp->{
@@ -62,5 +62,9 @@ public class Server {
 			}
 			return Mono.just(channels);
 		});
+	}
+
+	public long getID() {
+		return serverID;
 	}
 }

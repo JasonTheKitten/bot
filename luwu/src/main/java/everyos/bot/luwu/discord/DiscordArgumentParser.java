@@ -19,7 +19,7 @@ public class DiscordArgumentParser extends ArgumentParser {
 	}
 
 	@Override public boolean couldBeUserID() {
-		String token = next();
+		String token = peek();
         if (token.startsWith("<@") && token.endsWith(">")) {
             token = token.substring(2, token.length() - 1);
             if (token.startsWith("!")) token = token.substring(1, token.length());
@@ -41,7 +41,7 @@ public class DiscordArgumentParser extends ArgumentParser {
 	}
 
 	@Override public boolean couldBeChannelID() {
-		String token = next();
+		String token = peek();
         if (token.startsWith("<#") && token.endsWith(">"))
             token = token.substring(2, token.length() - 1);
         try {
@@ -54,19 +54,18 @@ public class DiscordArgumentParser extends ArgumentParser {
 		String token = eat();
         if (token.startsWith("<#") && token.endsWith(">"))
             token = token.substring(2, token.length() - 1);
-        return new ChannelID(connection, Long.valueOf(token));
+        return new ChannelID(connection, Long.valueOf(token), connection.getClient().getID());
 	}
 
 	@Override public boolean couldBeGuildID() {
 		return isNumerical();
 	}
 	@Override public ServerID eatGuildID() {
-		long gid = Long.valueOf(eat());
-		return ()->gid;
+		return new ServerID(connection, Long.valueOf(eat()));
 	}
 
 	@Override public boolean couldBeRoleID() {
-		String token = next();
+		String token = peek();
         if (token.startsWith("<@&") && token.endsWith(">")) {
             token = token.substring(3, token.length() - 1);
         }
@@ -85,7 +84,7 @@ public class DiscordArgumentParser extends ArgumentParser {
 	}
 
 	@Override public boolean couldBeEmojiID() {
-		String token = next();
+		String token = peek();
         if (token.startsWith("<:") && token.endsWith(">")) {
             token = token.substring(token.lastIndexOf(':')+1, token.length() - 1);
         }
@@ -136,9 +135,8 @@ public class DiscordArgumentParser extends ArgumentParser {
 	}
 
 	@Override
-	public MessageID eatMessageID() {
-		//String token = eat();
-		return null;
-		//return new MessageID(connection, Long.valueOf(token));
+	public MessageID eatMessageID(ChannelID id) {
+		String token = eat();
+		return new MessageID(id, Long.valueOf(token));
 	}
 }

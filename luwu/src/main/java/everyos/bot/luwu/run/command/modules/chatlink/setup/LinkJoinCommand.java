@@ -68,6 +68,7 @@ public class LinkJoinCommand extends CommandBase {
 	}
 	private Mono<ChatLink> lookupLink(BotEngine bot, String id, Locale locale) {
 		try {
+			System.out.println("A");
 			return ChatLink.getByID(bot, Long.valueOf(id));
 		} catch (NumberFormatException e) {
 			return ChatLink.getByName(bot, id);

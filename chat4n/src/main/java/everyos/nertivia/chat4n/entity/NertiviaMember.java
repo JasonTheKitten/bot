@@ -5,13 +5,14 @@ import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.functionality.ChatInterface;
+import everyos.bot.chat4j.functionality.member.ChatMemberModerationInterface;
+import everyos.nertivia.chat4n.functionality.member.NertiviaMemberModerationInterface;
 import everyos.nertivia.nertivia4j.entity.Member;
 import everyos.nertivia.nertivia4j.entity.User;
 import everyos.nertivia.nertivia4j.entity.channel.ServerChannel;
 import reactor.core.publisher.Mono;
 
 public class NertiviaMember extends NertiviaUser implements ChatMember {
-	@SuppressWarnings("unused")
 	private Member member;
 
 	private NertiviaMember(ChatConnection connection, User user) {
@@ -24,10 +25,17 @@ public class NertiviaMember extends NertiviaUser implements ChatMember {
 	}
 	
 	@Override public <T extends ChatInterface> boolean supportsInterface(Class<T> cls) {
+		if (cls==ChatMemberModerationInterface.class) {
+			return true;
+		}
 		return super.supportsInterface(cls);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override public <T extends ChatInterface> T getInterface(Class<T> cls) {
+		if (cls==ChatMemberModerationInterface.class) {
+			return (T) new NertiviaMemberModerationInterface(getConnection(), member);
+		}
 		return super.getInterface(cls);
 	}
 	

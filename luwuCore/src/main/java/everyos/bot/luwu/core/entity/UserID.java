@@ -1,5 +1,7 @@
 package everyos.bot.luwu.core.entity;
 
+import java.util.Objects;
+
 import reactor.core.publisher.Mono;
 
 public class UserID {
@@ -17,4 +19,17 @@ public class UserID {
 	public Mono<User> getUser() {
 		return connection.getUserByID(this);
 	};
+	
+	@Override
+	public boolean equals(Object o) {
+		//TODO: Also connection IDs
+		return
+			(o instanceof UserID) &&
+			(((UserID) o).getLong() == getLong());
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(uid);
+	}
 }

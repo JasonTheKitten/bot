@@ -2,6 +2,7 @@ package everyos.discord.chat4d.functionality.channel;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.function.Consumer;
 
 import discord4j.core.object.entity.channel.MessageChannel;
@@ -71,6 +72,8 @@ public class DiscordChannelTextInterface implements ChatChannelTextInterface {
 
 		public DiscordEmbedSpec(EmbedCreateSpec spec) {
 			this.spec = spec;
+			spec.setTimestamp(Instant.now());
+			//TODO: Method to set a timestamp
 		}
 
 		@Override
@@ -99,6 +102,11 @@ public class DiscordChannelTextInterface implements ChatChannelTextInterface {
 			updateFooter();
 		}
 
+		@Override
+		public void setImage(String url) {
+			spec.setImage(url);
+		}
+		
 		private void updateFooter() {
 			spec.setFooter(footer, null);
 		}

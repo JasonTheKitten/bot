@@ -1,4 +1,4 @@
-package everyos.bot.luwu.run.command.modules.levelling;
+package everyos.bot.luwu.run.command.modules.leveling;
 
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
@@ -38,6 +38,5 @@ public class LevelEnableCommand extends CommandBase {
 					"command.level.enabled":
 					"command.level.disabled")))
 			.then();
-		//TODO: Test error handling with `return null;` instead of `return Mono.empty();`
 	}
 }

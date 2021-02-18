@@ -46,10 +46,10 @@ public class NertiviaUser implements ChatUser {
 	}
 
 	@Override public Mono<ChatChannel> getPrivateChannel() {
-		return null;
+		return user.getPrivateMessageChannel().map(channel->new NertiviaChannel(connection, channel));
 	}
 
 	@Override public boolean isBot() {
-		return false;
+		return user.isBot();
 	}
 }

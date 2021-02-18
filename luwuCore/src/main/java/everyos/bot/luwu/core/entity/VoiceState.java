@@ -14,6 +14,6 @@ public class VoiceState {
 
 	public Mono<Channel> getChannel() {
 		return state.getChannel()
-			.flatMap(channel->Channel.getChannel(connection, channel));
+			.map(channel->new Channel(connection, channel));
 	}
 }

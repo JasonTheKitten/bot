@@ -45,11 +45,11 @@ public class ChatLink {
 		// Get channels
 		return engine.getDatabase().collection("channels").scan()
 			.with("data.chatlinkid", linkID)
-			.with("type", "chatlinks").rest().flatMap(channelDocument -> {
+			.with("type", "chatlink").rest().flatMap(channelDocument -> {
 				int clientID = channelDocument.getObject().getOrDefaultInt("cliid", 0);
 				long channelID = channelDocument.getObject().getOrDefaultLong("cid", -1L);
 				Connection connection = engine.getConnectionByID(clientID);
-				return new ChannelID(connection, channelID).getChannel();
+				return new ChannelID(connection, channelID, clientID).getChannel();
 			}).flatMap(channel->channel.as(ChatLinkChannel.type)).collectList()
 			// Get link
 			.map(list->new ChatLink(engine, document, list));
@@ -130,12 +130,15 @@ public class ChatLink {
 	}
 
 	private Mono<Void> sendMessageToChannelAsQuote(ChatLinkChannel channel, Message message) {
+		System.out.println(3);
 		String textToSend = message.getContent().orElse("<Empty message>");
 		return message.getAuthor().map(author->{
 			//TODO: Omit header where not needed
+			System.out.println(4);
 			return "**"+author.getHumanReadableID()+"** ("+author.getID().getLong()+")";
 		}).flatMap(header->{
 			//TODO: Support image
+			System.out.println(5);
 			return sendTextToChannel(channel, header+"\n"+quote(textToSend));
 		});
 	}
@@ -152,7 +155,7 @@ public class ChatLink {
 			.then(checkImagesSafe(message));
 	}
 	private Mono<Void> checkUserGlobalMuted(Message message) {
-		if (document.getObject().getOrCreateArray("muted").contains(message.getAuthorID())) {
+		if (document.getObject().getOrCreateArray("muted").contains(message.getAuthorID().getLong())) {
 			return Mono.error(new TextException("command.link.error.gmuted"));
 		}
 		return Mono.empty();
@@ -165,7 +168,8 @@ public class ChatLink {
 		return checkChannelVerified(channel);
 	}
 	private Mono<Void> checkChannelVerified(ChatLinkChannel channel) {
-		return Mono.just(channel.isVerified())
+		return channel.getInfo()
+			.map(info->info.isVerified())
 			.flatMap(v->{
 				return v?
 					Mono.empty():
