@@ -12,6 +12,7 @@ import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.channelcase.CommandChannelCase;
 import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannel;
 import everyos.bot.luwu.run.command.modules.chatlink.moderation.LinkModerationCommands;
+import everyos.bot.luwu.run.command.modules.chatlink.moderation.WarnedMuteCommandWrapper;
 import everyos.bot.luwu.run.command.modules.info.InfoCommands;
 import everyos.bot.luwu.run.command.modules.moderation.ModerationCommands;
 import reactor.core.publisher.Mono;
@@ -21,18 +22,23 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 	
 	private CommandContainer commands;
 
-	public ChatLinkChannelCase() { //TODO: Accept pre-made CommandContainer within constructor
+	public ChatLinkChannelCase() {
 		this.commands = new CommandContainer();
 		
 		commands.category("moderation");
 		ModerationCommands.installTo(commands);
 		LinkModerationCommands.installTo(commands);
 		
+		// Override the mute command with a warning
+		commands.registerCommand("command.mute", new WarnedMuteCommandWrapper(true));
+		commands.registerCommand("command.unmute", new WarnedMuteCommandWrapper(false));
+		
 		commands.category("info");
 		InfoCommands.installTo(commands);
 	}
 	
-	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
+	@Override
+	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		//Collections.synchronizedMap(new WeakHashMap<Object, Object>());
 		Locale locale = data.getLocale();
 		

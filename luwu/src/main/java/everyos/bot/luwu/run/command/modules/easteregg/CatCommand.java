@@ -1,5 +1,6 @@
 package everyos.bot.luwu.run.command.modules.easteregg;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
@@ -8,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 public class CatCommand extends CommandBase {
 	public CatCommand() {
-		super("command.easteregg.cat");
+		super("command.easteregg.cat", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 	}
 
 	static final String URL =

@@ -1,5 +1,6 @@
 package everyos.bot.luwu.run.command.modules.music;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
@@ -7,7 +8,9 @@ import reactor.core.publisher.Mono;
 
 public class MusicRadioCommand extends GenericMusicCommand {
 	public MusicRadioCommand() {
-		super("command.music.radio");
+		super("command.music.radio", e->true,
+			ChatPermission.SEND_MESSAGES|ChatPermission.VC_CONNECT|ChatPermission.VC_SPEAK,
+			ChatPermission.NONE);
 	}
 
 	@Override

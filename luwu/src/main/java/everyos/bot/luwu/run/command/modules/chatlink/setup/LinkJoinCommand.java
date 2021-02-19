@@ -1,5 +1,6 @@
 package everyos.bot.luwu.run.command.modules.chatlink.setup;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.BotEngine;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
@@ -15,7 +16,7 @@ import reactor.core.publisher.Mono;
 
 public class LinkJoinCommand extends CommandBase {
 	public LinkJoinCommand() {
-		super("command.link.join");
+		super("command.link.join", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.MANAGE_MESSAGES);
 	}
 
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
@@ -68,7 +69,6 @@ public class LinkJoinCommand extends CommandBase {
 	}
 	private Mono<ChatLink> lookupLink(BotEngine bot, String id, Locale locale) {
 		try {
-			System.out.println("A");
 			return ChatLink.getByID(bot, Long.valueOf(id));
 		} catch (NumberFormatException e) {
 			return ChatLink.getByName(bot, id);

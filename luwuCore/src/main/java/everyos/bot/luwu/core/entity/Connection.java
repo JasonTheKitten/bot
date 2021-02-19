@@ -2,9 +2,15 @@ package everyos.bot.luwu.core.entity;
 
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.event.ChatMessageCreateEvent;
+import everyos.bot.chat4j.event.ChatReactionAddEvent;
+import everyos.bot.chat4j.event.ChatReactionRemoveEvent;
 import everyos.bot.luwu.core.BotEngine;
 import everyos.bot.luwu.core.entity.event.Event;
 import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
+import everyos.bot.luwu.core.entity.event.MessageEvent;
+import everyos.bot.luwu.core.entity.event.ReactionAddEvent;
+import everyos.bot.luwu.core.entity.event.ReactionEvent;
+import everyos.bot.luwu.core.entity.event.ReactionRemoveEvent;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -37,11 +43,32 @@ public class Connection {
 	@SuppressWarnings("unchecked")
 	public <T extends Event> Flux<T> generateEventListener(Class<T> cls) {
 		//TODO: I don't like this
+		if (cls==Event.class) {
+			return (Flux<T>) generateEventListener(MessageEvent.class);
+		}
+		if (cls==MessageEvent.class) {
+			return (Flux<T>) Flux.merge(
+				generateEventListener(MessageCreateEvent.class),
+				generateEventListener(ReactionEvent.class));
+		}
 		if (cls==MessageCreateEvent.class) {
 			return (Flux<T>) connection.generateEventListener(ChatMessageCreateEvent.class)
 				.map(event->new MessageCreateEvent(this, event));
 		}
-		return null;
+		if (cls==ReactionEvent.class) {
+			return (Flux<T>) Flux.merge(
+				generateEventListener(ReactionAddEvent.class),
+				generateEventListener(ReactionRemoveEvent.class));
+		}
+		if (cls==ReactionAddEvent.class) {
+			return (Flux<T>) connection.generateEventListener(ChatReactionAddEvent.class)
+				.map(event->new ReactionAddEvent(this, event));
+		}
+		if (cls==ReactionRemoveEvent.class) {
+			return (Flux<T>) connection.generateEventListener(ChatReactionRemoveEvent.class)
+				.map(event->new ReactionRemoveEvent(this, event));
+		}
+		return Flux.empty();
 	}
 	//TODO: SupportsEvent
 }

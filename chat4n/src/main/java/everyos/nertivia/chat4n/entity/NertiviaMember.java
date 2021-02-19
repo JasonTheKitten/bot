@@ -55,4 +55,9 @@ public class NertiviaMember extends NertiviaUser implements ChatMember {
 	public Mono<ChatGuild> getServer() {
 		return null;
 	}
+
+	@Override
+	public Mono<Integer> getPermissions() {
+		return Mono.just(Integer.MAX_VALUE);
+	}
 }

@@ -1,5 +1,6 @@
 package everyos.bot.luwu.run.command;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
@@ -10,11 +11,8 @@ import everyos.bot.luwu.run.command.modules.info.HelpCommand;
 import reactor.core.publisher.Mono;
 
 public abstract class MultiCommand extends CommandBase implements GroupCommand {
-	private String unlocalizedName;
-
-	public MultiCommand(String unlocalizedName) {
-		super(unlocalizedName);
-		this.unlocalizedName = unlocalizedName;
+	public MultiCommand(String id) {
+		super(id, e->true, ChatPermission.SEND_MESSAGES|ChatPermission.SEND_EMBEDS, ChatPermission.NONE);
 	}
 	
 	@Override
@@ -25,7 +23,7 @@ public abstract class MultiCommand extends CommandBase implements GroupCommand {
 			//TODO: Show help instead
         	return data.getChannel().getInterface(ChannelTextInterface.class)
         		.send(data.getLocale().localize("command.error.missingsubcommand",
-        			"parent", locale.localize(unlocalizedName)))
+        			"parent", locale.localize(getID())))
         		.then(HelpCommand.showGroupCommandHelp(data.getChannel(), this, null, locale))
         		.then();
 		}
@@ -42,7 +40,7 @@ public abstract class MultiCommand extends CommandBase implements GroupCommand {
         	return data.getChannel().getInterface(ChannelTextInterface.class)
             		.send(data.getLocale().localize("command.error.invalidsubcommand",
                 		"command", cmd,
-                		"parent", locale.localize(unlocalizedName)))
+                		"parent", locale.localize(getID())))
             		.then(HelpCommand.showGroupCommandHelp(data.getChannel(), this, null, locale))
             		.then();
         }

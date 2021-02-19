@@ -2,8 +2,7 @@ package everyos.bot.luwu.run.command.modules.moderation;
 
 import java.util.ArrayList;
 
-import everyos.bot.chat4j.enm.ChatPermission;
-import everyos.bot.luwu.core.annotation.Permissions;
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
@@ -13,10 +12,9 @@ import everyos.bot.luwu.core.functionality.member.MemberModerationInterface;
 import everyos.bot.luwu.run.command.modules.moderation.BanCommand.BanArguments;
 import reactor.core.publisher.Mono;
 
-@Permissions(permissions={ChatPermission.BAN})
 public class BanCommand extends ModerationCommandBase<BanArguments> {
 	private BanCommand() {
-		super("command.ban", new ChatPermission[] {ChatPermission.BAN});
+		super("command.ban", e->true, ChatPermission.SEND_EMBEDS|ChatPermission.BAN_MEMBERS, ChatPermission.BAN_MEMBERS);
 	}
 	
 	private static BanCommand instance;
@@ -47,7 +45,7 @@ public class BanCommand extends ModerationCommandBase<BanArguments> {
 		
 		//Prevents us from hitting ratelimits, probably
 		if (ids.size()<1) return Mono.error(new TextException(locale.localize("command.error.banmin", "min", "1")));
-		if (ids.size()>3) return Mono.error(new TextException(locale.localize("command.error.banmax", "max", "3")));//Read each of the users that must be banned
+		if (ids.size()>3) return Mono.error(new TextException(locale.localize("command.error.banmax", "max", "3")));
 		
 		String freason = reason;
 		return Mono.just(new BanArguments() {

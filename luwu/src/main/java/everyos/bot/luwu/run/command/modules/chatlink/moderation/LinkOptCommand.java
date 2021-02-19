@@ -1,5 +1,6 @@
 package everyos.bot.luwu.run.command.modules.chatlink.moderation;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.ChannelID;
@@ -11,7 +12,7 @@ import reactor.core.publisher.Mono;
 
 public class LinkOptCommand extends CommandBase {
 	public LinkOptCommand() {
-		super("command.link.opt");
+		super("command.link.opt", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 	}
 
 	@Override

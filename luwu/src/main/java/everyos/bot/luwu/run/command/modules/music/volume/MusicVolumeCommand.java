@@ -1,12 +1,17 @@
 package everyos.bot.luwu.run.command.modules.music.volume;
 
-import everyos.bot.luwu.core.client.ArgumentParser;
-import everyos.bot.luwu.core.command.Command;
-import everyos.bot.luwu.core.command.CommandData;
-import reactor.core.publisher.Mono;
+import everyos.bot.luwu.core.command.CommandContainer;
+import everyos.bot.luwu.run.command.MultiCommand;
 
-public class MusicVolumeCommand implements Command {
-	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
-		return null;
+public class MusicVolumeCommand extends MultiCommand {
+	public MusicVolumeCommand() {
+		super("command.music.volume");
+	}
+
+	@Override
+	public CommandContainer getCommands() {
+		CommandContainer container = new CommandContainer();
+		
+		return container;
 	}
 }

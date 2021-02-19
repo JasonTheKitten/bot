@@ -4,6 +4,7 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.object.entity.channel.GuildChannel;
+import discord4j.rest.util.Permission;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatGuild;
@@ -72,4 +73,31 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 		}
 		return member.getGuild().map(guild->new DiscordGuild(getConnection(), guild));
 	}
+
+	@Override
+	public Mono<Integer> getPermissions() {
+		return member.getBasePermissions().map(perms->{
+			if (perms.contains(Permission.ADMINISTRATOR)) {
+				return Integer.MAX_VALUE;
+			}
+			
+			int permsint = 0;
+			
+			for (int i=0; i<permsOrder.length; i++) {
+				if (permsOrder[i]==null) continue;
+				if (perms.contains(permsOrder[i])) {
+					permsint|=1<<i;
+				}
+			}
+			
+			return permsint;
+		});
+	}
+	
+	private static Permission[] permsOrder = new Permission[] {
+		Permission.SEND_MESSAGES, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.EMBED_LINKS,
+		Permission.ADD_REACTIONS, Permission.MANAGE_EMOJIS, Permission.CONNECT, Permission.SPEAK,
+		Permission.MANAGE_ROLES, Permission.MANAGE_MESSAGES, Permission.MANAGE_CHANNELS, Permission.MANAGE_GUILD,
+		Permission.MANAGE_EMOJIS, Permission.USE_EXTERNAL_EMOJIS, Permission.PRIORITY_SPEAKER, Permission.MANAGE_ROLES
+	};
 }

@@ -1,6 +1,7 @@
 package everyos.bot.luwu.core.command;
 
 import everyos.bot.luwu.core.client.ArgumentParser;
+import everyos.bot.luwu.core.entity.Client;
 import reactor.core.publisher.Mono;
 
 public interface Command {
@@ -14,4 +15,8 @@ public interface Command {
 	default String getID() {
 		return null;
 	}
+
+	default boolean isSupported(Client client) {
+		return true;
+	};
 }

@@ -19,9 +19,14 @@ public interface EmojiID {
 			public Optional<Long> getID() {
 				return Optional.empty();
 			}
+			
+			@Override
+			public String toString() {
+				return name;
+			}
 		};
 	}
-	static EmojiID of(long rid) {
+	static EmojiID of(long eid) {
 		return new EmojiID() {
 			@Override
 			public Optional<String> getName() {
@@ -30,7 +35,11 @@ public interface EmojiID {
 
 			@Override
 			public Optional<Long> getID() {
-				return Optional.of(rid);
+				return Optional.of(eid);
+			}
+			@Override
+			public String toString() {
+				return String.valueOf(eid);
 			}
 		};
 	}

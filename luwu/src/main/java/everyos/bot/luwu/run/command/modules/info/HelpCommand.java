@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import everyos.bot.chat4j.entity.ChatColor;
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
@@ -18,9 +19,10 @@ import everyos.bot.luwu.run.command.CommandBase;
 import everyos.bot.luwu.util.Tuple;
 import reactor.core.publisher.Mono;
 
+//TODO: Show required permissions
 public class HelpCommand extends CommandBase {
 	public HelpCommand() {
-		super("command.help");
+		super("command.help", e->true, ChatPermission.SEND_MESSAGES|ChatPermission.SEND_EMBEDS, ChatPermission.NONE);
 	}
 
 	@Override

@@ -1,9 +1,11 @@
 package everyos.bot.luwu.core.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import everyos.bot.chat4j.enm.ChatPermission;
 import everyos.bot.chat4j.entity.ChatMember;
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.chat4j.functionality.member.ChatMemberModerationInterface;
 import everyos.bot.chat4j.functionality.member.ChatMemberVoiceConnectionInterface;
 import everyos.bot.luwu.core.database.DBDocument;
@@ -30,11 +32,11 @@ public class Member extends User implements InterfaceProvider {
 		this.member = member;
 	}
 
-	public Mono<Boolean> hasPermissions(ChatPermission[] permissions) {
+	public Mono<Boolean> hasPermissions(ChatPermission permissions) {
 		return Mono.just(true); //TODO: Actual imp
 	};
-	public Mono<ChatPermission[]> getPermissions() {
-		return Mono.empty();
+	public Mono<Integer> getPermissions() {
+		return member.getPermissions();
 	};
 	public Mono<Boolean> isHigherThan(Member member) {
 		return this.member.isHigherThan(member.getChatMember());
@@ -82,4 +84,25 @@ public class Member extends User implements InterfaceProvider {
 	public Mono<Boolean> isDJ() {
 		return Mono.just(true);
 	}
+
+	public static String[] convertPermsToNames(int perms) {
+		List<String> names = new ArrayList<>();
+		
+		for (int i=0; i<permNames.length; i++) {
+			if (permNames[i] == null) continue;
+			
+			if ((1<<i&perms)!=0) {
+				names.add(permNames[i]);
+			}
+		}
+		
+		return names.toArray(new String[names.size()]);
+	}
+	
+	private static final String[] permNames = new String[] {
+		"perm.sendmessages", "perm.kickmembers", "perm.banmembers", "perm.sendembeds", "perm.addreactions",
+		"perm.removeallreactions", "perm.vcconnect", "perm.vcspeak", "perm.manageroles", "perm.managemessages",
+		"perm.managechannels", "perm.manageguild", "perm.manageemojis", "perm.externalemojis", "perm.vcpriority",
+		"perm.managemembers"
+	};
 }

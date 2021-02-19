@@ -1,5 +1,6 @@
 package everyos.bot.luwu.run.command.modules.music;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
@@ -9,7 +10,7 @@ public class MusicPauseCommand extends GenericMusicCommand {
 	private boolean doPause;
 
 	public MusicPauseCommand(boolean b) {
-		super(b?"command.music.paused":"command.music.unpaused");
+		super(b?"command.music.paused":"command.music.unpaused", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 		this.doPause = b;
 	}
 

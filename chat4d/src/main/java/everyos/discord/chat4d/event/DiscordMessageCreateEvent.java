@@ -16,19 +16,22 @@ public class DiscordMessageCreateEvent extends DiscordMessageEvent implements Ch
 	private MessageCreateEvent event;
 
 	public DiscordMessageCreateEvent(ChatConnection connection, MessageCreateEvent event) {
-		super(connection);
+		super(connection, event);
 		this.event = event;
 	}
 
-	@Override public Mono<ChatMessage> getMessage() {
+	@Override
+	public Mono<ChatMessage> getMessage() {
 		return Mono.just(new DiscordMessage(getConnection(), event.getMessage()));
 	}
 
-	@Override public Mono<ChatUser> getSender() {
+	@Override
+	public Mono<ChatUser> getSender() {
 		return getMessage().flatMap(msg->msg.getAuthor());
 	}
 
-	@Override public Mono<Optional<ChatMember>> getSenderAsMember() {
+	@Override
+	public Mono<Optional<ChatMember>> getSenderAsMember() {
 		if (event.getMember().isPresent()) {
 			return Mono.just(DiscordMember.instatiate(getConnection(), event.getMember().get())).cast(ChatMember.class)
 				.map(m->Optional.of(m));

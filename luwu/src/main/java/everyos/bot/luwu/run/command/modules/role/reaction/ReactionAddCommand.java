@@ -2,6 +2,7 @@ package everyos.bot.luwu.run.command.modules.role.reaction;
 
 import java.util.ArrayList;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Channel;
@@ -17,14 +18,16 @@ import reactor.core.publisher.Mono;
 public class ReactionAddCommand extends CommandBase {
 
 	public ReactionAddCommand() {
-		super("command.role.reaction.add");
+		super("command.role.reaction.add", e->true,
+			ChatPermission.ADD_REACTIONS|ChatPermission.MANAGE_ROLES,
+			ChatPermission.ADD_REACTIONS|ChatPermission.MANAGE_ROLES);
 	}
 
 	@Override
 	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		return
 			parseArguments(data.getChannel(), parser, data.getLocale())
-			.flatMap(args->createReaction(args));
+			.flatMap(args->createReaction(args.getT1(), args.getT2()));
 	}
 
 	
@@ -58,15 +61,18 @@ public class ReactionAddCommand extends CommandBase {
 		return Mono.just(Tuple.of(messageID, reactionRolesArray));
 	}
 	
-	private Mono<Void> createReaction(Tuple<MessageID, Tuple<EmojiID, RoleID>[]> args) {
-		MessageID messageID = args.getT1();
-		return messageID.getMessage().flatMapMany(message->{
-			message.as(ReactionMessage.type);
-			return Flux.fromArray(args.getT2()).flatMap(tup->{
-				
-				return message.addReaction(tup.getT1());
-			});
-		}).then();
+	private Mono<Void> createReaction(MessageID messageID, Tuple<EmojiID, RoleID>[] reactionTups) {
+		return messageID.getMessage()
+			.flatMap(message->message.as(ReactionMessage.type))
+			.flatMapMany(message->{
+				return message.edit(spec->{
+					for (Tuple<EmojiID, RoleID> reactionTup: reactionTups) {
+						spec.addReaction(reactionTup.getT1(), reactionTup.getT2());
+					}
+				}).thenMany(Flux.fromArray(reactionTups).flatMap(tup->{
+					return message.addReaction(tup.getT1());
+				}));
+			}).then();
 	}
 
 }

@@ -14,6 +14,7 @@ public class MessageCreateEvent extends MessageEvent {
 	private Connection connection;
 	private ChatMessageCreateEvent event;
 	public MessageCreateEvent(Connection connection, ChatMessageCreateEvent event) {
+		super(connection, event);
 		this.connection = connection;
 		this.event = event;
 	}

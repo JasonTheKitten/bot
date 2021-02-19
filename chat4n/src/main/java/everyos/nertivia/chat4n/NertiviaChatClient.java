@@ -10,19 +10,17 @@ import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.event.ChatEvent;
 import everyos.bot.chat4j.event.ChatMessageCreateEvent;
 import everyos.bot.chat4j.event.ChatMessageEvent;
-import everyos.bot.chat4j.event.UnsupportedEventException;
+import everyos.bot.chat4j.event.ChatReactionAddEvent;
+import everyos.bot.chat4j.event.ChatReactionEvent;
+import everyos.bot.chat4j.event.ChatReactionRemoveEvent;
 import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.nertivia.chat4n.entity.NertiviaChannel;
 import everyos.nertivia.chat4n.entity.NertiviaServer;
 import everyos.nertivia.chat4n.entity.NertiviaUser;
-import everyos.nertivia.chat4n.event.NertiviaEvent;
 import everyos.nertivia.chat4n.event.NertiviaMessageCreateEvent;
-import everyos.nertivia.chat4n.event.NertiviaMessageEvent;
 import everyos.nertivia.nertivia4j.NertiviaClient;
 import everyos.nertivia.nertivia4j.NertiviaClientBuilder;
-import everyos.nertivia.nertivia4j.event.Event;
 import everyos.nertivia.nertivia4j.event.MessageCreateEvent;
-import everyos.nertivia.nertivia4j.event.MessageEvent;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -36,9 +34,9 @@ public class NertiviaChatClient implements ChatClient {
 
 	@Override public Mono<Void> login(Function<ChatConnection, Mono<?>> func) {
 		ChatClient self = this;
-		return client.connect().map(c->new ChatConnection() {
+		return client.connect().map(connection->new ChatConnection() {
 			@Override public Mono<Void> logout() {
-				return c.logout();
+				return connection.logout();
 			}
 
 			@Override public ChatClient getClient() {
@@ -52,27 +50,43 @@ public class NertiviaChatClient implements ChatClient {
 					cls==ChatMessageCreateEvent.class;
 			}
 
-			@Override public <T extends ChatEvent> Flux<T> generateEventListener(Class<T> cls) {
-				Flux<?> m = null;
-				if (cls == ChatEvent.class) {
-					m = c.listen(Event.class)
-						.map(event->new NertiviaEvent(this));
-				}
-				if (cls == ChatMessageEvent.class) {
-					m = c.listen(MessageEvent.class)
-						.map(event->new NertiviaMessageEvent(this));
-				}
-				if (cls == ChatMessageCreateEvent.class) {
-					m = c.listen(MessageCreateEvent.class)
-						.map(event->new NertiviaMessageCreateEvent(this, event));
-				};
-				
+			@Override
+			public <T extends ChatEvent> Flux<T> generateEventListener(Class<T> cls) {
+				Flux<T> m = generateInternalEventListener(cls);
+					
 				if (m!=null) {
 					return m
 						.publishOn(Schedulers.boundedElastic())
 						.cast(cls);
 				}
-				throw new UnsupportedEventException();
+				return Flux.empty();
+			}
+			
+			@SuppressWarnings("unchecked")
+			private <T extends ChatEvent> Flux<T> generateInternalEventListener(Class<T> cls) {
+				if (cls == ChatEvent.class) {
+					return (Flux<T>)
+						generateInternalEventListener(ChatMessageEvent.class);
+				} else if (cls == ChatMessageEvent.class) {
+					return (Flux<T>) Flux.merge(
+						generateInternalEventListener(ChatMessageCreateEvent.class),
+						generateInternalEventListener(ChatReactionEvent.class));
+				} else if (cls == ChatMessageCreateEvent.class) {
+					return (Flux<T>) connection.listen(MessageCreateEvent.class)
+						.map(event->new NertiviaMessageCreateEvent(this, event));
+				} else if (cls == ChatReactionEvent.class) {
+					return (Flux<T>) Flux.merge(
+						generateInternalEventListener(ChatReactionAddEvent.class),
+						generateInternalEventListener(ChatReactionRemoveEvent.class));
+				} /*else if (cls == ChatReactionAddEvent.class) {
+					return (Flux<T>) connection.listen(ReactionAddEvent.class)
+						.map(event->new NertiviaReactionAddEvent(this, event));
+				} else if (cls == ChatReactionRemoveEvent.class) {
+					return (Flux<T>) connection.listen(ReactionRemoveEvent.class)
+						.map(event->new NertiviaReactionRemoveEvent(this, event));
+				}*/
+				
+				return null;
 			}
 
 			@Override

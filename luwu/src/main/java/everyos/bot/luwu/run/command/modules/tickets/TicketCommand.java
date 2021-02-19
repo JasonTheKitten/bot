@@ -15,6 +15,7 @@ public class TicketCommand extends MultiCommand {
 		Command ticketCreateCommand = new TicketCreateCommand();
 		
 		commands.registerCommand("command.ticket.create", ticketCreateCommand);
+		//TODO: Enable command
 	}
 
 	@Override

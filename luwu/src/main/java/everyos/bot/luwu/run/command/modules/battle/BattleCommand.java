@@ -3,6 +3,7 @@ package everyos.bot.luwu.run.command.modules.battle;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.BotEngine;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
@@ -26,7 +27,7 @@ public class BattleCommand extends CommandBase {
 	
 
 	private BattleCommand() {
-		super("command.battle");
+		super("command.battle", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 	}
 	
 	@Override

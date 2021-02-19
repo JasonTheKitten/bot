@@ -1,5 +1,6 @@
 package everyos.bot.luwu.run.command.modules.leveling;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Locale;
@@ -12,7 +13,7 @@ public class LevelEnableCommand extends CommandBase {
 	private boolean enable;
 
 	public LevelEnableCommand(boolean enable) {
-		super(enable?"command.level.enable":"command.level.disable");
+		super(enable?"command.level.enable":"command.level.disable", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.MANAGE_GUILD);
 		this.enable = enable;
 	}
 

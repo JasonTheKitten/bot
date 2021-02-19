@@ -1,7 +1,10 @@
 package everyos.bot.luwu.run.command.modules.music;
 
+import java.util.function.Function;
+
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
+import everyos.bot.luwu.core.entity.Client;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.entity.Message;
@@ -14,8 +17,8 @@ import reactor.core.publisher.Mono;
 public abstract class GenericMusicCommand extends CommandBase {
 	private static MusicCache cache = new MusicCache(); //TODO: Move this to the bot instance
 	
-	public GenericMusicCommand(String id) {
-		super(id);
+	public GenericMusicCommand(String id, Function<Client, Boolean> checkSupportedFunc, int requiredBotPerms, int requiredUserPerms) {
+		super(id, checkSupportedFunc, requiredBotPerms, requiredUserPerms);
 	}
 	
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
@@ -79,6 +82,7 @@ public abstract class GenericMusicCommand extends CommandBase {
 	}
 	private Mono<Void> checkPerms(Member invoker, Locale locale) {
 		//TODO: Connect perms, too
+		//TODO: Move .isDJ outside of Member
 		return invoker.isDJ().flatMap(isDJ->{
 			if (requiresDJ()&&!isDJ) {
 				return Mono.error(new TextException(locale.localize("command.voice.error.perms")));

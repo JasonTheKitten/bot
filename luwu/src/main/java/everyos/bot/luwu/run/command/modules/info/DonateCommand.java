@@ -1,5 +1,6 @@
 package everyos.bot.luwu.run.command.modules.info;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Channel;
@@ -10,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 public class DonateCommand extends CommandBase {
 	public DonateCommand() {
-		super("command.donate");
+		super("command.donate", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 	}
 
 	@Override

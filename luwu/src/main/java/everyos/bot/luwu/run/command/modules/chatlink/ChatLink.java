@@ -130,15 +130,12 @@ public class ChatLink {
 	}
 
 	private Mono<Void> sendMessageToChannelAsQuote(ChatLinkChannel channel, Message message) {
-		System.out.println(3);
 		String textToSend = message.getContent().orElse("<Empty message>");
 		return message.getAuthor().map(author->{
 			//TODO: Omit header where not needed
-			System.out.println(4);
 			return "**"+author.getHumanReadableID()+"** ("+author.getID().getLong()+")";
 		}).flatMap(header->{
 			//TODO: Support image
-			System.out.println(5);
 			return sendTextToChannel(channel, header+"\n"+quote(textToSend));
 		});
 	}

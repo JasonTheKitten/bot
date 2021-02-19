@@ -31,7 +31,8 @@ public class ReactionMessage extends Message {
 			func.accept(new ReactionMessageEditSpec() {
 				@Override
 				public void addReaction(EmojiID emoji, RoleID role) {
-					object.getOrCreateObject("roles", obj->{});
+					DBObject roles = object.getOrCreateObject("roles", obj->{});
+					roles.set(emoji.toString(), role.getLong());
 				}
 			});
 			

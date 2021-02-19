@@ -3,10 +3,6 @@ package everyos.bot.luwu.core;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
-import org.reactivestreams.Publisher;
 
 import everyos.bot.luwu.core.command.ChannelCase;
 import everyos.bot.luwu.core.command.CommandData;
@@ -17,8 +13,6 @@ import everyos.bot.luwu.core.entity.ClientWrapper;
 import everyos.bot.luwu.core.entity.Connection;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.event.Event;
-import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
-import everyos.bot.luwu.core.event.MessageCreateEventProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -47,6 +41,9 @@ public class BotEngine {
 			mono = mono.and(client.login(connection->{
 				connections.put(client.getID(), connection);
 				return createHandlers(connection);
+			}).onErrorResume(e->{
+				e.printStackTrace();
+				return Mono.empty();
 			}));
 		}	
 		return mono;
@@ -54,48 +51,25 @@ public class BotEngine {
 
 	//Creating event handlers
 	private Mono<Void> createHandlers(Connection connection) {
-		//Message event handler
-		Flux<?> m1 = BotEngine.<MessageCreateEvent, Void>handleErrors(
-			hook(connection, MessageCreateEvent.class), 
-			MessageCreateEventProcessor::apply);
-		
-		return Mono.when(m1);
+		return hook(connection, Event.class).then();
 	}
 
 	private <T extends Event> Flux<T> hook(Connection connection, Class<T> eventClass) {
 		Flux<T> eventFlux = connection.generateEventListener(eventClass);
+		if (eventFlux == null) return Flux.empty();
 		return eventFlux.flatMap(event->{
-			Mono<Void> m1 = Mono.empty();
-			for (HookBinding<?> hook: hooks) {
-				m1 = hook.apply(m1, event);
-			}
-			return m1
-				.onErrorResume(e->Mono.empty())
-				.then(Mono.just(event));
-		});
-	}
-
-	//Error handling
-	private static <T, T2> Flux<T2> handleErrors(Flux<T> f, Function<T, Publisher<T2>> fun) {
-		return f.flatMap(t->{
-			Publisher<T2> p = fun.apply(t);
-			if (p instanceof Flux) return ((Flux<T2>) p).onErrorResume(e->{
-				e.printStackTrace();
-				return Flux.empty();
-			});
-			if (p instanceof Mono) return ((Mono<T2>) p).onErrorResume(e->{
+			try {
+				Mono<Void> m1 = Mono.empty();
+				for (HookBinding<?> hook: hooks) {
+					m1 = hook.apply(m1, event);
+				}
+				return m1
+					.onErrorResume(e->Mono.empty())
+					.then(Mono.just(event));
+			} catch (Exception e) {
 				e.printStackTrace();
 				return Mono.empty();
-			});
-			return p;
-		});
-	}
-
-	@SuppressWarnings("unused")
-	private static <T> Flux<T> handleErrorsNR(Flux<T> f, Consumer<T> fun) {
-		return handleErrors(f, t->{
-			fun.accept(t);
-			return Mono.just(t);
+			}
 		});
 	}
 

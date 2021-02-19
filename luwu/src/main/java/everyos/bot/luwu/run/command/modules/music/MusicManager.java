@@ -60,7 +60,6 @@ public class MusicManager {
 	}
 	
 	public void setRepeat(boolean repeat) {
-		System.out.println(this);
 		this.repeat = repeat;
 	}
 	public boolean getRepeat() {

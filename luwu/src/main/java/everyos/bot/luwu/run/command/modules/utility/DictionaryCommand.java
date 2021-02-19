@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.google.gson.JsonParser;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Locale;
@@ -14,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 public class DictionaryCommand extends CommandBase {
 	public DictionaryCommand() {
-		super("command.dictionary");
+		super("command.dictionary", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 	}
 
 	/*Salvaged, with modifications, from V3*/

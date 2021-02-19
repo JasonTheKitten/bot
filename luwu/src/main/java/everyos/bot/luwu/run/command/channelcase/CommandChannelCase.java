@@ -34,6 +34,7 @@ public abstract class CommandChannelCase implements ChannelCase, GroupCommand {
 					return Mono.just(true);
 				}
 			}
+			//TODO: Support ping prefix
 			return Mono.just(false);
 		});
 	}

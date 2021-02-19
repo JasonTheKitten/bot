@@ -2,8 +2,7 @@ package everyos.bot.luwu.run.command.modules.moderation;
 
 import java.util.ArrayList;
 
-import everyos.bot.chat4j.enm.ChatPermission;
-import everyos.bot.luwu.core.annotation.Permissions;
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
@@ -13,10 +12,9 @@ import everyos.bot.luwu.core.functionality.member.MemberModerationInterface;
 import everyos.bot.luwu.run.command.modules.moderation.KickCommand.KickArguments;
 import reactor.core.publisher.Mono;
 
-@Permissions(permissions={ChatPermission.BAN})
 public class KickCommand extends ModerationCommandBase<KickArguments> {
 	private KickCommand() {
-		super("command.kick", new ChatPermission[] {ChatPermission.KICK});
+		super("command.kick", e->true, ChatPermission.SEND_EMBEDS|ChatPermission.KICK_MEMBERS, ChatPermission.KICK_MEMBERS);
 	}
 	
 	private static KickCommand instance;
@@ -47,7 +45,7 @@ public class KickCommand extends ModerationCommandBase<KickArguments> {
 		
 		//Prevents us from hitting ratelimits, probably
 		if (ids.size()<1) return Mono.error(new TextException(locale.localize("command.error.kickmin", "min", "1")));
-		if (ids.size()>3) return Mono.error(new TextException(locale.localize("command.error.kickmax", "max", "3")));//Read each of the users that must be kickned
+		if (ids.size()>3) return Mono.error(new TextException(locale.localize("command.error.kickmax", "max", "3")));
 		
 		String freason = reason;
 		return Mono.just(new KickArguments() {

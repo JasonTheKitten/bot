@@ -1,11 +1,12 @@
 package everyos.bot.luwu.run.command.modules.moderation;
 
 import java.util.List;
+import java.util.function.Function;
 
-import everyos.bot.chat4j.enm.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Channel;
+import everyos.bot.luwu.core.entity.Client;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.exception.TextException;
@@ -17,11 +18,9 @@ import reactor.core.publisher.Mono;
 public abstract class ModerationCommandBase<T extends ModerationArguments> extends CommandBase {
 	private String moderationName = "command.moderation.unknown";
 	private String successMessage = "command.moderation.unknown";
-	private ChatPermission[] permissions;
 	
-	public ModerationCommandBase(String id, ChatPermission[] permissions) {
-		super(id);
-		this.permissions = permissions;
+	public ModerationCommandBase(String id, Function<Client, Boolean> checkSupportedFunc, int requiredBotPerms, int requiredUserPerms) {
+		super(id, checkSupportedFunc, requiredBotPerms, requiredUserPerms);
 	}
 	
 	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
@@ -30,8 +29,7 @@ public abstract class ModerationCommandBase<T extends ModerationArguments> exten
 		Member invoker = data.getInvoker();
 		
 		return
-			checkPerms(invoker, locale)
-			.then(parseArgs(parser, locale))
+			parseArgs(parser, locale)
 			.flatMapMany(args->{
 				return Flux.fromArray(args.getUsers())
 					.flatMap(uid->channel.getMember(uid)).flatMap(member->{
@@ -50,18 +48,6 @@ public abstract class ModerationCommandBase<T extends ModerationArguments> exten
 			})
 			.collectList()
 			.flatMap(list->sendActionSuccess(channel, locale, list));
-	}
-
-	
-
-	protected Mono<Void> checkPerms(Member invoker, Locale locale) {
-		//Does the user have permissions?
-		return invoker.hasPermissions(permissions).flatMap(hasPermission->{
-			if (!hasPermission) {
-				return Mono.error(new TextException(locale.localize("command.error.perms"))).then();
-			}
-			return Mono.empty();
-		});
 	}
 	
 	abstract protected Mono<T> parseArgs(ArgumentParser parser, Locale locale);

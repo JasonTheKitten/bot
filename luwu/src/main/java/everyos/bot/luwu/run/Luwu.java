@@ -6,6 +6,8 @@ import ch.qos.logback.classic.Logger;
 import everyos.bot.luwu.core.BotEngineBuilder;
 import everyos.bot.luwu.core.Configuration;
 import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
+import everyos.bot.luwu.core.entity.event.ReactionEvent;
+import everyos.bot.luwu.core.event.MessageCreateEventProcessor;
 import everyos.bot.luwu.discord.DiscordClientBuilder;
 import everyos.bot.luwu.language.ResourceLocale;
 import everyos.bot.luwu.mongo.MongoDatabaseBuilder;
@@ -14,6 +16,7 @@ import everyos.bot.luwu.run.command.channelcase.DefaultChannelCase;
 import everyos.bot.luwu.run.command.channelcase.PrivateChannelCase;
 import everyos.bot.luwu.run.command.modules.chatlink.channelcase.ChatLinkChannelCase;
 import everyos.bot.luwu.run.command.modules.leveling.LevelHooks;
+import everyos.bot.luwu.run.command.modules.role.reaction.ReactionHooks;
 import everyos.bot.luwu.run.command.usercase.DefaultUserCase;
 import reactor.core.publisher.Mono;
 
@@ -87,7 +90,9 @@ public class Luwu {
 		engineBuilder.setDefaultUserCase(DEFAULT_USERCASE);
 		
 		// Register hooks
+		engineBuilder.registerHook(MessageCreateEvent.class, MessageCreateEventProcessor::apply);
 		engineBuilder.registerHook(MessageCreateEvent.class, LevelHooks::levelHook);
+		engineBuilder.registerHook(ReactionEvent.class, ReactionHooks::reactionHook);
 		
 		// Start the bot
 		return engineBuilder.build().start();

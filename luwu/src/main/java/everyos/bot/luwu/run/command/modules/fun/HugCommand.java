@@ -5,8 +5,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
-import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.Client;
@@ -16,9 +16,15 @@ import everyos.bot.luwu.core.entity.User;
 import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
+import everyos.bot.luwu.run.command.CommandBase;
 import reactor.core.publisher.Mono;
 
-public class HugCommand implements Command {
+public class HugCommand extends CommandBase {
+	public HugCommand() {
+		super("command.hug", e->true, ChatPermission.SEND_MESSAGES|ChatPermission.SEND_EMBEDS, ChatPermission.NONE);
+		// TODO Auto-generated constructor stub
+	}
+
 	private static String[] hugs;
 
 	static {
@@ -74,9 +80,11 @@ public class HugCommand implements Command {
 	private Mono<Void> sendHugMessage(Channel channel, String message, Locale locale) {
 		ChannelTextInterface textGrip = channel.getInterface(ChannelTextInterface.class);
 		return textGrip.send(spec->{
-			spec.setContent(message);
-			spec.addAttachment("hug.gif", hugs[(int) (Math.floor((Math.random()*.999999)*hugs.length))]);
-			//TODO: Footer
+			spec.setEmbed(embed->{
+				embed.setDescription(message);
+				embed.setImage(hugs[(int) (Math.floor((Math.random()*.999999)*hugs.length))]);
+				embed.setFooter("Powered by Giphy"); //Doesn't need localized
+			});
 		})
 		.then();
 	}

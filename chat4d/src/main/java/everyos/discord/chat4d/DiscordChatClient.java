@@ -5,9 +5,9 @@ import java.util.function.Function;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.EventDispatcher;
-import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.event.domain.message.MessageEvent;
+import discord4j.core.event.domain.message.ReactionAddEvent;
+import discord4j.core.event.domain.message.ReactionRemoveEvent;
 import discord4j.core.shard.GatewayBootstrap;
 import discord4j.gateway.GatewayOptions;
 import discord4j.gateway.intent.Intent;
@@ -20,14 +20,16 @@ import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.event.ChatEvent;
 import everyos.bot.chat4j.event.ChatMessageCreateEvent;
 import everyos.bot.chat4j.event.ChatMessageEvent;
-import everyos.bot.chat4j.event.UnsupportedEventException;
+import everyos.bot.chat4j.event.ChatReactionAddEvent;
+import everyos.bot.chat4j.event.ChatReactionEvent;
+import everyos.bot.chat4j.event.ChatReactionRemoveEvent;
 import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.discord.chat4d.entity.DiscordChannel;
 import everyos.discord.chat4d.entity.DiscordGuild;
 import everyos.discord.chat4d.entity.DiscordUser;
-import everyos.discord.chat4d.event.DiscordEvent;
 import everyos.discord.chat4d.event.DiscordMessageCreateEvent;
-import everyos.discord.chat4d.event.DiscordMessageEvent;
+import everyos.discord.chat4d.event.DiscordReactionAddEvent;
+import everyos.discord.chat4d.event.DiscordReactionRemoveEvent;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -46,42 +48,61 @@ public class DiscordChatClient implements ChatClient {
 		return gb.withGateway(connection->{
 			final EventDispatcher dispatcher = connection.getEventDispatcher();
 			return func.apply(new ChatConnection() {
-				@Override public Mono<Void> logout() {
+				@Override
+				public Mono<Void> logout() {
 					return connection.logout();
 				}
 
-				@Override public ChatClient getClient() {
+				@Override
+				public ChatClient getClient() {
 					return self;
 				}
 
-				@Override public <T extends ChatEvent> boolean supportsEvent(Class<T> cls) {
+				@Override
+				public <T extends ChatEvent> boolean supportsEvent(Class<T> cls) {
 					if (cls == ChatEvent.class) return true;
 					if (cls == ChatMessageEvent.class) return true;
 					if (cls == ChatMessageCreateEvent.class) return true;
 					return false;
 				}
 
-				@Override public <T extends ChatEvent> Flux<T> generateEventListener(Class<T> cls) {
-					Flux<?> m = null;
-					if (cls == ChatEvent.class) {
-						m = dispatcher.on(Event.class)
-							.map(event->new DiscordEvent(this));
-					}
-					if (cls == ChatMessageEvent.class) {
-						m = dispatcher.on(MessageEvent.class)
-							.map(event->new DiscordMessageEvent(this));
-					}
-					if (cls == ChatMessageCreateEvent.class) {
-						m = dispatcher.on(MessageCreateEvent.class)
-							.map(event->new DiscordMessageCreateEvent(this, event));
-					};
-					
+				@Override
+				public <T extends ChatEvent> Flux<T> generateEventListener(Class<T> cls) {
+					Flux<T> m = generateInternalEventListener(cls);
+						
 					if (m!=null) {
 						return m
 							.publishOn(Schedulers.boundedElastic())
 							.cast(cls);
 					}
-					throw new UnsupportedEventException();
+					return Flux.empty();
+				}
+				
+				@SuppressWarnings("unchecked")
+				private <T extends ChatEvent> Flux<T> generateInternalEventListener(Class<T> cls) {
+					if (cls == ChatEvent.class) {
+						return (Flux<T>)
+							generateInternalEventListener(ChatMessageEvent.class);
+					} else if (cls == ChatMessageEvent.class) {
+						return (Flux<T>) Flux.merge(
+							generateInternalEventListener(ChatMessageCreateEvent.class),
+							generateInternalEventListener(ChatReactionEvent.class));
+					} else if (cls == ChatMessageCreateEvent.class) {
+						return (Flux<T>) dispatcher.on(MessageCreateEvent.class)
+							.map(event->new DiscordMessageCreateEvent(this, event));
+					} else if (cls == ChatReactionEvent.class) {
+						return (Flux<T>) Flux.merge(
+							generateInternalEventListener(ChatReactionAddEvent.class),
+							generateInternalEventListener(ChatReactionRemoveEvent.class));
+					} else if (cls == ChatReactionAddEvent.class) {
+						return (Flux<T>) dispatcher.on(ReactionAddEvent.class)
+							.map(event->new DiscordReactionAddEvent(this, event));
+					} else if (cls == ChatReactionRemoveEvent.class) {
+						return (Flux<T>) dispatcher.on(ReactionRemoveEvent.class)
+							.map(event->new DiscordReactionRemoveEvent(this, event));
+					}
+					
+					return null;
 				}
 				
 				@Override

@@ -1,5 +1,6 @@
 package everyos.bot.luwu.run.command.modules.easteregg;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Locale;
@@ -9,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 public class UwUCommand extends CommandBase {
 	public UwUCommand() {
-		super("command.easteregg.uwu");
+		super("command.easteregg.uwu", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 	}
 
 	@Override

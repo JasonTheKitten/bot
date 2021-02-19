@@ -1,5 +1,6 @@
 package everyos.bot.luwu.run.command.modules.chatlink.moderation;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
@@ -17,7 +18,7 @@ import reactor.core.publisher.Mono;
 
 public class LinkAcceptCommand extends CommandBase {
 	public LinkAcceptCommand() {
-		super("command.link.accept");
+		super("command.link.accept", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 	}
 
 	private static LinkAcceptCommand instance;
@@ -70,6 +71,7 @@ public class LinkAcceptCommand extends CommandBase {
 	}
 	
 	private Mono<Void> checkPerms(ChatLink link, ChannelID channelID, UserID userID, Locale locale) {
+		//TODO: Finish this
 		return Mono.just(link.isAdmin(channelID))
 			.filter(v->!v)
 			.flatMap(v->Mono.error(new TextException(locale.localize("command.link.permsmissing"))))

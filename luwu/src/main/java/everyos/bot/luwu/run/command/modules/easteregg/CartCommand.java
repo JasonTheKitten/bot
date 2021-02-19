@@ -1,5 +1,6 @@
 package everyos.bot.luwu.run.command.modules.easteregg;
 
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
@@ -8,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 public class CartCommand extends CommandBase {
 	public CartCommand() {
-		super("command.easteregg.cart");
+		super("command.easteregg.cart", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 	}
 
 	static final String URL =

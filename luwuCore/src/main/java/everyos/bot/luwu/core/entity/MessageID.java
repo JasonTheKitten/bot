@@ -1,6 +1,5 @@
 package everyos.bot.luwu.core.entity;
 
-
 import java.util.Objects;
 
 import reactor.core.publisher.Mono;
