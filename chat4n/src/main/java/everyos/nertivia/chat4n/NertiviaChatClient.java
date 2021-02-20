@@ -64,6 +64,8 @@ public class NertiviaChatClient implements ChatClient {
 			
 			@SuppressWarnings("unchecked")
 			private <T extends ChatEvent> Flux<T> generateInternalEventListener(Class<T> cls) {
+				//TODO: Maybe just remove the argument and automatically handle things
+				
 				if (cls == ChatEvent.class) {
 					return (Flux<T>)
 						generateInternalEventListener(ChatMessageEvent.class);

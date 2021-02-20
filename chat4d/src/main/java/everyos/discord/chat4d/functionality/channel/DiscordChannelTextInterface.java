@@ -110,5 +110,10 @@ public class DiscordChannelTextInterface implements ChatChannelTextInterface {
 		private void updateFooter() {
 			spec.setFooter(footer, null);
 		}
+
+		@Override
+		public void setAuthor(String author, String url, String image) {
+			spec.setAuthor(author, url, image);
+		}
 	}
 }

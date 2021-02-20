@@ -1,5 +1,7 @@
 package everyos.bot.chat4j.entity;
 
+import java.util.Optional;
+
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.functionality.ChatInterfaceProvider;
@@ -27,4 +29,6 @@ public interface ChatUser extends ChatInterfaceProvider {
 	Mono<ChatChannel> getPrivateChannel();
 
 	boolean isBot();
+
+	Optional<String> getAvatarURL();
 }

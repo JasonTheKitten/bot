@@ -1,6 +1,9 @@
 package everyos.discord.chat4d.entity;
 
+import java.util.Optional;
+
 import discord4j.core.object.entity.User;
+import discord4j.rest.util.Image.Format;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
@@ -18,38 +21,52 @@ public class DiscordUser implements ChatUser {
 		this.connection = connection;
 	}
 
-	@Override public <T extends ChatInterface> boolean supportsInterface(Class<T> cls) {
+	@Override
+	public <T extends ChatInterface> boolean supportsInterface(Class<T> cls) {
 		return false;
 	}
 
-	@Override public <T extends ChatInterface> T getInterface(Class<T> cls) {
+	@Override
+	public <T extends ChatInterface> T getInterface(Class<T> cls) {
 		return null;
 	}
 
-	@Override public Mono<ChatMember> asMemberOf(ChatChannel channel) {
+	@Override
+	public Mono<ChatMember> asMemberOf(ChatChannel channel) {
 		return DiscordMember.instatiate(getConnection(), user, channel);
 	}
 
-	@Override public long getID() {
+	@Override
+	public long getID() {
 		return user.getId().asLong();
 	}
 	
-	@Override public ChatClient getClient() {
+	@Override
+	public ChatClient getClient() {
 		return getConnection().getClient();
 	}
-	@Override public ChatConnection getConnection() {
+	@Override
+	public ChatConnection getConnection() {
 		return connection;
 	}
 
-	@Override public String getHumanReadableID() {
+	@Override
+	public String getHumanReadableID() {
 		return user.getUsername()+"#"+user.getDiscriminator();
 	}
 
-	@Override public Mono<ChatChannel> getPrivateChannel() {
+	@Override
+	public Mono<ChatChannel> getPrivateChannel() {
 		return user.getPrivateChannel().map(channel->new DiscordChannel(connection, channel));
 	}
 
-	@Override public boolean isBot() {
+	@Override
+	public boolean isBot() {
 		return user.isBot();
+	}
+	
+	@Override
+	public Optional<String> getAvatarURL() {
+		return user.getAvatarUrl(Format.PNG);
 	}
 }

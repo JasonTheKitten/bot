@@ -2,6 +2,7 @@ package everyos.bot.luwu.core.entity;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.WeakHashMap;
 
 import everyos.bot.chat4j.entity.ChatUser;
@@ -60,6 +61,10 @@ public class User implements InterfaceProvider {
 
 	public boolean isBot() {
 		return user.isBot();
+	}
+	
+	public Optional<String> getAvatarUrl() {
+		return user.getAvatarURL();
 	}
 	
 	@Override

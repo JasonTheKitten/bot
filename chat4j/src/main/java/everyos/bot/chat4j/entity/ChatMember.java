@@ -1,5 +1,7 @@
 package everyos.bot.chat4j.entity;
 
+import java.util.Optional;
+
 import reactor.core.publisher.Mono;
 
 public interface ChatMember extends ChatUser {
@@ -13,4 +15,8 @@ public interface ChatMember extends ChatUser {
 	Mono<ChatGuild> getServer();
 
 	Mono<Integer> getPermissions();
+
+	Optional<String> getNickname();
+
+	long getJoinTime();
 }

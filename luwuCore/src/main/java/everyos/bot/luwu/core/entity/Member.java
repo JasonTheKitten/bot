@@ -3,6 +3,7 @@ package everyos.bot.luwu.core.entity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.entity.ChatPermission;
@@ -46,6 +47,10 @@ public class Member extends User implements InterfaceProvider {
 		return member.getServer()
 			.map(member->new Server(getConnection(), member));
 	}
+	
+	public Optional<String> getNickname() {
+		return member.getNickname();
+	}
 
 	@Override
 	public <T extends Interface> boolean supportsInterface(Class<T> cls) {
@@ -78,6 +83,10 @@ public class Member extends User implements InterfaceProvider {
 	
 	public <T extends Member> T getWithExtension(MemberFactory<T> factory) {
 		return factory.create(getConnection(), member, getDocuments());
+	}
+	
+	public long getJoinTimestamp() {
+		return member.getJoinTime();
 	}
 
 	//TODO: Move this into an extension

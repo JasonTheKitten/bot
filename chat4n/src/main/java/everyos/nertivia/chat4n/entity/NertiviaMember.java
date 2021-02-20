@@ -1,5 +1,7 @@
 package everyos.nertivia.chat4n.entity;
 		
+import java.util.Optional;
+
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatGuild;
@@ -59,5 +61,15 @@ public class NertiviaMember extends NertiviaUser implements ChatMember {
 	@Override
 	public Mono<Integer> getPermissions() {
 		return Mono.just(Integer.MAX_VALUE);
+	}
+
+	@Override
+	public Optional<String> getNickname() {
+		return Optional.empty(); //TODO
+	}
+
+	@Override
+	public long getJoinTime() {
+		return 0;
 	}
 }

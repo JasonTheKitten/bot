@@ -6,6 +6,7 @@ import java.util.List;
 
 import everyos.bot.chat4j.entity.ChatColor;
 import everyos.bot.chat4j.entity.ChatPermission;
+import everyos.bot.luwu.core.Configuration;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandData;
@@ -84,8 +85,8 @@ public class HelpCommand extends CommandBase {
 				embedSpec.setTitle("Extended Help - "+locale.localize(id));
 				embedSpec.setColor(ChatColor.of(15, 120, 35));
 				
-				embedSpec.addField("Help", getOrUndocumented(id+".help", locale), false);	
-				embedSpec.addField("Usage", getOrUndocumented(id+".help.extended", locale), false);
+				embedSpec.addField("Help", getOrUndocumented(id+".help", locale, null), false);	
+				embedSpec.addField("Usage", getOrUndocumented(id+".help.extended", locale, null), false);
 				
 				embedSpec.setFooter("Luwu is written by EveryOS");
 			});
@@ -131,12 +132,21 @@ public class HelpCommand extends CommandBase {
 		
 		String helpText = !(listings.isEmpty()&&helpTextInitial.isEmpty())?
 			helpTextInitial:
+			/*helpTextInitial.substring(listings.isEmpty()?0:1):*/
 			"\n\n"+locale.localize("command.help.error.nosubcommands");
 		
 		
 		return textGrip.send(spec->{
 			spec.setEmbed(embedSpec->{
-				String desc = getOrUndocumented(id==null?null:(id+".help.extended"), locale);
+				@SuppressWarnings("deprecation")
+				Configuration config = channel.getClient().getBotEngine().getConfiguration();
+				@SuppressWarnings("deprecation")
+				String[] fillins = {
+					"github", config.getCustomField("github-url"),
+					"dblurl", config.getCustomField("dbl-url")
+				};
+				
+				String desc = getOrUndocumented(id==null?null:(id+".help.extended"), locale, fillins);
 				//TODO: Localize
 				embedSpec.setTitle("Help"+
 					(id==null||!locale.canLocalize(id)?"":" - "+locale.localize(id))+
@@ -147,7 +157,7 @@ public class HelpCommand extends CommandBase {
 					embedSpec.setColor(ChatColor.of(80, 0, 70));
 				}
 				embedSpec.setDescription(desc+listings+helpText);
-				embedSpec.setFooter("Luwu is written by EveryOS");
+				embedSpec.setFooter("For additional command usage, run `help [command]` (e.g. `help music playlist create`)\nLuwu is written by EveryOS");
 			});
 		}).then();
 	};
@@ -158,7 +168,7 @@ public class HelpCommand extends CommandBase {
 			if (subcommandEntry.getCategory()==null) continue;
 			String subcommandTitle = locale.localize(subcommandEntry.getLabel());
 			String scid = subcommandEntry.getRaw().getID();
-			String subcommandDesc = getOrUndocumented(scid==null?null:(scid+".help"), locale);
+			String subcommandDesc = getOrUndocumented(scid==null?null:(scid+".help"), locale, null);
 			helpBuilder.append("\n**"+subcommandTitle+"** "+subcommandDesc);
 		}
 		
@@ -169,11 +179,11 @@ public class HelpCommand extends CommandBase {
 		return helpBuilder.toString();
 	}
 	
-	private static String getOrUndocumented(String label, Locale locale) {
+	private static String getOrUndocumented(String label, Locale locale, String[] fillins) {
 		if (label==null || !locale.canLocalize(label)) {
 			return locale.localize("command.help.error.undocumented");
 		}
 		
-		return locale.localize(label);
+		return locale.localize(label, fillins);
 	}
 }

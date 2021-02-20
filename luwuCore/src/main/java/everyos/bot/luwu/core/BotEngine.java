@@ -64,7 +64,10 @@ public class BotEngine {
 					m1 = hook.apply(m1, event);
 				}
 				return m1
-					.onErrorResume(e->Mono.empty())
+					.onErrorResume(e->{
+						e.printStackTrace();
+						return Mono.empty();
+					})
 					.then(Mono.just(event));
 			} catch (Exception e) {
 				e.printStackTrace();

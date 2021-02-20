@@ -3,10 +3,11 @@ package everyos.bot.luwu.run.command.channelcase;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.core.command.CommandData;
-import everyos.bot.luwu.run.command.modules.battle.AdventureCommands;
+import everyos.bot.luwu.run.command.modules.battle.BattleCommands;
 import everyos.bot.luwu.run.command.modules.easteregg.EasterEggCommands;
 import everyos.bot.luwu.run.command.modules.fun.FunCommands;
 import everyos.bot.luwu.run.command.modules.info.InfoCommands;
+import everyos.bot.luwu.run.command.modules.privacy.PrivacyCommands;
 import reactor.core.publisher.Mono;
 
 public class PrivateChannelCase extends CommandChannelCase {
@@ -17,11 +18,14 @@ public class PrivateChannelCase extends CommandChannelCase {
 		this.commands = new CommandContainer();
 		
 		commands.category("fun");
-		AdventureCommands.installTo(commands);
+		BattleCommands.installTo(commands);
 		FunCommands.installTo(commands);
 		
 		commands.category("info");
 		InfoCommands.installTo(commands);
+		
+		commands.category("privacy");
+		PrivacyCommands.installTo(commands);
 		
 		commands.category(null);
 		EasterEggCommands.installTo(commands);

@@ -8,5 +8,7 @@ public final class UtilityCommands {
 	public static void installTo(CommandContainer container) {
 		container.registerCommand("command.dictionary", new DictionaryCommand());
 		container.registerCommand("command.ghost", new GhostCommand());
+		container.registerCommand("command.embed", new EmbedCommand());
+		container.registerCommand("command.profile", new ProfileCommand());
 	}
 }

@@ -32,4 +32,9 @@ public class UserID {
 	public int hashCode() {
 		return Objects.hash(uid);
 	}
+	
+	@Override
+	public String toString() {
+		return String.valueOf(uid);
+	}
 }

@@ -1,5 +1,7 @@
 package everyos.discord.chat4d.entity;
 
+import java.util.Optional;
+
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.Channel;
@@ -66,12 +68,23 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 		return this.member;
 	}
 
-	@Override public Mono<ChatGuild> getServer() {
+	@Override
+	public Mono<ChatGuild> getServer() {
 		//TODO: Not available outside of guilds
 		if (member==null) {
 			return Mono.empty();
 		}
 		return member.getGuild().map(guild->new DiscordGuild(getConnection(), guild));
+	}
+	
+	@Override
+	public Optional<String> getNickname() {
+		return member.getNickname();
+	}
+	
+	@Override
+	public long getJoinTime() {
+		return member.getJoinTime().toEpochMilli();
 	}
 
 	@Override

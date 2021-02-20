@@ -1,5 +1,7 @@
 package everyos.bot.luwu.discord;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Optional;
 
 import everyos.bot.luwu.core.client.ArgumentParser;
@@ -138,5 +140,28 @@ public class DiscordArgumentParser extends ArgumentParser {
 	public MessageID eatMessageID(ChannelID id) {
 		String token = eat();
 		return new MessageID(id, Long.valueOf(token));
+	}
+
+	@Override
+	public boolean couldBeURL() {
+		String token = peek();
+        if (token.startsWith("<") && token.endsWith(">")) {
+            token = token.substring(1, token.length() - 1);
+        }
+        try {
+        	new URL(token); return true;
+        } catch (MalformedURLException e) {
+            return false;
+		}
+	}
+
+	@Override
+	public String eatURL() {
+		String token = eat();
+        if (token.startsWith("<") && token.endsWith(">")) {
+            token = token.substring(1, token.length() - 1);
+        }
+        
+        return token;
 	}
 }

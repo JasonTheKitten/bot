@@ -59,6 +59,8 @@ public abstract class CommandBase implements Command {
 		String got = parser.getRemaining();
 		if (got.isEmpty()) {
 			got = locale.localize("command.error.nothing");
+		} else {
+			got = "`"+got+"`";
 		}
 		return Mono.error(new TextException(locale.localize("command.error.usage",
 			"expected", locale.localize(error),

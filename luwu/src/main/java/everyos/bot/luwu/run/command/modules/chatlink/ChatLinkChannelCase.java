@@ -1,4 +1,4 @@
-package everyos.bot.luwu.run.command.modules.chatlink.channelcase;
+package everyos.bot.luwu.run.command.modules.chatlink;
 
 import java.time.Duration;
 
@@ -10,7 +10,6 @@ import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.channelcase.CommandChannelCase;
-import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannel;
 import everyos.bot.luwu.run.command.modules.chatlink.moderation.LinkModerationCommands;
 import everyos.bot.luwu.run.command.modules.chatlink.moderation.WarnedMuteCommandWrapper;
 import everyos.bot.luwu.run.command.modules.info.InfoCommands;
@@ -25,9 +24,11 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 	public ChatLinkChannelCase() {
 		this.commands = new CommandContainer();
 		
+		commands.category("default");
+		LinkModerationCommands.installTo(commands);
+		
 		commands.category("moderation");
 		ModerationCommands.installTo(commands);
-		LinkModerationCommands.installTo(commands);
 		
 		// Override the mute command with a warning
 		commands.registerCommand("command.mute", new WarnedMuteCommandWrapper(true));

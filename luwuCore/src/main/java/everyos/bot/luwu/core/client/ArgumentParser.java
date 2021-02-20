@@ -128,4 +128,7 @@ public abstract class ArgumentParser {
 	
 	public abstract boolean couldBeMessageID();
 	public abstract MessageID eatMessageID(ChannelID id);
+
+	public abstract boolean couldBeURL();
+	public abstract String eatURL();
 }

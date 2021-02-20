@@ -1,5 +1,7 @@
 package everyos.nertivia.chat4n.entity;
 
+import java.util.Optional;
+
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
@@ -51,5 +53,10 @@ public class NertiviaUser implements ChatUser {
 
 	@Override public boolean isBot() {
 		return user.isBot();
+	}
+
+	@Override
+	public Optional<String> getAvatarURL() {
+		return Optional.empty();
 	}
 }
