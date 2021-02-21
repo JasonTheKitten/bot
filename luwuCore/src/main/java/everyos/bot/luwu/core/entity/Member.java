@@ -8,13 +8,16 @@ import java.util.Optional;
 import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.chat4j.functionality.member.ChatMemberModerationInterface;
+import everyos.bot.chat4j.functionality.member.ChatMemberRoleInterface;
 import everyos.bot.chat4j.functionality.member.ChatMemberVoiceConnectionInterface;
 import everyos.bot.luwu.core.database.DBDocument;
 import everyos.bot.luwu.core.entity.imp.MemberModerationInterfaceImp;
+import everyos.bot.luwu.core.entity.imp.MemberRoleInterfaceImp;
 import everyos.bot.luwu.core.entity.imp.MemberVoiceConnectionInterfaceImp;
 import everyos.bot.luwu.core.functionality.Interface;
 import everyos.bot.luwu.core.functionality.InterfaceProvider;
 import everyos.bot.luwu.core.functionality.member.MemberModerationInterface;
+import everyos.bot.luwu.core.functionality.member.MemberRoleInterface;
 import everyos.bot.luwu.core.functionality.member.MemberVoiceConnectionInterface;
 import reactor.core.publisher.Mono;
 
@@ -55,7 +58,9 @@ public class Member extends User implements InterfaceProvider {
 	@Override
 	public <T extends Interface> boolean supportsInterface(Class<T> cls) {
 		return
-			(cls==MemberVoiceConnectionInterface.class&&member.supportsInterface(ChatMemberVoiceConnectionInterface.class));
+			(cls==MemberVoiceConnectionInterface.class&&member.supportsInterface(ChatMemberVoiceConnectionInterface.class))||
+			(cls==MemberModerationInterface.class&&member.supportsInterface(ChatMemberModerationInterface.class))||
+			(cls==MemberRoleInterface.class&&member.supportsInterface(ChatMemberRoleInterface.class));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -67,8 +72,12 @@ public class Member extends User implements InterfaceProvider {
 				member.getInterface(ChatMemberVoiceConnectionInterface.class));
 		} else if (cls==MemberModerationInterface.class) {
 			return (T) new MemberModerationInterfaceImp(
-					getConnection(),
-					member.getInterface(ChatMemberModerationInterface.class));
+				getConnection(),
+				member.getInterface(ChatMemberModerationInterface.class));
+		} else if (cls==MemberRoleInterface.class) {
+			return (T) new MemberRoleInterfaceImp(
+				getConnection(),
+				member.getInterface(ChatMemberRoleInterface.class));
 		}
 		return null;
 	};

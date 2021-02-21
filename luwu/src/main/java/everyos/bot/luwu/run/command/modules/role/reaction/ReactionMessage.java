@@ -1,6 +1,7 @@
 package everyos.bot.luwu.run.command.modules.role.reaction;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import everyos.bot.chat4j.entity.ChatMessage;
@@ -37,6 +38,21 @@ public class ReactionMessage extends Message {
 			});
 			
 			return document.save();
+		});
+	}
+	public Mono<ReactionInfo> getInfo() {
+		return getGlobalDocument().map(document->{
+			DBObject object = document.getObject();
+			DBObject roles = object.getOrCreateObject("roles", obj->{});
+			
+			return new ReactionInfo() {
+				@Override
+				public Optional<RoleID> getReaction(EmojiID emoji) {
+					long roleID = roles.getOrDefaultLong(emoji.toString(), -1L);
+					if (roleID == -1L) return Optional.empty();
+					return Optional.of(new RoleID(getConnection(), roleID));
+				}
+			};
 		});
 	}
 }

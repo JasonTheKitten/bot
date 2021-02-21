@@ -10,5 +10,6 @@ public final class UtilityCommands {
 		container.registerCommand("command.ghost", new GhostCommand());
 		container.registerCommand("command.embed", new EmbedCommand());
 		container.registerCommand("command.profile", new ProfileCommand());
+		container.registerCommand("command.suggest", new SuggestCommand());
 	}
 }

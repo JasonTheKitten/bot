@@ -27,7 +27,8 @@ public class ReactionAddCommand extends CommandBase {
 	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		return
 			parseArguments(data.getChannel(), parser, data.getLocale())
-			.flatMap(args->createReaction(args.getT1(), args.getT2()));
+			.flatMap(args->createReaction(args.getT1(), args.getT2()))
+			.then(data.getMessage().delete());
 	}
 
 	

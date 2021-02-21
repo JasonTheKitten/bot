@@ -2,7 +2,6 @@ package everyos.bot.luwu.discord;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Optional;
 
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.entity.ChannelID;
@@ -102,31 +101,9 @@ public class DiscordArgumentParser extends ArgumentParser {
             token = token.substring(token.lastIndexOf(':')+1, token.length() - 1);
         }
         try {
-        	long rid = Long.valueOf(token);
-        	return new EmojiID() {
-				@Override
-				public Optional<String> getName() {
-					return Optional.empty();
-				}
-
-				@Override
-				public Optional<Long> getID() {
-					return Optional.of(rid);
-				}
-        	};
+        	return EmojiID.of(Long.valueOf(token));
         } catch(NumberFormatException e) {
-        	String name = token;
-        	return new EmojiID() {
-				@Override
-				public Optional<String> getName() {
-					return Optional.of(name);
-				}
-
-				@Override
-				public Optional<Long> getID() {
-					return Optional.empty();
-				}
-        	};
+        	return EmojiID.of(token);
         }
 	}
 

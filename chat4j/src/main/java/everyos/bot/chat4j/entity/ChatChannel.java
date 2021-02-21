@@ -22,5 +22,5 @@ public interface ChatChannel extends ChatInterfaceProvider {
 	
 	public boolean isPrivate();
 
-	public Mono<ChatMessage> getMessageByID(long long1);
+	public Mono<ChatMessage> getMessageByID(long mid);
 }

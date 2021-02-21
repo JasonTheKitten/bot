@@ -24,7 +24,7 @@ public interface ChatMessageCreateEvent extends ChatMessageEvent {
 	 * Return a mono that gets the author of the message associated with this event, as a member
 	 * @return A mono that, when subscribed to, optionally returns the author of the message associated with this event, as a member
 	 */
-	public Mono<Optional<ChatMember>> getSenderAsMember();
+	public Mono<ChatMember> getSenderAsMember();
 	
 	/**
 	 * Return a mono that gets the guild that this event was triggered from

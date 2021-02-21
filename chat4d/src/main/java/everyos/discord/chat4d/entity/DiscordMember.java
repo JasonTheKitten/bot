@@ -13,8 +13,10 @@ import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.bot.chat4j.functionality.member.ChatMemberModerationInterface;
+import everyos.bot.chat4j.functionality.member.ChatMemberRoleInterface;
 import everyos.bot.chat4j.functionality.member.ChatMemberVoiceConnectionInterface;
 import everyos.discord.chat4d.functionality.member.DiscordGuildMemberModerationInterface;
+import everyos.discord.chat4d.functionality.member.DiscordGuildMemberRoleInterface;
 import everyos.discord.chat4d.functionality.member.DiscordGuildMemberVoiceConnectionInterface;
 import reactor.core.publisher.Mono;
 
@@ -27,7 +29,7 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 	}
 
 	@Override public <T extends ChatInterface> boolean supportsInterface(Class<T> cls) {
-		return super.supportsInterface(cls);
+		return getInterface(cls)!=null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -37,6 +39,8 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 				return (T) new DiscordGuildMemberModerationInterface(getConnection(), member);
 			} else if (cls==ChatMemberVoiceConnectionInterface.class) {
 				return (T) new DiscordGuildMemberVoiceConnectionInterface(getConnection(), member);
+			} else if (cls==ChatMemberRoleInterface.class) {
+				return (T) new DiscordGuildMemberRoleInterface(getConnection(), member);
 			}
 		}
 		return super.getInterface(cls);

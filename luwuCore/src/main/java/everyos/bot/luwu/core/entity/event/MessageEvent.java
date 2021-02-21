@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 public class MessageEvent extends Event {
 	private Connection connection;
 	private ChatMessageEvent messageEvent;
+	private Message cachedMessage;
 
 	public MessageEvent(Connection connection, ChatMessageEvent messageEvent) {
 		super(connection);
@@ -16,6 +17,9 @@ public class MessageEvent extends Event {
 	}
 	
 	public Mono<Message> getMessage() {
-		return messageEvent.getMessage().map(message->new Message(connection, message));
+		return
+			Mono.justOrEmpty(cachedMessage)
+			.switchIfEmpty(messageEvent.getMessage().map(message->new Message(connection, message))
+				.doOnNext(m->cachedMessage=m));
 	};
 }

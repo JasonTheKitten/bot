@@ -1,7 +1,5 @@
 package everyos.discord.chat4d.event;
 
-import java.util.Optional;
-
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatMember;
@@ -28,14 +26,11 @@ public class DiscordMessageCreateEvent extends DiscordMessageEvent implements Ch
 	@Override
 	public Mono<ChatUser> getSender() {
 		return getMessage().flatMap(msg->msg.getAuthor());
+		
 	}
 
 	@Override
-	public Mono<Optional<ChatMember>> getSenderAsMember() {
-		if (event.getMember().isPresent()) {
-			return Mono.just(DiscordMember.instatiate(getConnection(), event.getMember().get())).cast(ChatMember.class)
-				.map(m->Optional.of(m));
-		}
-		return Mono.just(Optional.empty());
+	public Mono<ChatMember> getSenderAsMember() {
+		return Mono.justOrEmpty(event.getMember()).map(member->DiscordMember.instatiate(getConnection(), member));
 	}
 }

@@ -1,7 +1,5 @@
 package everyos.bot.luwu.core.entity.event;
 
-import java.util.Optional;
-
 import everyos.bot.chat4j.event.ChatMessageCreateEvent;
 import everyos.bot.luwu.core.entity.Client;
 import everyos.bot.luwu.core.entity.Connection;
@@ -24,10 +22,8 @@ public class MessageCreateEvent extends MessageEvent {
 	public Mono<User> getSender() {
 		return event.getSender().map(user->new User(connection, user));
 	}
-	public Mono<Optional<Member>> getSenderAsMember() {
-		return event.getSenderAsMember().map(membero->
-			membero.map(member->
-				new Member(connection, member)));
+	public Mono<Member> getSenderAsMember() {
+		return event.getSenderAsMember().map(member->new Member(connection, member));
 	}
 	public Connection getConnection() {
 		return connection;

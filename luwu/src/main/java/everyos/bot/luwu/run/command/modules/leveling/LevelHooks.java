@@ -1,6 +1,5 @@
 package everyos.bot.luwu.run.command.modules.leveling;
 
-import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import reactor.core.publisher.Mono;
@@ -11,9 +10,7 @@ public abstract class LevelHooks {
 	private LevelHooks() {}
 	
 	public static Mono<Void> levelHook(MessageCreateEvent event) {
-		return event.getSenderAsMember().flatMap(senderMaybe->{
-			if (!senderMaybe.isPresent()) return Mono.empty();
-			Member sender = senderMaybe.get();
+		return event.getSenderAsMember().flatMap(sender->{
 			if (sender.isBot()) return Mono.empty();
 			
 			LevelMember member = sender.getWithExtension(LevelMember.type);
