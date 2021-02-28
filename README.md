@@ -47,3 +47,7 @@ Luwu is a Discord Bot written on the Discord4J framework, which features:
 ![image](https://user-images.githubusercontent.com/15697938/109403986-ab579680-792f-11eb-8dc1-8c2fdaae3a02.png)
 
 ![image](https://user-images.githubusercontent.com/15697938/109403994-b7dbef00-792f-11eb-8064-1ed8b8ccac90.png)
+
+![image](https://user-images.githubusercontent.com/15697938/109404287-992b2780-7932-11eb-9c7e-8c7eb5d3bf77.png)
+
+![image](https://user-images.githubusercontent.com/15697938/109404247-35086380-7932-11eb-9333-82bc0b58b169.png)
