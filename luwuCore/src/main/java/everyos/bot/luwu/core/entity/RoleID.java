@@ -27,4 +27,9 @@ public class RoleID {
 	public int hashCode() {
 		return Objects.hash(rid);
 	}
+	
+	@Override
+	public String toString() {
+		return String.valueOf(rid);
+	}
 }

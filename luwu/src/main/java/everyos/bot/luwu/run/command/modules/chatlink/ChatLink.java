@@ -126,7 +126,11 @@ public class ChatLink {
 	private Mono<Void> sendMessageToChannel(ChatLinkChannel channel, Message message) {
 		return
 			checkMessageSendAllowedForChannel(channel, message)
-			.then(sendMessageToChannelAsQuote(channel, message));
+			.then(sendMessageToChannelAsQuote(channel, message))
+			.onErrorResume(e->{
+				if (e instanceof TextException) return Mono.empty();
+				return Mono.error(e);
+			});
 	}
 
 	private Mono<Void> sendMessageToChannelAsQuote(ChatLinkChannel channel, Message message) {

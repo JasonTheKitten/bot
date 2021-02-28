@@ -22,7 +22,7 @@ public class LevelEnableCommand extends CommandBase {
 		Locale locale = data.getLocale();
 		
 		return 
-			data.getInvoker().getServer().map(server->server.getWithExtension(LevelServer.type)).flatMap(server->{
+			data.getInvoker().getServer().flatMap(server->server.as(LevelServer.type)).flatMap(server->{
 				return server.getLevelInfo().flatMap(info->{
 					if (info.getLevellingEnabled()==enable) {
 						return Mono.error(new TextException(

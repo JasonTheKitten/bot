@@ -149,4 +149,9 @@ public class MongoDBObject implements DBObject {
 	@Override public boolean has(String key) {
 		return document.containsKey(key);
 	}
+	
+	@Override
+	public String[] getKeys() {
+		return document.keySet().toArray(new String[document.keySet().size()]);
+	}
 }

@@ -18,7 +18,7 @@ public class LevelCheckCommand extends CommandBase {
 	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		Locale locale = data.getLocale();
 		
-		return data.getInvoker().getServer().map(server->server.getWithExtension(LevelServer.type)).flatMap(server->{
+		return data.getInvoker().getServer().flatMap(server->server.as(LevelServer.type)).flatMap(server->{
 			return server.getLevelInfo().flatMap(info->{
 				if (!info.getLevellingEnabled()) {
 					return Mono.error(new TextException(locale.localize("command.level.error.disabled")));

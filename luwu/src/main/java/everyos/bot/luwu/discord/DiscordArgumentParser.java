@@ -86,7 +86,7 @@ public class DiscordArgumentParser extends ArgumentParser {
 
 	@Override public boolean couldBeEmojiID() {
 		String token = peek();
-        if (token.startsWith("<:") && token.endsWith(">")) {
+        if (token.startsWith("<:") || token.startsWith("<a:") && token.endsWith(">")) {
             token = token.substring(token.lastIndexOf(':')+1, token.length() - 1);
         }
         try {
@@ -97,7 +97,7 @@ public class DiscordArgumentParser extends ArgumentParser {
 	}
 	@Override public EmojiID eatEmojiID() {
 		String token = eat();
-        if (token.startsWith("<:") && token.endsWith(">")) {
+        if (token.startsWith("<:") || token.startsWith("<a:") && token.endsWith(">")) {
             token = token.substring(token.lastIndexOf(':')+1, token.length() - 1);
         }
         try {

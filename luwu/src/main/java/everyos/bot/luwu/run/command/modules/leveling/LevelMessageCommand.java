@@ -46,7 +46,7 @@ public class LevelMessageCommand extends CommandBase {
 
 	private Mono<Void> setMessage(Locale locale, Channel channel, ChannelID channelID, String message) {
 		return 
-			channel.getServer().map(server->server.getWithExtension(LevelServer.type)).flatMap(server->{
+			channel.getServer().flatMap(server->server.as(LevelServer.type)).flatMap(server->{
 				return server.getLevelInfo().flatMap(info->{
 					if (!info.getLevellingEnabled()) {
 						return Mono.error(new TextException(locale.localize("command.level.error.disabled")));

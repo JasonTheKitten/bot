@@ -37,4 +37,5 @@ public interface DBObject {
 	DBObject createObject(String key, Consumer<DBObject> func);
 	DBArray createArray(String key, Consumer<DBArray> func);
 	boolean has(String key);
+	String[] getKeys();
 }

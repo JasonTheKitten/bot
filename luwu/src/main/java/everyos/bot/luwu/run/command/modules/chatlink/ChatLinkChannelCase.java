@@ -10,6 +10,7 @@ import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.channelcase.CommandChannelCase;
+import everyos.bot.luwu.run.command.modules.channel.ResetChannelCommand;
 import everyos.bot.luwu.run.command.modules.chatlink.moderation.LinkModerationCommands;
 import everyos.bot.luwu.run.command.modules.chatlink.moderation.WarnedMuteCommandWrapper;
 import everyos.bot.luwu.run.command.modules.info.InfoCommands;
@@ -26,6 +27,7 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 		
 		commands.category("default");
 		LinkModerationCommands.installTo(commands);
+		commands.registerCommand("command.resetchannel", new ResetChannelCommand());
 		
 		commands.category("moderation");
 		ModerationCommands.installTo(commands);

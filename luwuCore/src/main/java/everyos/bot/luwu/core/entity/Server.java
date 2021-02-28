@@ -48,7 +48,7 @@ public class Server implements InterfaceProvider {
 		return guild.getName();
 	}
 	
-	public <T extends Server> T getWithExtension(ServerFactory<T> factory) {
+	public <T extends Server> Mono<T> as(ServerFactory<T> factory) {
 		return factory.create(connection, guild, documents);
 	}
 	
@@ -67,7 +67,7 @@ public class Server implements InterfaceProvider {
 			.doOnNext(document->documents.put(name, document));
 	}
 	
-	protected Mono<DBDocument> getServerDocument() {
+	protected Mono<DBDocument> getGlobalDocument() {
 		return getNamedDocument("servers");
 	}
 }

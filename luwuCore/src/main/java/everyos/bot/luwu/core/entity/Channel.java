@@ -96,6 +96,11 @@ public class Channel implements InterfaceProvider {
 		return channel.isPrivate();
 	}
 	
+
+	public Mono<Void> reset() {
+		return getGlobalDocument().flatMap(doc->doc.delete());
+	}
+	
 	public Connection getConnection() {
 		return connection;
 	}

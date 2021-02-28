@@ -15,7 +15,7 @@ public abstract class LevelHooks {
 			
 			LevelMember member = sender.getWithExtension(LevelMember.type);
 			
-			return sender.getServer().map(server->server.getWithExtension(LevelServer.type)).flatMap(server->{
+			return sender.getServer().flatMap(server->server.as(LevelServer.type)).flatMap(server->{
 				return server.getLevelInfo().flatMap(info->{
 					if (!info.getLevellingEnabled()) {
 						return Mono.empty();

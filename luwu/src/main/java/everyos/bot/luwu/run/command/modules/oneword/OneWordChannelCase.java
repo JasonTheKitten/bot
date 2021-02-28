@@ -15,7 +15,8 @@ import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.channelcase.CommandChannelCase;
-import everyos.bot.luwu.run.command.modules.info.HelpCommand;
+import everyos.bot.luwu.run.command.modules.channel.ResetChannelCommand;
+import everyos.bot.luwu.run.command.modules.info.InfoCommands;
 import everyos.bot.luwu.run.command.modules.moderation.ModerationCommands;
 import everyos.bot.luwu.run.command.modules.oneword.moderation.OneWordModerationCommands;
 import reactor.core.publisher.Mono;
@@ -44,9 +45,10 @@ public final class OneWordChannelCase extends CommandChannelCase {
 		
 		commands.category("default");
 		OneWordModerationCommands.installTo(commands);
+		commands.registerCommand("command.resetchannel", new ResetChannelCommand());
 		
 		commands.category("info");
-		commands.registerCommand("command.help", new HelpCommand());
+		InfoCommands.installTo(commands);
 		
 		commands.category("moderation");
 		ModerationCommands.installTo(commands);

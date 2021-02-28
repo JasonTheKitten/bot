@@ -21,7 +21,7 @@ public class LevelServer extends Server {
 	}
 	
 	public Mono<LevelInfo> getLevelInfo() {
-		return getServerDocument().map(document->{
+		return getGlobalDocument().map(document->{
 			DBObject serverObject = document.getObject();
 			DBObject levelObject = serverObject.getOrCreateObject("levelling", obj->{});
 			 
@@ -36,7 +36,7 @@ public class LevelServer extends Server {
 	public static LevelServerFactory type = new LevelServerFactory();
 
 	public Mono<Void> setLevelInfo(LevelInfo levelInfo) {
-		return getServerDocument().flatMap(document->{
+		return getGlobalDocument().flatMap(document->{
 			DBObject serverObject = document.getObject();
 			DBObject levelObject = serverObject.getOrCreateObject("levelling", obj->{});
 			 

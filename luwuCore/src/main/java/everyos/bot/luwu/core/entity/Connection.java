@@ -29,7 +29,7 @@ public class Connection {
 		return client.getBotEngine().getConnectionByID(id.getConnectionID()).connection
 			.getChannelByID(id.getLong()).map(channel->new Channel(this, channel));
 	}
-	public Mono<Server> getServerByID(ServerID id) {
+	protected Mono<Server> getServerByID(ServerID id) {
 		return connection.getGuildByID(id.getLong()).map(server->new Server(this, server));
 	}
 	
