@@ -5,6 +5,7 @@ import java.util.function.Function;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.EventDispatcher;
+import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.ReactionAddEvent;
 import discord4j.core.event.domain.message.ReactionRemoveEvent;
@@ -18,6 +19,7 @@ import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.event.ChatEvent;
+import everyos.bot.chat4j.event.ChatMemberJoinEvent;
 import everyos.bot.chat4j.event.ChatMessageCreateEvent;
 import everyos.bot.chat4j.event.ChatMessageEvent;
 import everyos.bot.chat4j.event.ChatReactionAddEvent;
@@ -27,6 +29,7 @@ import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.discord.chat4d.entity.DiscordChannel;
 import everyos.discord.chat4d.entity.DiscordGuild;
 import everyos.discord.chat4d.entity.DiscordUser;
+import everyos.discord.chat4d.event.DiscordMemberJoinEvent;
 import everyos.discord.chat4d.event.DiscordMessageCreateEvent;
 import everyos.discord.chat4d.event.DiscordReactionAddEvent;
 import everyos.discord.chat4d.event.DiscordReactionRemoveEvent;
@@ -81,8 +84,9 @@ public class DiscordChatClient implements ChatClient {
 				@SuppressWarnings("unchecked")
 				private <T extends ChatEvent> Flux<T> generateInternalEventListener(Class<T> cls) {
 					if (cls == ChatEvent.class) {
-						return (Flux<T>)
-							generateInternalEventListener(ChatMessageEvent.class);
+						return (Flux<T>) Flux.merge(
+							generateInternalEventListener(ChatMessageEvent.class),
+							generateInternalEventListener(ChatMemberJoinEvent.class));
 					} else if (cls == ChatMessageEvent.class) {
 						return (Flux<T>) Flux.merge(
 							generateInternalEventListener(ChatMessageCreateEvent.class),
@@ -100,6 +104,9 @@ public class DiscordChatClient implements ChatClient {
 					} else if (cls == ChatReactionRemoveEvent.class) {
 						return (Flux<T>) dispatcher.on(ReactionRemoveEvent.class)
 							.map(event->new DiscordReactionRemoveEvent(this, event));
+					} else if (cls == ChatMemberJoinEvent.class) {
+						return (Flux<T>) dispatcher.on(MemberJoinEvent.class)
+							.map(event->new DiscordMemberJoinEvent(this, event));
 					}
 					
 					return null;

@@ -17,7 +17,7 @@ public class RoleListCommand extends CommandBase{
 
 	public RoleListCommand() {
 		super("command.role.role.list", e->true,
-			ChatPermission.SEND_MESSAGES,
+			ChatPermission.SEND_MESSAGES | ChatPermission.SEND_EMBEDS,
 			ChatPermission.NONE);
 	}
 

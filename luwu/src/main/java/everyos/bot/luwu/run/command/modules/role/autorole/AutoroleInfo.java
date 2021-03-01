@@ -5,7 +5,8 @@ import java.util.Optional;
 import everyos.bot.luwu.core.entity.RoleID;
 
 public interface AutoroleInfo {
-	Optional<RoleID> getMemberRole();
+	Optional<RoleID> getUserRole();
 	Optional<RoleID> getBotRole();
 	RoleID[] getDefaultRoles();
+	boolean hasRole(RoleID id);
 }

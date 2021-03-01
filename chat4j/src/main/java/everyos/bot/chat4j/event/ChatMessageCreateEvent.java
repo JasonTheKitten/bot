@@ -1,7 +1,5 @@
 package everyos.bot.chat4j.event;
 
-import java.util.Optional;
-
 import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.entity.ChatMessage;
 import everyos.bot.chat4j.entity.ChatUser;
