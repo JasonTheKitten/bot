@@ -11,7 +11,8 @@ public class MusicRestartCommand extends GenericMusicCommand {
 		super("command.music.restart", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 	}
 
-	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
+	@Override
+	protected Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		manager.getPlayingAudio().setPosition(0);
 		manager.unpause();
 		
@@ -21,7 +22,7 @@ public class MusicRestartCommand extends GenericMusicCommand {
 	}
 
 	@Override
-	boolean requiresDJ() {
+	protected boolean requiresDJ() {
 		return true;
 	}
 }

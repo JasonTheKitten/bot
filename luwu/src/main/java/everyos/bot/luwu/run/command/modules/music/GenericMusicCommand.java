@@ -2,6 +2,8 @@ package everyos.bot.luwu.run.command.modules.music;
 
 import java.util.function.Function;
 
+import everyos.bot.chat4j.audio.ChatVoiceStateMissingException;
+import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Client;
@@ -21,7 +23,8 @@ public abstract class GenericMusicCommand extends CommandBase {
 		super(id, checkSupportedFunc, requiredBotPerms, requiredUserPerms);
 	}
 	
-	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
+	@Override
+	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		Message message = data.getMessage();
 		Member invoker = data.getInvoker();
 		Locale locale = data.getLocale();
@@ -36,15 +39,14 @@ public abstract class GenericMusicCommand extends CommandBase {
 		
 		return
 			suppressEmbeds(message)
-			.then(checkPerms(invoker, locale))
 			.then(createConnection(invoker, locale))
-			.flatMap(manager->execute(data, parser, manager));
-    	/*.onErrorResume(e->{
-    		if (e instanceof VoiceStateMissingException) {
-    			return channel.createMessage(data.getLocale().localize("command.music.notinchannel"));
-    		}
-    		return Mono.error(e);
-    	});*/
+			.flatMap(manager->execute(data, parser, manager))
+	    	.onErrorResume(e->{
+	    		if (e instanceof ChatVoiceStateMissingException) {
+	    			return Mono.error(new TextException(locale.localize("command.music.notinchannel")));
+	    		}
+	    		return Mono.error(e);
+	    	});
 		//TODO: We should cache info about which users are in which VC
 	}
 
@@ -80,17 +82,12 @@ public abstract class GenericMusicCommand extends CommandBase {
 		return message.suppressEmbeds(true)
 			.onErrorResume(e->Mono.empty());
 	}
-	private Mono<Void> checkPerms(Member invoker, Locale locale) {
-		//TODO: Connect perms, too
-		//TODO: Move .isDJ outside of Member
-		return invoker.isDJ().flatMap(isDJ->{
-			if (requiresDJ()&&!isDJ) {
-				return Mono.error(new TextException(locale.localize("command.voice.error.perms")));
-			}
-			return Mono.empty();
-		});
+	
+	@Override
+	protected int getRequiredUserPerms() {
+		return super.getRequiredUserPerms()|(requiresDJ()?ChatPermission.VC_SPEAK:ChatPermission.NONE);
 	}
 
-	abstract Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager);
-	abstract boolean requiresDJ();
+	protected abstract Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager);
+	protected abstract boolean requiresDJ();
 }

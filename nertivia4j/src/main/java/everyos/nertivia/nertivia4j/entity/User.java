@@ -37,7 +37,9 @@ public class User {
 		});
 	}
 	
-	public NertiviaClient getClient() {return client;}
+	public NertiviaClient getClient() {
+		return client;
+	}
 	public long getID() {return userID;}
 	
 	public Mono<PrivateMessageChannel> getPrivateMessageChannel() {

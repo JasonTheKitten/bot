@@ -10,23 +10,25 @@ public class MusicPauseCommand extends GenericMusicCommand {
 	private boolean doPause;
 
 	public MusicPauseCommand(boolean b) {
-		super(b?"command.music.paused":"command.music.unpaused", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
+		super(b?"command.music.pause":"command.music.unpause", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 		this.doPause = b;
 	}
 
-	@Override Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
+	@Override
+	protected Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		if (doPause) {
 			manager.pause();
 			return data.getChannel().getInterface(ChannelTextInterface.class)
-				.send(data.getLocale().localize("command.music.paused")).then();
+				.send(data.getLocale().localize("command.music.pause.paused")).then();
 		} else {
 			manager.unpause();
 			return data.getChannel().getInterface(ChannelTextInterface.class)
-				.send(data.getLocale().localize("command.music.unpaused")).then();
+				.send(data.getLocale().localize("command.music.unpause.unpaused")).then();
 		}
 	}
 
-	@Override boolean requiresDJ() {
+	@Override
+	protected boolean requiresDJ() {
 		return true;
 	}
 }

@@ -76,7 +76,7 @@ public class MusicTrackScheduler extends AudioEventAdapter {
 			int selectedSong = (radioIntervalIndex+(int)(Math.random()*radioIntervalWidth))%radioSongs.length;
 			
 			MusicUtil.lookup(radioSongs[selectedSong]).doOnNext(atrack->{
-				MusicTrack track = new MusicTrack(atrack);
+				MusicTrack track = new MusicTrack(atrack, null);
 				playTrack(track);
 			}).subscribe();
 			

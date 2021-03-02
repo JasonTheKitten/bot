@@ -12,14 +12,14 @@ public class MusicStopCommand extends GenericMusicCommand {
 	}
 
 	@Override
-	Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
+	protected Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		manager.stop();
 		return data.getChannel().getInterface(ChannelTextInterface.class)
 			.send(data.getLocale().localize("command.music.stopped")).then();
 	}
 
 	@Override
-	boolean requiresDJ() {
+	protected boolean requiresDJ() {
 		return true;
 	}
 }

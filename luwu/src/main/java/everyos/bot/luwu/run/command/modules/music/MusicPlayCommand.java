@@ -1,11 +1,11 @@
 package everyos.bot.luwu.run.command.modules.music;
 
-import everyos.bot.chat4j.entity.ChatColor;
 import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
+import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.Locale;
-import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
+import everyos.bot.luwu.core.entity.User;
 import reactor.core.publisher.Mono;
 
 public class MusicPlayCommand extends GenericMusicCommand {
@@ -16,25 +16,32 @@ public class MusicPlayCommand extends GenericMusicCommand {
 	}
 
 	@Override
-	Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
+	protected Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		Locale locale = data.getLocale();
 		
-		return MusicUtil.lookup(parser.getRemaining()).flatMap(track->{
-			manager.getQueue().queue(new MusicTrack(track));
+		return
+			parseArgs(parser, locale)
+			.flatMap(query->runCommand(data.getChannel(), data.getInvoker(), query, manager, locale));
+	}
+	
+	private Mono<String> parseArgs(ArgumentParser parser, Locale locales) {
+		if (parser.isEmpty()) {
+			return expect(locales, parser, "command.error.string");
+		}
+		return Mono.just(parser.getRemaining());
+	}
+
+	public Mono<Void> runCommand(Channel channel, User invoker, String query, MusicManager manager, Locale locale) {
+		return MusicUtil.lookup(query).flatMap(track->{
+			MusicTrack mtrack = new MusicTrack(track, invoker.getID());
+			manager.getQueue().queue(mtrack);
 			manager.ready();
-			return data.getChannel().getInterface(ChannelTextInterface.class).send(spec->{
-				spec.setEmbed(embed->{
-					embed.setDescription(locale.localize("command.music.queued",
-						"name", track.getInfo().title.replace("\\", "\\\\").replace("`", "\\`"),
-						"uid", String.valueOf(data.getInvoker()),
-						"uname", data.getInvoker().getHumanReadableID().replace("\\", "\\\\").replace("`", "\\`")));
-					embed.setColor(ChatColor.of(0, 0, 0));
-				});
-			});
+			return MusicNowPlayingCommand.showPlaying(channel, manager, mtrack, locale);
 		}).then();
 	}
 
-	@Override boolean requiresDJ() {
+	@Override
+	protected boolean requiresDJ() {
 		return true;
 	}
 }

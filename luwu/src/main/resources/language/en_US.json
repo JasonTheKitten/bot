@@ -41,10 +41,11 @@
 	"command.error.quote": "\"quoted\" text",
 	"command.error.roleid": "a Role ID or ping",
 	"command.error.string": "text",
+	"command.error.emoji": "an Emoji ID or emoji",
 	"command.error.url": "a URL",
 	"command.error.usage": "That usage doesn't seem quite right. I expected ${expected}, but got ${got}.",
 	"command.ghost": "ghost",
-	"command.ghost.help": "**[message]** \"Ghosts\" the message, causing it to instantly disappear. Useful for announcement pings. Requires MANAGE_ROLES.",
+	"command.ghost.help": "**[message]** \"Ghosts\" the message, causing it to instantly disappear. Useful for announcement pings. The invoker must have MANAGE_ROLES.",
 	"command.ghost.help.extended": "**[message]** The message to be \"ghosted\"",
 	"command.giphy": "giphy",
 	"command.giphy.help": "**<search>** Search Giphy for an image.",
@@ -119,9 +120,9 @@
 	"command.moderation.unknown": "${errors} unknown error(s) occured while running this command!",
 	"command.music": "music",
 	"command.music.help": "**<subcommand>** Play or manage some music.",
-	"command.music.help.extended": "Play or manage music.",
+	"command.music.help.extended": "Play or manage music.\nOnly users with `VC_SPEAK` can manipulate music. To set a DJ, simply make sure that they are the only user with `VC_SPEAK` access.",
 	"command.music.pause": "pause",
-	"command.music.paused": "Your music has been paused. Run the `unpause` command to unpause it",
+	"command.music.pause.paused": "Your music has been paused. Run the `unpause` command to unpause it",
 	"command.music.play": "play",
 	"command.music.play.alias": "p",
 	"command.music.play.help": "**<song>** Play a song.",
@@ -143,7 +144,7 @@
 	"command.music.stop": "stop",
 	"command.music.stopped": "Your music has been stopped, and the queue cleared. See you again soon!",
 	"command.music.unpause": "unpause",
-	"command.music.unpaused": "Your music has been unpaused.",
+	"command.music.unpause.unpaused": "Your music has been unpaused.",
 	"command.mute": "mute",
 	"command.oneword.channelcase.help.extended": "One-word channels allow you to make a story, one word at a time.",
 	"command.oneword.moderation": "oneword",
@@ -268,5 +269,78 @@
 	"perm.sendmessages": "SEND_MESSAGES",
 	"perm.vcconnect": "VC_CONNECT",
 	"perm.vcpriority": "VC_PRIORITY",
-	"perm.vcspeak": "VC_SPEAK"
+	"perm.vcspeak": "VC_SPEAK",
+	
+	"command.music.nowplaying.queuedby": "Requested by User ID: ${uid}",
+	"command.music.nowplaying.queued": "Song added to queue (Length: ${len})",
+	"command.music.nowplaying.nowplaying": "Now playing",
+	"command.music.nowplaying.length": "Length",
+	"command.music.nowplaying": "nowplaying",
+	"command.music.nowplaying.alias": "np",
+	"command.music.nowplaying.help": "Shows the current playing song.",
+	"command.music.nowplaying.help.extended": "Includes a link to the song, the name of the author, the name of the song, the length of the song, and the person who queued the song.",
+	"command.music.nowplaying.nothingplaying": "Nothing is currently playing! Why don't you queue some music, Luwu?",
+	
+	"command.music.queue.title": "Queue - Page ${page}",
+	"command.music.queue": "queue",
+	"command.music.queue.help": "**[page]** Shows the list of songs that are queued.",
+	"command.music.queue.help.extended": "If no songs are queued, shows the now playing screen. If over 10 songs are queued, the queue is broken into many pages.\n**[page]** The page of the queue to view. Pages start at 1, and increase by 1 for every 10 songs.",
+	"command.music.queue.nosuchpage": "This is not a valid page. Showing the last available page.",
+	"command.music.queue.current": "Now playing",
+	"command.music.queue.trackno": "Track ${no}",
+	"command.music.queue.name": "Title",
+	"command.music.queue.length": "Length",
+	"command.music.queue.queuedby": "Queued By",
+	"command.music.queue.totaltime": "Total length: ${length}",
+	
+	"command.music.stop.help": "Stops the music.",
+	"command.music.stop.help.extended": "Clears the queue and disconnects the bot from VC.",
+	"command.music.skip.help": "**[track]** Skip a song.",
+	"command.music.skip.help.extended": "**[track]** The number of the track to skip, or 0 to skip the current track. Defaults to the current track.",
+	"command.music.repeat.help": "Toggles whether or not the music is in repeat mode.",
+	"command.music.repeat.help.extended": "Repeat mode is when the queue is played on loop.",
+	
+	"command.music.pause.help": "Pause the music.",
+	"command.music.pause.help.extended": "To unpause music, use the `music unpause` command.",
+	
+	"command.music.unpause.help": "Unpause the music.",
+	"command.music.unpause.help.extended": "To re-pause music, use the `music pause` command.",
+	
+	"command.music.restart.help": "Restart the currently playing song.",
+	"command.music.restart.help.extended": "Useful if you missed part of a song.",
+	
+	"command.music.radio.help": "Toggle whether or not radio is on.",
+	"command.music.radio.help.extended": "Radio is a feature in which music automatically plays without user input. Normal queue takes priority over radio.",
+	
+	"command.music.requeue.help": "Insert the currently playing song back into the queue.",
+	"command.music.requeue.help.extended": "Useful when you just want to here the current song once more, but you don't want to have to deal with repeat mode.",
+	
+	"command.music.shuffle": "shuffle",
+	"command.music.shuffle.help": "Randomizes the order of songs in the queue.",
+	"command.music.shuffle.help.extended": "Songs will only be shuffled once.",
+	"command.music.shuffle.message": "Your music has been shuffled.",
+	
+	"command.music.skip.notrack": "This track cannot be skipped because it does not exist.",
+	
+	"command.music.volume": "volume",
+	"command.music.volume.help": "**<subcommand>** This modules allows for changing the volume of the music.",
+	"command.music.volume.help.extended": "Change the volume of the music.",
+	
+	"command.music.volume.set.newvol": "The volume has been set to ${vol}, uwu.",
+	
+	"command.music.volume.up": "up",
+	"command.music.volume.up.help": "**<slide>** Turn the the music volume up by *slide* amount.",
+	"command.music.volume.up.help.extended": "**<slide>** The amount to turn the music volume up by.",
+	
+	"command.music.volume.down": "down",
+	"command.music.volume.down.help": "**<slide>** Turn the the music volume down by *slide* amount.",
+	"command.music.volume.down.help.extended": "**<slide>** The amount to turn the music volume down by.",
+	
+	"command.music.volume.set": "set",
+	"command.music.volume.set.help": "**<volume>** Set the music volume.",
+	"command.music.volume.set.help.extended": "**<volume>** The volume to set the music to.",
+	
+	"command.music.volume.check": "check",
+	"command.music.volume.check.help": "Shows the volume of the music.",
+	"command.music.volume.check.help.extended": "The volume displayed will be between 1 and 200."
 }

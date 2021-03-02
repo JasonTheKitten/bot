@@ -12,6 +12,11 @@ public class MusicVolumeCommand extends MultiCommand {
 	public CommandContainer getCommands() {
 		CommandContainer container = new CommandContainer();
 		
+		container.registerCommand("command.music.volume.up", new MusicSlideCommand(true));
+		container.registerCommand("command.music.volume.down", new MusicSlideCommand(false));
+		container.registerCommand("command.music.volume.set", new MusicSetCommand());
+		container.registerCommand("command.music.volume.check", new MusicCheckCommand());
+		
 		return container;
 	}
 }

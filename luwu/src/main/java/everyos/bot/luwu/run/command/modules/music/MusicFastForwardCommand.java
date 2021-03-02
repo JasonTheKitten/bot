@@ -11,13 +11,13 @@ public class MusicFastForwardCommand extends GenericMusicCommand {
 	}
 
 	@Override
-	Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
+	protected Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	boolean requiresDJ() {
+	protected boolean requiresDJ() {
 		return true;
 	}	
 }

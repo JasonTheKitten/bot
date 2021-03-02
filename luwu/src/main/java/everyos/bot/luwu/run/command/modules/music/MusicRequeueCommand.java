@@ -12,7 +12,7 @@ public class MusicRequeueCommand extends GenericMusicCommand {
 	}
 
 	@Override
-	public Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
+	protected Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		//TODO: Allow the user to specify the position
 		manager.getQueue().queue(manager.getPlaying());
 		
@@ -21,7 +21,7 @@ public class MusicRequeueCommand extends GenericMusicCommand {
 	}
 
 	@Override
-	boolean requiresDJ() {
+	protected boolean requiresDJ() {
 		return true;
 	}
 }

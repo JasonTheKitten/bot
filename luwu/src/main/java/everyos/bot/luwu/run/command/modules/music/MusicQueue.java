@@ -41,4 +41,13 @@ public class MusicQueue {
 			return queue.isEmpty();
 		}
 	}
+	public MusicTrack remove(int i) {
+		return queue.remove(i);
+	}
+	public void put(int i, MusicTrack track) {
+		queue.add(i, track);
+	}
+	public boolean has(int i) {
+		return queue.get(i)!=null;
+	}
 }

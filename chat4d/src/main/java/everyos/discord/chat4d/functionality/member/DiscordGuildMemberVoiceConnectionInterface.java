@@ -3,6 +3,7 @@ package everyos.discord.chat4d.functionality.member;
 import discord4j.core.object.entity.Member;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
+import everyos.bot.chat4j.audio.ChatVoiceStateMissingException;
 import everyos.bot.chat4j.entity.ChatVoiceState;
 import everyos.bot.chat4j.functionality.member.ChatMemberVoiceConnectionInterface;
 import everyos.discord.chat4d.entity.DiscordVoiceState;
@@ -30,6 +31,7 @@ public class DiscordGuildMemberVoiceConnectionInterface implements ChatMemberVoi
 	@Override
 	public Mono<ChatVoiceState> getVoiceState() {
 		return member.getVoiceState()
+			.onErrorResume(e->Mono.error(new ChatVoiceStateMissingException()))
 			.map(voiceState->new DiscordVoiceState(connection, voiceState));
 	}
 

@@ -74,4 +74,8 @@ public class NertiviaChannel implements ChatChannel {
 	public Mono<ChatMessage> getMessageByID(long long1) {
 		return Mono.empty(); //TODO
 	}
+
+	public Channel getRaw() {
+		return channel;
+	}
 }

@@ -22,7 +22,7 @@ public class MusicRepeatCommand extends GenericMusicCommand {
 	}
 
 	@Override
-	boolean requiresDJ() {
+	protected boolean requiresDJ() {
 		return true;
 	}
 }

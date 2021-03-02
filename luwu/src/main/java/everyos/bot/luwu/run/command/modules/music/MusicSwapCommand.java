@@ -11,12 +11,12 @@ public class MusicSwapCommand extends GenericMusicCommand {
 	}
 
 	@Override
-	Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
+	protected Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		return Mono.empty();
 	}
 
 	@Override
-	boolean requiresDJ() {
+	protected boolean requiresDJ() {
 		return true;
 	}
 }

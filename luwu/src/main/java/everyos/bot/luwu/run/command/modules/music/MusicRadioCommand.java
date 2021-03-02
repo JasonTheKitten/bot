@@ -25,7 +25,7 @@ public class MusicRadioCommand extends GenericMusicCommand {
 	}
 
 	@Override
-	boolean requiresDJ() {
+	protected boolean requiresDJ() {
 		return true;
 	}
 }

@@ -11,12 +11,12 @@ public class MusicRewindCommand extends GenericMusicCommand {
 	}
 
 	@Override
-	Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
+	protected Mono<Void> execute(CommandData data, ArgumentParser parser, MusicManager manager) {
 		return null;
 	}
 
 	@Override
-	boolean requiresDJ() {
+	protected boolean requiresDJ() {
 		return true;
 	}
 }

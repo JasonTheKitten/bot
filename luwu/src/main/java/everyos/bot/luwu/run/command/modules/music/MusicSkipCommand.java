@@ -29,14 +29,17 @@ public class MusicSkipCommand extends GenericMusicCommand {
 		if (trackpos==0) {
 			manager.playNext();
 		} else {
-			//manager.
+			if (!manager.getQueue().has(trackpos-1)) {
+				return Mono.error(new TextException(locale.localize("command.music.skip.notrack")));
+			}
+			manager.getQueue().remove(trackpos-1);
 		}
 		return data.getChannel().getInterface(ChannelTextInterface.class)
 			.send(locale.localize("command.music.skipped")).then();
 	}
 
 	@Override
-	boolean requiresDJ() {
+	protected boolean requiresDJ() {
 		return true;
 	}
 }

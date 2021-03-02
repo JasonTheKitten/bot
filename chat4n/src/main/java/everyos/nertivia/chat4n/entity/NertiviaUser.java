@@ -29,7 +29,7 @@ public class NertiviaUser implements ChatUser {
 	}
 
 	@Override public Mono<ChatMember> asMemberOf(ChatChannel channel) {
-		return NertiviaMember.instatiate(getConnection(), user, channel).cast(ChatMember.class);
+		return NertiviaMember.instatiate(getConnection(), user, (NertiviaChannel) channel);
 	}
 
 	@Override public long getID() {

@@ -30,7 +30,7 @@ public abstract class CommandBase implements Command {
 	public Mono<Void> run(CommandData data, ArgumentParser parser) {
 		Member invoker = data.getInvoker();
 		return invoker.getPermissions().flatMap(permissions->{
-			int difference = ChatPermission.contains(requiredUserPerms, permissions);
+			int difference = ChatPermission.contains(getRequiredUserPerms(), permissions);
 			if (difference == 0) {
 				return Mono.empty();
 			} else {
@@ -44,7 +44,7 @@ public abstract class CommandBase implements Command {
 			}
 		}).then(execute(data, parser));
 	}
-	
+
 	@Override
 	public String getID() {
 		return this.id;
@@ -65,5 +65,9 @@ public abstract class CommandBase implements Command {
 		return Mono.error(new TextException(locale.localize("command.error.usage",
 			"expected", locale.localize(error),
 			"got", got)));
+	}
+	
+	protected int getRequiredUserPerms() {
+		return requiredUserPerms;
 	}
 }

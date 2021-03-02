@@ -98,11 +98,6 @@ public class Member extends User implements InterfaceProvider {
 		return member.getJoinTime();
 	}
 
-	//TODO: Move this into an extension
-	public Mono<Boolean> isDJ() {
-		return Mono.just(true);
-	}
-
 	public static String[] convertPermsToNames(int perms) {
 		List<String> names = new ArrayList<>();
 		
