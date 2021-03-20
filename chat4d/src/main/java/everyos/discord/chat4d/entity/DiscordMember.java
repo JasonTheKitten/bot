@@ -93,6 +93,8 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 
 	@Override
 	public Mono<Integer> getPermissions() {
+		if (member==null) return Mono.just(Integer.MAX_VALUE);
+		
 		return member.getBasePermissions().map(perms->{
 			if (perms.contains(Permission.ADMINISTRATOR)) {
 				return Integer.MAX_VALUE;

@@ -11,7 +11,7 @@ public class MessageEvent extends Event {
 	private Message cachedMessage;
 
 	public MessageEvent(Connection connection, ChatMessageEvent messageEvent) {
-		super(connection);
+		super(connection, messageEvent);
 		this.connection = connection;
 		this.messageEvent = messageEvent;
 	}

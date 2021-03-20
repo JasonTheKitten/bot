@@ -10,7 +10,7 @@ public class MemberJoinEvent extends Event {
 	private ChatMemberJoinEvent joinEvent;
 
 	public MemberJoinEvent(Connection connection, ChatMemberJoinEvent event) {
-		super(connection);
+		super(connection, event);
 		
 		this.joinEvent = event;
 	}

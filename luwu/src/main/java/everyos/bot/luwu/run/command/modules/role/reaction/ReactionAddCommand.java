@@ -10,6 +10,7 @@ import everyos.bot.luwu.core.entity.EmojiID;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.MessageID;
 import everyos.bot.luwu.core.entity.RoleID;
+import everyos.bot.luwu.core.functionality.message.MessageReactionInterface;
 import everyos.bot.luwu.run.command.CommandBase;
 import everyos.bot.luwu.util.Tuple;
 import reactor.core.publisher.Flux;
@@ -66,12 +67,12 @@ public class ReactionAddCommand extends CommandBase {
 		return messageID.getMessage()
 			.flatMap(message->message.as(ReactionMessage.type))
 			.flatMapMany(message->{
-				return message.edit(spec->{
+				return message.editInfo(spec->{
 					for (Tuple<EmojiID, RoleID> reactionTup: reactionTups) {
 						spec.addReaction(reactionTup.getT1(), reactionTup.getT2());
 					}
 				}).thenMany(Flux.fromArray(reactionTups).flatMap(tup->{
-					return message.addReaction(tup.getT1());
+					return message.getInterface(MessageReactionInterface.class).addReaction(tup.getT1());
 				}));
 			}).then();
 	}

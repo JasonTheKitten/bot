@@ -3,9 +3,11 @@ package everyos.bot.luwu.run.command.modules.starboard;
 import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
+import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.ChannelID;
 import everyos.bot.luwu.core.entity.EmojiID;
 import everyos.bot.luwu.core.entity.Locale;
+import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.CommandBase;
 import everyos.bot.luwu.util.Tuple;
 import reactor.core.publisher.Mono;
@@ -13,7 +15,7 @@ import reactor.core.publisher.Mono;
 public class StarboardSetCommand extends CommandBase {
 	public StarboardSetCommand() {
 		super("command.starboard.set", e->true,
-			ChatPermission.SEND_EMBEDS,
+			ChatPermission.SEND_MESSAGES|ChatPermission.SEND_EMBEDS,
 			ChatPermission.MANAGE_CHANNELS);
 	}
 
@@ -23,6 +25,7 @@ public class StarboardSetCommand extends CommandBase {
 		
 		return
 			parseArgs(parser, locale)
+			.flatMap(tup->runCommand(data.getChannel(), tup.getT1(), tup.getT2(), locale))
 			.then();
 	}
 
@@ -38,5 +41,17 @@ public class StarboardSetCommand extends CommandBase {
 		EmojiID emojiID = parser.eatEmojiID();
 		
 		return Mono.just(Tuple.of(emojiID, channelID));
+	}
+	
+	private Mono<Void> runCommand(Channel channel, EmojiID emoji, ChannelID channelID, Locale locale) {
+		return channel.getServer()
+			.flatMap(s->s.as(StarboardServer.type))
+			.flatMap(c->c.edit(spec->{
+				spec.setReaction(emoji);
+				spec.setOutputChannel(channelID);
+			}))
+			.then(channel.getInterface(ChannelTextInterface.class).send("command.starboard.set.message"))
+			.then();
+				
 	}
 }

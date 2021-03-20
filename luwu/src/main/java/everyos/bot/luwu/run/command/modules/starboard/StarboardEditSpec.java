@@ -9,4 +9,8 @@ public interface StarboardEditSpec {
 	StarboardInfo getInfo();
 	void addChannelOverride(ChannelID channelID, int requiredStars);
 	void addEmojiLevel(int level, EmojiID emoji);
+	void removeEmojiLevel(int level);
+	void ignoreChannel(ChannelID channelID);
+	void unignoreChannel(ChannelID channelID);
+	void reset();
 }

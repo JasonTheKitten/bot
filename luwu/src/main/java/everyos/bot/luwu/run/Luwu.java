@@ -20,6 +20,7 @@ import everyos.bot.luwu.run.command.modules.leveling.LevelHooks;
 import everyos.bot.luwu.run.command.modules.oneword.OneWordChannelCase;
 import everyos.bot.luwu.run.command.modules.role.autorole.AutoroleHooks;
 import everyos.bot.luwu.run.command.modules.role.reaction.ReactionHooks;
+import everyos.bot.luwu.run.command.modules.starboard.StarboardHooks;
 import everyos.bot.luwu.run.command.modules.suggestions.SuggestionChannelCase;
 import everyos.bot.luwu.run.command.usercase.DefaultUserCase;
 import reactor.core.publisher.Mono;
@@ -102,6 +103,7 @@ public class Luwu {
 		engineBuilder.registerHook(MessageCreateEvent.class, LevelHooks::levelHook);
 		engineBuilder.registerHook(ReactionEvent.class, ReactionHooks::reactionHook);
 		engineBuilder.registerHook(MemberJoinEvent.class, AutoroleHooks::autoroleHook);
+		engineBuilder.registerHook(ReactionEvent.class, StarboardHooks::starboardHook);
 		
 		// Start the bot
 		return engineBuilder.build().start();

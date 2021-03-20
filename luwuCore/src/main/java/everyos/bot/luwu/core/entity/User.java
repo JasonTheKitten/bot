@@ -95,4 +95,15 @@ public class User implements InterfaceProvider {
 	public String toString() {
 		return String.valueOf(getID().getLong());
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof User)) return false;
+		return getID().equals(((User) o).getID());
+	}
+	
+	@Override
+	public int hashCode() {
+		return getID().hashCode();
+	}
 }

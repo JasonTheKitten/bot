@@ -19,7 +19,8 @@ public class DiscordArgumentParser extends ArgumentParser {
 		this.connection = connection;
 	}
 
-	@Override public boolean couldBeUserID() {
+	@Override
+	public boolean couldBeUserID() {
 		String token = peek();
         if (token.startsWith("<@") && token.endsWith(">")) {
             token = token.substring(2, token.length() - 1);
@@ -31,7 +32,8 @@ public class DiscordArgumentParser extends ArgumentParser {
             return false;
         }
 	}
-	@Override public UserID eatUserID() {
+	@Override
+	public UserID eatUserID() {
 		String token = eat();
         if (token.startsWith("<@") && token.endsWith(">")) {
             token = token.substring(2, token.length() - 1);
@@ -41,7 +43,8 @@ public class DiscordArgumentParser extends ArgumentParser {
         return new UserID(connection, id);
 	}
 
-	@Override public boolean couldBeChannelID() {
+	@Override
+	public boolean couldBeChannelID() {
 		String token = peek();
         if (token.startsWith("<#") && token.endsWith(">"))
             token = token.substring(2, token.length() - 1);
@@ -51,21 +54,25 @@ public class DiscordArgumentParser extends ArgumentParser {
             return false;
         }
 	}
-	@Override public ChannelID eatChannelID() {
+	@Override
+	public ChannelID eatChannelID() {
 		String token = eat();
         if (token.startsWith("<#") && token.endsWith(">"))
             token = token.substring(2, token.length() - 1);
         return new ChannelID(connection, Long.valueOf(token), connection.getClient().getID());
 	}
 
-	@Override public boolean couldBeGuildID() {
+	@Override
+	public boolean couldBeGuildID() {
 		return isNumerical();
 	}
-	@Override public ServerID eatGuildID() {
+	@Override
+	public ServerID eatGuildID() {
 		return new ServerID(connection, Long.valueOf(eat()));
 	}
 
-	@Override public boolean couldBeRoleID() {
+	@Override
+	public boolean couldBeRoleID() {
 		String token = peek();
         if (token.startsWith("<@&") && token.endsWith(">")) {
             token = token.substring(3, token.length() - 1);
@@ -76,7 +83,8 @@ public class DiscordArgumentParser extends ArgumentParser {
             return false;
         }
 	}
-	@Override public RoleID eatRoleID() {
+	@Override
+	public RoleID eatRoleID() {
 		String token = eat();
         if (token.startsWith("<@&") && token.endsWith(">")) {
             token = token.substring(3, token.length() - 1);
@@ -84,7 +92,8 @@ public class DiscordArgumentParser extends ArgumentParser {
         return new RoleID(connection, Long.valueOf(token));
 	}
 
-	@Override public boolean couldBeEmojiID() {
+	@Override
+	public boolean couldBeEmojiID() {
 		String token = peek();
         if (token.startsWith("<:") || token.startsWith("<a:") && token.endsWith(">")) {
             token = token.substring(token.lastIndexOf(':')+1, token.length() - 1);
@@ -92,7 +101,7 @@ public class DiscordArgumentParser extends ArgumentParser {
         try {
         	Long.valueOf(token); return true;
         } catch (NumberFormatException e) {
-            return false;
+            return token.length()==1;
         }
 	}
 	@Override public EmojiID eatEmojiID() {

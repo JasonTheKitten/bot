@@ -9,6 +9,7 @@ import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Message;
 import everyos.bot.luwu.core.entity.User;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
+import everyos.bot.luwu.core.functionality.message.MessageReactionInterface;
 import everyos.bot.luwu.run.command.CommandBase;
 import reactor.core.publisher.Mono;
 
@@ -45,8 +46,9 @@ public class SuggestCommand extends CommandBase{
 				embed.setFooter(locale.localize("command.suggest.footer", "id", author.getID().toString()));
 			});
 		}).flatMap(message->{
-			return message.addReaction(EmojiID.of("\u2705")).and(
-				message.addReaction(EmojiID.of("\u274C")))
+			MessageReactionInterface reactions = message.getInterface(MessageReactionInterface.class);
+			return reactions.addReaction(EmojiID.of("\u2705")).and(
+				reactions.addReaction(EmojiID.of("\u274C")))
 				.then(Mono.just(message));
 		});
 	}

@@ -9,6 +9,7 @@ import everyos.bot.luwu.core.entity.EmojiID;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
+import everyos.bot.luwu.core.functionality.message.MessageReactionInterface;
 import everyos.bot.luwu.run.command.channelcase.CommandChannelCase;
 import everyos.bot.luwu.run.command.modules.channel.ResetChannelCommand;
 import everyos.bot.luwu.run.command.modules.chatlink.moderation.LinkModerationCommands;
@@ -49,6 +50,7 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 			.filter(v->!v)
 			.flatMap(v->data.getChannel().as(ChatLinkChannel.type))
 			.flatMap(clchannel->{
+				MessageReactionInterface reactions = data.getMessage().getInterface(MessageReactionInterface.class);
 				return clchannel.getLink()
 					.flatMap(link->{
 						return clchannel.getInfo()
@@ -57,12 +59,12 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 							.switchIfEmpty(Mono.error(new TextException(locale.localize("command.link.error.needverified"))))
 							.flatMap(v2->link.sendMessage(data.getMessage()));
 					})
-					.then(data.getMessage().addReaction(EmojiID.of("\u2611")))
+					.then(reactions.addReaction(EmojiID.of("\u2611")))
 					.thenReturn(true) // .delayElement requires a non-empty mono
 					.delayElement(Duration.ofMillis(1000))
-					.then(data.getMessage().removeReaction(EmojiID.of("\u2611")))
+					.then(reactions.removeReaction(EmojiID.of("\u2611")))
 					.onErrorResume(e->{
-						Mono<Void> m1 = data.getMessage().addReaction(EmojiID.of("\u274C"));
+						Mono<Void> m1 = reactions.addReaction(EmojiID.of("\u274C"));
 						if (e instanceof TextException) {
 							m1=m1.and(clchannel.getInterface(ChannelTextInterface.class).send(e.getMessage()));
 						} else {

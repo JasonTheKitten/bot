@@ -1,6 +1,7 @@
 package everyos.discord.chat4d.entity;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import discord4j.core.object.entity.Message;
 import everyos.bot.chat4j.ChatClient;
@@ -11,6 +12,9 @@ import everyos.bot.chat4j.entity.ChatMessage;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.bot.chat4j.functionality.message.ChatMessageReactionInterface;
+import everyos.bot.chat4j.functionality.message.EmbedSpec;
+import everyos.bot.chat4j.functionality.message.MessageEditSpec;
+import everyos.discord.chat4d.functionality.DiscordEmbedSpec;
 import everyos.discord.chat4d.functionality.message.DiscordMessageReactionInterface;
 import reactor.core.publisher.Mono;
 
@@ -106,5 +110,22 @@ public class DiscordMessage implements ChatMessage {
 	@Override
 	public long getID() {
 		return message.getId().asLong();
+	}
+
+	@Override
+	public Mono<ChatMessage> edit(Consumer<MessageEditSpec> func) {
+		return message.edit(spec->{
+			func.accept(new MessageEditSpec() {
+				@Override
+				public void setContent(String content) {
+					spec.setContent(content);
+				}
+	
+				@Override
+				public void setEmbed(Consumer<EmbedSpec> embedSpec) {
+					spec.setEmbed(eSpec->embedSpec.accept(new DiscordEmbedSpec(eSpec)));
+				}
+			});
+		}).map(m->new DiscordMessage(connection, m));
 	}
 }

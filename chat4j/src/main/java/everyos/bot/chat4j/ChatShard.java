@@ -8,6 +8,10 @@ import everyos.bot.chat4j.functionality.ChatInterfaceProvider;
 public interface ChatShard extends ChatInterfaceProvider {
 	/**
 	 * Get the client associated with this shard
-	 * @return The client	 */
+	 * @return The client
+	 */
 	public ChatClient getClient();
+	
+	public long getPing();
+	public ChatConnection getConnection();
 }

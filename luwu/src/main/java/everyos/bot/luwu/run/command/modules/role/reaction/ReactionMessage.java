@@ -25,7 +25,7 @@ public class ReactionMessage extends Message {
 		super(connection, message);
 	}
 	
-	public Mono<Void> edit(Consumer<ReactionMessageEditSpec> func) {
+	public Mono<Void> editInfo(Consumer<ReactionMessageEditSpec> func) {
 		return getGlobalDocument().flatMap(document->{
 			DBObject object = document.getObject();
 			

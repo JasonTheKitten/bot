@@ -2,7 +2,6 @@ package everyos.bot.luwu.nertivia;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Optional;
 
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.entity.ChannelID;
@@ -21,7 +20,8 @@ public class NertiviaArgumentParser extends ArgumentParser {
 		this.connection = connection;
 	}
 
-	@Override public boolean couldBeUserID() {
+	@Override
+	public boolean couldBeUserID() {
 		String token = peek();
         if (token.startsWith("<@") && token.endsWith(">")) {
             token = token.substring(2, token.length() - 1);
@@ -33,7 +33,8 @@ public class NertiviaArgumentParser extends ArgumentParser {
             return false;
         }
 	}
-	@Override public UserID eatUserID() {
+	@Override
+	public UserID eatUserID() {
 		String token = eat();
         if (token.startsWith("<@") && token.endsWith(">")) {
             token = token.substring(2, token.length() - 1);
@@ -43,7 +44,8 @@ public class NertiviaArgumentParser extends ArgumentParser {
         return new UserID(connection, uid);
 	}
 
-	@Override public boolean couldBeChannelID() {
+	@Override
+	public boolean couldBeChannelID() {
 		String token = peek();
         if (token.startsWith("<#") && token.endsWith(">"))
             token = token.substring(2, token.length() - 1);
@@ -53,21 +55,25 @@ public class NertiviaArgumentParser extends ArgumentParser {
             return false;
         }
 	}
-	@Override public ChannelID eatChannelID() {
+	@Override
+	public ChannelID eatChannelID() {
 		String token = eat();
         if (token.startsWith("<#") && token.endsWith(">"))
             token = token.substring(2, token.length() - 1);
         return new ChannelID(connection, Long.valueOf(token), connection.getClient().getID());
 	}
 
-	@Override public boolean couldBeGuildID() {
+	@Override
+	public boolean couldBeGuildID() {
 		return isNumerical();
 	}
-	@Override public ServerID eatGuildID() {
+	@Override
+	public ServerID eatGuildID() {
 		return new ServerID(connection, Long.valueOf(eat()));
 	}
 
-	@Override public boolean couldBeRoleID() {
+	@Override
+	public boolean couldBeRoleID() {
 		String token = peek();
         if (token.startsWith("<@&") && token.endsWith(">")) {
             token = token.substring(3, token.length() - 1);
@@ -86,7 +92,8 @@ public class NertiviaArgumentParser extends ArgumentParser {
         return new RoleID(connection, Long.valueOf(token));
 	}
 
-	@Override public boolean couldBeEmojiID() {
+	@Override
+	public boolean couldBeEmojiID() {
 		String token = peek();
         if (token.startsWith("<:") && token.endsWith(">")) {
             token = token.substring(token.lastIndexOf(':')+1, token.length() - 1);
@@ -97,7 +104,8 @@ public class NertiviaArgumentParser extends ArgumentParser {
             return false;
         }
 	}
-	@Override public EmojiID eatEmojiID() {
+	@Override
+	public EmojiID eatEmojiID() {
 		String token = eat();
         if (token.startsWith("<:") && token.endsWith(">")) {
             token = token.substring(token.lastIndexOf(':')+1, token.length() - 1);
@@ -106,18 +114,7 @@ public class NertiviaArgumentParser extends ArgumentParser {
         	long rid = Long.valueOf(token);
         	return EmojiID.of(rid);
         } catch(NumberFormatException e) {
-        	String name = token;
-        	return new EmojiID() {
-				@Override
-				public Optional<String> getName() {
-					return Optional.of(name);
-				}
-
-				@Override
-				public Optional<Long> getID() {
-					return Optional.empty();
-				}
-        	};
+        	return EmojiID.of(token);
         }
 	}
 

@@ -12,12 +12,14 @@ public class CommandData {
 	private Message message;
 	private Member sender;
 	private Channel channel;
+	private Shard shard;
 	private Locale locale;
 	
-	public CommandData(Message message, Member sender, Channel channel) {
+	public CommandData(Message message, Member sender, Channel channel, Shard shard) {
 		this.message = message;
 		this.sender = sender;
 		this.channel = channel;
+		this.shard = shard;
 		this.locale = determineLocale(sender, channel);
 	}
 
@@ -29,6 +31,9 @@ public class CommandData {
 	}
 	public Member getInvoker() {
 		return sender;
+	}
+	public Shard getShard() {
+		return shard;
 	}
 	
 	public Locale getLocale() {

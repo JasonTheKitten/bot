@@ -25,7 +25,7 @@ public class UserID {
 		//TODO: Also connection IDs
 		return
 			(o instanceof UserID) &&
-			(((UserID) o).getLong() == getLong());
+			(((UserID) o).getLong() == uid);
 	}
 	
 	@Override

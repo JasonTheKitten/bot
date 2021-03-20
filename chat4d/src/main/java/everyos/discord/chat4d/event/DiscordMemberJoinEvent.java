@@ -13,7 +13,7 @@ public class DiscordMemberJoinEvent extends DiscordEvent implements ChatMemberJo
 	private MemberJoinEvent joinEvent;
 
 	public DiscordMemberJoinEvent(ChatConnection connection, MemberJoinEvent event) {
-		super(connection);
+		super(connection, event);
 		
 		this.joinEvent = event;
 	}

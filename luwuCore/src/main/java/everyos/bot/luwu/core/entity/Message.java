@@ -4,12 +4,16 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
 
 import everyos.bot.chat4j.entity.ChatMessage;
 import everyos.bot.chat4j.functionality.message.ChatMessageReactionInterface;
+import everyos.bot.chat4j.functionality.message.MessageEditSpec;
 import everyos.bot.luwu.core.database.DBDocument;
+import everyos.bot.luwu.core.entity.imp.MessageReactionInterfaceImp;
 import everyos.bot.luwu.core.functionality.Interface;
 import everyos.bot.luwu.core.functionality.InterfaceProvider;
+import everyos.bot.luwu.core.functionality.message.MessageReactionInterface;
 import reactor.core.publisher.Mono;
 
 public class Message implements InterfaceProvider {
@@ -50,30 +54,11 @@ public class Message implements InterfaceProvider {
 	public Mono<Channel> getChannel() {
 		return message.getChannel().map(channel->new Channel(connection, channel));
 	}
-
-	public Mono<Void> addReaction(EmojiID reaction) {
-		// TODO: Move this to a feature
-		if (reaction.getID().isPresent()) {
-			return message.getInterface(ChatMessageReactionInterface.class)
-				.addReaction(reaction.getID().get());
-		} else if (reaction.getName().isPresent()) {
-			return message.getInterface(ChatMessageReactionInterface.class)
-				.addReaction(reaction.getName().get());
-		}
-		return Mono.empty();
-		
-	}
-	public Mono<Void> removeReaction(EmojiID reaction) {
-		// TODO: Move this to a feature
-		if (reaction.getID().isPresent()) {
-			return message.getInterface(ChatMessageReactionInterface.class)
-				.removeReaction(reaction.getID().get());
-		} else if (reaction.getName().isPresent()) {
-			return message.getInterface(ChatMessageReactionInterface.class)
-				.removeReaction(reaction.getName().get());
-		}
-		return Mono.empty();
-	}
+	
+	public Mono<Message> edit(Consumer<MessageEditSpec> spec) {
+		return message.edit(spec)
+			.map(message->new Message(connection, message));
+	};
 
 	public ChannelID getChannelID() {
 		return new ChannelID(connection, message.getChannelID(), this.connection.getClient().getID());
@@ -81,6 +66,10 @@ public class Message implements InterfaceProvider {
 	
 	public UserID getAuthorID() {
 		return new UserID(connection, message.getAuthorID());
+	}
+	
+	public MessageID getMessageID() {
+		return new MessageID(getChannelID(), message.getID());
 	}
 	
 	public Mono<User> getAuthor() {
@@ -111,13 +100,24 @@ public class Message implements InterfaceProvider {
 		return getNamedDocument("messages");
 	}
 
-	@Override public <T extends Interface> boolean supportsInterface(Class<T> cls) {
+	@Override
+	public <T extends Interface> boolean supportsInterface(Class<T> cls) {
+		if (cls == MessageReactionInterface.class) {
+			return true;
+		}
 		return false;
 	}
 
-	@Override public <T extends Interface> T getInterface(Class<T> cls) {
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends Interface> T getInterface(Class<T> cls) {
+		if (cls == MessageReactionInterface.class) {
+			return (T) new MessageReactionInterfaceImp(connection,
+				message.getInterface(ChatMessageReactionInterface.class));
+		}
 		return null;
 	}
+	
 	public <T extends Message> Mono<T> as(MessageFactory<T> factory) {
 		return factory.createMessage(connection, message, getDocuments());
 	}

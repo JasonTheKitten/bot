@@ -14,6 +14,7 @@ import everyos.bot.luwu.run.command.modules.music.MusicCommands;
 import everyos.bot.luwu.run.command.modules.oneword.OneWordCommands;
 import everyos.bot.luwu.run.command.modules.privacy.PrivacyCommands;
 import everyos.bot.luwu.run.command.modules.role.RoleCommands;
+import everyos.bot.luwu.run.command.modules.starboard.StarboardCommands;
 import everyos.bot.luwu.run.command.modules.suggestions.SuggestionCommands;
 import everyos.bot.luwu.run.command.modules.utility.UtilityCommands;
 import reactor.core.publisher.Mono;
@@ -43,6 +44,7 @@ public class DefaultChannelCase extends CommandChannelCase {
 		LinkSetupCommands.installTo(commands);
 		OneWordCommands.installTo(commands);	
 		SuggestionCommands.installTo(commands);
+		StarboardCommands.installTo(commands);
 		
 		commands.category("utility");
 		UtilityCommands.installTo(commands);

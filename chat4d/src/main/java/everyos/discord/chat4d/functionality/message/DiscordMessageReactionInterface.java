@@ -4,7 +4,9 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.object.reaction.ReactionEmoji;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
+import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.functionality.message.ChatMessageReactionInterface;
+import everyos.discord.chat4d.entity.DiscordUser;
 import reactor.core.publisher.Mono;
 
 public class DiscordMessageReactionInterface implements ChatMessageReactionInterface {
@@ -46,4 +48,19 @@ public class DiscordMessageReactionInterface implements ChatMessageReactionInter
 		return message.removeSelfReaction(ReactionEmoji.of(id, "emoji", true));
 	}
 
+	@Override
+	public Mono<ChatUser[]> getReactions(String name) {
+		return message.getReactors(ReactionEmoji.unicode(name))
+			.map(user->new DiscordUser(connection, user))
+			.collectList()
+			.map(list->list.toArray(new ChatUser[list.size()]));
+	}
+	
+	@Override
+	public Mono<ChatUser[]> getReactions(long id) {
+		return message.getReactors(ReactionEmoji.of(id, "emoji", true))
+			.map(user->new DiscordUser(connection, user))
+			.collectList()
+			.map(list->list.toArray(new ChatUser[list.size()]));
+	}
 }

@@ -15,18 +15,18 @@ public interface ChatConnection {
 	 * End the connection upon subscribing
 	 * @return The mono to be subscribed too
 	 */
-	public Mono<Void> logout();
+	Mono<Void> logout();
 	
 	/**
 	 * Get this connection's client
 	 * @return The client that this connection is attached to
 	 */
-	public ChatClient getClient();
+	ChatClient getClient();
 	
-	public <T extends ChatEvent> boolean supportsEvent(Class<T> cls);
-	public <T extends ChatEvent> Flux<T> generateEventListener(Class<T> cls);
+	<T extends ChatEvent> boolean supportsEvent(Class<T> cls);
+	<T extends ChatEvent> Flux<T> generateEventListener(Class<T> cls);
 
 	Mono<ChatUser> getUserByID(long id);
-	public Mono<ChatChannel> getChannelByID(long id);
-	public Mono<ChatGuild> getGuildByID(long long1);
+	Mono<ChatChannel> getChannelByID(long id);
+	Mono<ChatGuild> getGuildByID(long long1);
 }

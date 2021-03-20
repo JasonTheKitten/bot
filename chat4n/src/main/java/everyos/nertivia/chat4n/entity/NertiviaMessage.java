@@ -1,6 +1,7 @@
 package everyos.nertivia.chat4n.entity;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
@@ -10,6 +11,7 @@ import everyos.bot.chat4j.entity.ChatMessage;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.bot.chat4j.functionality.message.ChatMessageReactionInterface;
+import everyos.bot.chat4j.functionality.message.MessageEditSpec;
 import everyos.nertivia.nertivia4j.entity.Message;
 import reactor.core.publisher.Mono;
 
@@ -94,6 +96,16 @@ public class NertiviaMessage implements ChatMessage {
 				public Mono<Void> removeReaction(long id) {
 					return Mono.empty();
 				}
+
+				@Override
+				public Mono<ChatUser[]> getReactions(String name) {
+					return Mono.empty();
+				}
+
+				@Override
+				public Mono<ChatUser[]> getReactions(long id) {
+					return Mono.empty();
+				}
 				
 			};
 		}
@@ -126,5 +138,10 @@ public class NertiviaMessage implements ChatMessage {
 	@Override
 	public long getID() {
 		return message.getID();
+	}
+
+	@Override
+	public Mono<ChatMessage> edit(Consumer<MessageEditSpec> spec) {
+		return Mono.empty();
 	}
 }
