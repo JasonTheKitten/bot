@@ -11,7 +11,7 @@ dependencies {
     //Code using these should be moved to the non-core code
     //Or modified to use an alternative without the dependencies
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'org.mongodb:mongodb-driver-reactivestreams:1.13.0'
+    implementation 'org.mongodb:mongodb-driver-reactivestreams:4.2.2'
 }
 repositories {
     mavenCentral()
