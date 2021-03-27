@@ -7,7 +7,7 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.2.3'
     implementation 'com.github.kylejablonski:simple-giphy-java:1.0.0'
     implementation 'com.google.apis:google-api-services-youtube:v3-rev20210210-1.31.0'
-    implementation 'com.google.api-client:google-api-client:1.30.5'
+    implementation 'com.google.api-client:google-api-client:1.31.3'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.google.cloud:google-cloud-vision:1.99.1'
