@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation 'io.projectreactor:reactor-core:3.3.8.RELEASE'
+    implementation 'io.projectreactor:reactor-core:3.4.4'
 }
 repositories {
     mavenCentral()
