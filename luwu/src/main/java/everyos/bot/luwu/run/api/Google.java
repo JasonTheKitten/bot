@@ -10,6 +10,7 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.api.client.auth.oauth2.Credential;
@@ -23,7 +24,7 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.services.youtube.YouTube;
@@ -48,7 +49,7 @@ public class Google {
     private static final String CLIENT_SECRETS_SERVICE = "googleauths.json";
     private static final Collection<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/youtube.force-ssl");
     private static final String APPLICATION_NAME = "JavaBot";
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static YouTube youtubeService;
     private static Credential credentials;
     private static NetHttpTransport transport;
@@ -90,10 +91,10 @@ public class Google {
         if (youtubeService==null) youtubeService = getService();
         SearchListResponse response =
         	youtubeService.search()
-            .list("snippet")
+            .list(Collections.singletonList("snippet"))
          	.setMaxResults(1L)
             .setQ(search)
-            .setType("video")
+            .setType(Collections.singletonList("video"))
             .execute();
         return response;
     }
