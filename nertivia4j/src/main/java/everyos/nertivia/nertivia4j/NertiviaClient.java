@@ -14,10 +14,13 @@ import everyos.nertivia.nertivia4j.event.MessageDeleteEvent;
 import everyos.nertivia.nertivia4j.event.ReadyEvent;
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import reactor.core.publisher.EmitterProcessor;
+import io.socket.client.SocketIOException;
+import io.socket.engineio.client.transports.WebSocket;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
+import reactor.core.publisher.Sinks.EmitFailureHandler;
+import reactor.core.publisher.Sinks.Many;
 import reactor.util.Logger;
 import reactor.util.Loggers;
 
@@ -42,10 +45,15 @@ public class NertiviaClient {
 	
 	public Mono<NertiviaConnection> connect() {
 		try {
-			EmitterProcessor<Event> emitter = EmitterProcessor.create();
-			FluxSink<Event> sink = emitter.sink();
+			Many<Event> sink = Sinks.many().multicast().<Event>onBackpressureBuffer();
+			EmitFailureHandler handler = (signalType, emitResult)->{
+				logger.debug("Failed to push an event!");
+				return false;
+			};
 			
-			Socket socket = IO.socket(NertiviaInstance.SOCKET_URL);
+			IO.Options socketOptions = new IO.Options();
+			socketOptions.transports = new String[] {WebSocket.NAME};
+			Socket socket = IO.socket(NertiviaInstance.SOCKET_URL, socketOptions);
 			socket.on(Socket.EVENT_CONNECT, e->{
 				info("Connected to socket - Authenticating");
 				JSONObject auth = new JSONObject();
@@ -54,30 +62,34 @@ public class NertiviaClient {
 			});
 			socket.on("success", e->{
 				info("Successfully authenticated - Ready");
-				sink.next(new ReadyEvent(this));
+				sink.emitNext(new ReadyEvent(this), handler);
 			});
 			socket.on("receiveMessage", e->{
 				JSONObject response = (JSONObject) e[0];
-				sink.next(new MessageCreateEvent(this, options.instance, response));
+				sink.emitNext(new MessageCreateEvent(this, options.instance, response), handler);
 			});
 			socket.on("delete_message", e->{
 				JSONObject response = (JSONObject) e[0];
-				sink.next(new MessageDeleteEvent(this, options.instance, response));
+				sink.emitNext(new MessageDeleteEvent(this, options.instance, response), handler);
 			});
 			socket.on(Socket.EVENT_DISCONNECT, e->{
 				info("Disconnected from socket");
+			});
+			socket.on(Socket.EVENT_CONNECT_ERROR, e->{
+				info(((SocketIOException) e[0]).toString());
 			});
 			socket.connect();
 			return Mono.just(new NertiviaConnection() {
 				@Override public Mono<Void> logout() {
 					return Mono.just(true).doOnNext(b->{
-						sink.complete();
+						//sink.complete();
 						socket.close();
 					}).then();
 				}
 				
 				@Override public <T extends Event> Flux<T> listen(Class<T> e) {
-					return emitter.filter(o->e.isInstance(o)).cast(e);
+					return sink.asFlux().filter(o->e.isInstance(o)).cast(e);
+					//return emitter.filter(o->e.isInstance(o)).cast(e);
 				}
 			});
 		} catch (URISyntaxException e) {

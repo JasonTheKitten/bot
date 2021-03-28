@@ -80,21 +80,21 @@ public class Luwu {
 		engineBuilder.setDefaultStatus("Playing sleepyhead");
 		engineBuilder.setServerCountStatus("Watching ${server} servers | luwu help | Luwu!"); //TODO
 		
-		// Register channel behaviours
+		// Register channel behaviors
 		engineBuilder.registerChannelCase(DEFAULT_CHANNELCASE, DefaultChannelCase.get());
 		engineBuilder.registerChannelCase(CHATLINK_CHANNELCASE, ChatLinkChannelCase.get());
 		engineBuilder.registerChannelCase(PRIVATE_CHANNELCASE, PrivateChannelCase.get());
 		engineBuilder.registerChannelCase(ONEWORD_CHANNELCASE, OneWordChannelCase.get());
 		engineBuilder.registerChannelCase(SUGGESTIONS_CHANNELCASE, SuggestionChannelCase.get());
 		engineBuilder.setDefaultChannelCase(DEFAULT_CHANNELCASE);
-		engineBuilder.transformChannelCase((type, data)->{ //TODO
+		engineBuilder.transformChannelCase((type, data)->{
 			if (data.getChannel().isPrivateChannel()) {
 				return Mono.just(PRIVATE_CHANNELCASE);
 			}
 			return type;
 		});
 		
-		// Register user behaviours
+		// Register user behaviors
 		engineBuilder.registerUserCase(DEFAULT_USERCASE, DefaultUserCase.get());
 		engineBuilder.setDefaultUserCase(DEFAULT_USERCASE);
 		

@@ -6,7 +6,7 @@ import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.entity.Server;
 import reactor.core.publisher.Mono;
 
-public class MemberJoinEvent extends Event {
+public class MemberJoinEvent extends MemberEvent {
 	private ChatMemberJoinEvent joinEvent;
 
 	public MemberJoinEvent(Connection connection, ChatMemberJoinEvent event) {

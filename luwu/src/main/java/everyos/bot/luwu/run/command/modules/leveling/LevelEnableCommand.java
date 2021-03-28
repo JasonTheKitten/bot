@@ -13,7 +13,8 @@ public class LevelEnableCommand extends CommandBase {
 	private boolean enable;
 
 	public LevelEnableCommand(boolean enable) {
-		super(enable?"command.level.enable":"command.level.disable", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.MANAGE_GUILD);
+		super(enable?"command.level.enable":"command.level.disable", e->true,
+			ChatPermission.SEND_MESSAGES, ChatPermission.MANAGE_GUILD);
 		this.enable = enable;
 	}
 

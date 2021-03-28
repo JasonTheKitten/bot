@@ -2,10 +2,12 @@ package everyos.bot.luwu.run.command.modules.chatlink;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.mongodb.client.model.Filters;
 
 import everyos.bot.luwu.core.BotEngine;
+import everyos.bot.luwu.core.database.DBArray;
 import everyos.bot.luwu.core.database.DBDocument;
 import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.ChannelID;
@@ -193,6 +195,32 @@ public class ChatLink {
 		//TODO: Dealing with multiple client types
 		document.getObject().getOrCreateArray("muted").add(user.getLong());
 		return document.save();
+	}
+	
+	public Mono<Void> setUserVerified(UserID id, boolean b) {
+		DBArray verified = document.getObject().getOrCreateArray("verified");
+		if (b) {
+			verified.add(id.getLong()); //TODO: Save client ID
+		} else {
+			verified.removeAll(id.getLong());
+		}
+		return document.save();
+	}
+	
+	public Mono<Void> setRules(String rules) {
+		document.getObject().set("rules", rules);
+		return document.save();
+	}
+	
+	public boolean isUserVerified(UserID userID) {
+		// TODO: Ideally we should create a "linkmembers" object in the DB to be
+		// more efficient when dealing with large numbers of users.
+		DBArray verified = document.getObject().getOrCreateArray("verified");
+		return verified.contains(userID.getLong()); //TODO: Also check against the connection ID
+	}
+	
+	public Optional<String> getRules() {
+		return Optional.ofNullable(document.getObject().getOrDefaultString("rules", null));
 	}
 	
 	private Flux<ChatLinkChannel> getChannelFlux() {

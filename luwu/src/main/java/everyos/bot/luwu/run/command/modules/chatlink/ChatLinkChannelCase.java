@@ -7,6 +7,7 @@ import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.EmojiID;
 import everyos.bot.luwu.core.entity.Locale;
+import everyos.bot.luwu.core.entity.User;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.core.functionality.message.MessageReactionInterface;
@@ -57,7 +58,8 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 							.map(info->info.isVerified())
 							.filter(v2->v2)
 							.switchIfEmpty(Mono.error(new TextException(locale.localize("command.link.error.needverified"))))
-							.flatMap(v2->link.sendMessage(data.getMessage()));
+							.then(checkAgreement(link, data.getInvoker(), data.getMessage().getContent().orElse(""), locale))
+							.then(link.sendMessage(data.getMessage()));
 					})
 					.then(reactions.addReaction(EmojiID.of("\u2611")))
 					.thenReturn(true) // .delayElement requires a non-empty mono
@@ -76,6 +78,22 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 			.then();
 	}
 	
+	private Mono<Void> checkAgreement(ChatLink link, User invoker, String text, Locale locale) {
+		if (text.equalsIgnoreCase("agree") && !link.isUserVerified(invoker.getID())) {
+			return link.setUserVerified(invoker.getID(), true)
+				.then(Mono.error(new TextException(locale.localize("command.link.userverified"))));
+		}
+		
+		return Mono.just(link.isUserVerified(invoker.getID()))
+			.filter(v->v)
+			.switchIfEmpty(
+				Mono.error(new TextException(locale.localize("command.link.error.agreement",
+					"rules", link.getRules().orElse("> "+locale.localize("command.link.norules")
+						.replace("\n", "> ")))))
+			)
+			.then();
+	}
+
 	@Override
 	public CommandContainer getCommands() {
 		return commands;

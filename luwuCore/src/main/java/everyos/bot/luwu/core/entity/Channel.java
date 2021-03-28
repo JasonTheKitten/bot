@@ -34,7 +34,7 @@ public class Channel implements InterfaceProvider {
 
 	public <T extends Interface> boolean supportsInterface(Class<T> cls) {
 		return
-			(cls==ChannelTextInterface.class) &&
+			(cls==ChannelTextInterface.class) ||
 			(cls==ChannelVoiceInterface.class&&channel.supportsInterface(ChatChannelVoiceInterface.class));
 	};
 	@SuppressWarnings("unchecked")

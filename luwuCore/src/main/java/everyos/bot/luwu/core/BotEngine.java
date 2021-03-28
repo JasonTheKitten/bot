@@ -61,7 +61,11 @@ public class BotEngine {
 			try {
 				Mono<Void> m1 = Mono.empty();
 				for (HookBinding<?> hook: hooks) {
-					m1 = hook.apply(m1, event);
+					try {
+						m1 = hook.apply(m1, event);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 				return m1
 					.onErrorResume(e->{

@@ -58,6 +58,7 @@ public class LinkAcceptCommand extends CommandBase {
 		ChannelID id = parser.eatChannelID();
 		
 		int cliid = id.getConnectionID();
+		//TODO
 		if (!parser.isEmpty()) {
 			String n = parser.eat();
 			if (n.equals("d")) {

@@ -110,6 +110,8 @@
 	"command.link.mute.warned.warning": "WARNING: This command only mutes/unmutes users who post within this server. Use `link lmute` or `link gmute` to mute members over link.",
 	"command.link.notjoining": "Sorry, but this channel does not appear to be attempting to join this link at this time. Please ensure that you entered the proper channel ID, and that you have run the join command in the other channel.",
 	"command.link.permsmissing": "You do not have the permissions to do this. Please ensure that one of the following is true:\n**A)** You are a moderator in the current server, and this server is opted to manage this link\n**B)** You have been specifically opted to manage this link.",
+	"command.link.norules": "No rules have been configured for this link! In this case, just use your common sense.",
+	"command.link.error.agreement": "By using chatlink, you agree that your messages may be spread across a variety of servers, in a non-deletable, non-editable manner. You agree that you are 13 or older. You acknowledge the risk imposed by sharing personal or confidential information. You also recognize that __**messages may be sent by other users through means of this bot**__. Additionally, you agree to any __link rules set by the link moderator__:\n${rules}\nTo verify that you would like to use chatlink, please type `agree`.",
 	"command.link.pleaseverify": "Almost there! Please verify this link by having an opted user or server run `link accept ${id}` in their chatlink channel.",
 	"command.link.setup": "link",
 	"command.link.setup.help": "**<subcommand>** Create or join cross-server chatlinks.",
@@ -117,6 +119,7 @@
 	"command.link.systemheader": "**System** (System)\n${message}",
 	"command.link.systemverified": "A new channel has been added to this link (Channel: `${name}`, Server: `${server}`, ID: `${id}`). Don't forget to say hello!",
 	"command.link.verified": "Succesfully verified the channel whose ID is ${id}, name is ${name}, and server is ${server}. The only step remaining is to send a test message!",
+	"command.link.userverified": "You have successfully been verified! \uD83C\uDF89\nYou can now use this link to communicate with people in other servers.",
 	"command.moderation.unknown": "${errors} unknown error(s) occured while running this command!",
 	"command.music": "music",
 	"command.music.help": "**<subcommand>** Play or manage some music.",
@@ -330,6 +333,7 @@
 	"command.suggestion.help": "**[outputchannel]** Set up channels that automatically convert your messages to suggestions.",
 	"command.suggestion.help.extended": "**[outputchannel]** The channel that suggestions will be posted in. Defaults to the current channel.",
 	"command.suggestion.message": "The suggestions channel has been set, uwu.",
+	"command.welcome.messageset": "The welcome/leave message has been set or cleared.",
 	"perm.addreactions": "ADD_REACTIONS",
 	"perm.banmembers": "BAN_MEMBERS",
 	"perm.externalemojis": "USE_EXTERNAL_EMOJIS",
@@ -345,5 +349,13 @@
 	"perm.sendmessages": "SEND_MESSAGES",
 	"perm.vcconnect": "VC_CONNECT",
 	"perm.vcpriority": "VC_PRIORITY",
-	"perm.vcspeak": "VC_SPEAK"
+	"perm.vcspeak": "VC_SPEAK",
+	
+	"command.welcome": "welcome",
+	"command.welcome.help": "**[channel message]** Set (or clear) a welcome message to greet every user who joins.",
+	"command.welcome.help.extended": "To clear a welcome message, run this command without arguments.\nTo set a welcome message, run this command with the following arguments:\n**channel** The channel or the id of the channel in which you would like welcome messages to be sent.\n**message** The message to be sent when a user joins the server.\n\nThe following symbols can be used to enhance your welcome message:\n**${user.name}** The name of the user who has joined.\n**${user.ping} The mention of the user who has joined.\n**${server.name}** The name of this server.\n**${server.members}** The number of members in this server, including bots.\n${server.users} The number of members in this server, excluding bots.",
+	
+	"command.leave": "leave",
+	"command.leave.help": "**[channel message]** Set (or clear) a leave message to send your best re"
+	
 }
