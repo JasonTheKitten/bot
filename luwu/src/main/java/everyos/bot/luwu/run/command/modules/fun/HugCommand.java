@@ -9,7 +9,7 @@ import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Channel;
-import everyos.bot.luwu.core.entity.Client;
+import everyos.bot.luwu.core.entity.Connection;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.entity.User;
@@ -53,7 +53,7 @@ public class HugCommand extends CommandBase {
 		return
 			parseArgs(parser, invoker.getID(), locale)
 			.flatMap(id->id.getUser())
-			.flatMap(member->determineHugMessage(data.getClient(), invoker, member, locale))
+			.flatMap(member->determineHugMessage(data.getConnection(), invoker, member, locale))
 			.flatMap(message->sendHugMessage(data.getChannel(), message, locale))
 			//TODO: Send the hug
 			.then();
@@ -65,12 +65,12 @@ public class HugCommand extends CommandBase {
 		if (!parser.couldBeUserID()) return Mono.error(new TextException("Usage")); //TODO
 		return Mono.just(parser.eatUserID());
 	}
-	private Mono<String> determineHugMessage(Client client, User invoker, User member, Locale locale) {
+	private Mono<String> determineHugMessage(Connection connection, User invoker, User member, Locale locale) {
 		//Choose the header
 		if (invoker.getID()==member.getID()) {
 			return Mono.just(locale.localize("command.hug.selfhug"));
 		} else {
-			return client.getSelfAsUser()
+			return connection.getSelfAsUser()
 				.filter(botmember->botmember.getID().getLong()==member.getID().getLong())
 				.flatMap(v->Mono.just(locale.localize("command.hug.bothug")))
 				.switchIfEmpty(Mono.just(locale.localize("command.hug.userhug", "invoker", formatName(invoker), "recipient", formatName(member))));

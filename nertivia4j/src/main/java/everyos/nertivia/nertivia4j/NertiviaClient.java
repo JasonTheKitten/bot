@@ -14,7 +14,6 @@ import everyos.nertivia.nertivia4j.event.MessageDeleteEvent;
 import everyos.nertivia.nertivia4j.event.ReadyEvent;
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import io.socket.client.SocketIOException;
 import io.socket.engineio.client.transports.WebSocket;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -55,13 +54,13 @@ public class NertiviaClient {
 			socketOptions.transports = new String[] {WebSocket.NAME};
 			Socket socket = IO.socket(NertiviaInstance.SOCKET_URL, socketOptions);
 			socket.on(Socket.EVENT_CONNECT, e->{
-				info("Connected to socket - Authenticating");
+				info("Connected to socket - Authenticating", false);
 				JSONObject auth = new JSONObject();
 				auth.put("token", options.instance.token);
 				socket.emit("authentication", auth);
 			});
 			socket.on("success", e->{
-				info("Successfully authenticated - Ready");
+				info("Successfully authenticated - Ready", false);
 				sink.emitNext(new ReadyEvent(this), handler);
 			});
 			socket.on("receiveMessage", e->{
@@ -73,10 +72,10 @@ public class NertiviaClient {
 				sink.emitNext(new MessageDeleteEvent(this, options.instance, response), handler);
 			});
 			socket.on(Socket.EVENT_DISCONNECT, e->{
-				info("Disconnected from socket");
+				info("Disconnected from socket", false);
 			});
 			socket.on(Socket.EVENT_CONNECT_ERROR, e->{
-				info(((SocketIOException) e[0]).toString());
+				info((e[0]).toString(), true);
 			});
 			socket.connect();
 			return Mono.just(new NertiviaConnection() {
@@ -97,7 +96,7 @@ public class NertiviaClient {
 		}
 	}
 	
-	private void info(String string) {
+	private void info(String string, boolean error) {
 		String cls = this.toString();
 		cls = cls.substring(cls.indexOf("@")+1);
 		logger.info("[C:"+cls+"] "+string);

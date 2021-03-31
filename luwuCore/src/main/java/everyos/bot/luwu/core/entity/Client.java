@@ -20,10 +20,6 @@ public class Client {
 		this.id = id;
 	}
 
-	public Mono<Member> getSelfAsUser() {
-		return Mono.empty();
-	}
-
 	public BotEngine getBotEngine() {
 		return bot;
 	}

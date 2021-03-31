@@ -20,9 +20,8 @@ public class StarboardMessage extends Message {
 	public static StarboardMessageFactory type = new StarboardMessageFactory();
 
 	public Mono<StarboardMessageInfo> getInfo() {
-		return getGlobalDocument().map(doc->{
-			return new StarboardMessageInfoImp(doc.getObject(), this);
-		});
+		return getGlobalDocument()
+			.map(doc->new StarboardMessageInfoImp(doc.getObject(), this));
 	}
 	
 	public Mono<Void> editInfo(Consumer<StarboardMessageEditSpec> func) {

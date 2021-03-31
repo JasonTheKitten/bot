@@ -109,4 +109,9 @@ public class NertiviaChatConnection implements ChatConnection {
 		return client.getServerByID(cid)
 			.map(server->new NertiviaServer(this, server));
 	}
+
+	@Override
+	public Mono<ChatUser> getSelfAsUser() {
+		return Mono.empty(); //TODO
+	}
 }

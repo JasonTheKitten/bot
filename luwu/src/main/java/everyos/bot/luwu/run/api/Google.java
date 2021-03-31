@@ -40,6 +40,7 @@ import com.google.cloud.vision.v1.Image;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageAnnotatorSettings;
 import com.google.cloud.vision.v1.ImageSource;
+import com.google.cloud.vision.v1.Likelihood;
 import com.google.cloud.vision.v1.SafeSearchAnnotation;
 
 import everyos.bot.luwu.util.FileUtil;
@@ -120,7 +121,7 @@ public class Google {
             AnnotateImageResponse res = responses.get(0);
             if (res.hasError()) { return true; }
             SafeSearchAnnotation annotation = res.getSafeSearchAnnotation();
-            return annotation.getAdultConfidence()<.60;
+            return annotation.getAdult().compareTo(Likelihood.forNumber(Likelihood.LIKELY_VALUE))>=0;
         } catch(Exception e) {
             e.printStackTrace();
             return true;

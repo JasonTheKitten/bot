@@ -54,17 +54,6 @@ public class Channel implements InterfaceProvider {
 			.map(member->new Member(connection, member));
 	}
 
-	//TODO: Perhaps add DB Access to a .read
-	public Mono<String[]> getPrefixes() {
-		return Mono.just(new String[] {
-			//TODO: Query DB. Also, prefixes might belong to guild, based on model
-			//This would be better handled as a interface?
-			//TODO: Perhaps read this from JSON?
-			"luwu ",
-			"LUWU ",
-			"Luwu"
-		});
-	}
 	public Mono<String> getType() {
 		return getGlobalDocument()
 			.map(document->document.getObject().getOrDefaultString(

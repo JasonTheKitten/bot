@@ -8,6 +8,7 @@ import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.command.GroupCommand;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
+import everyos.bot.luwu.run.command.modules.configuration.prefix.PrefixServer;
 import reactor.core.publisher.Mono;
 
 public abstract class CommandChannelCase implements ChannelCase, GroupCommand {
@@ -26,19 +27,24 @@ public abstract class CommandChannelCase implements ChannelCase, GroupCommand {
 	private Mono<Boolean> eatPrefix(CommandData data, ArgumentParser parser) {
 		//Query the prefixes
 		//TODO: Return a locale instead
-		return data.getChannel().getPrefixes().flatMap(prefixes->{
-			for (String prefix: prefixes) {
-				//Check if we match the prefixes
-				if (parser.peek(prefix.length()).equals(prefix)) {
-					parser.eat(prefix.length());
-					return Mono.just(true);
+		return data.getChannel()
+			.getServer()
+			.flatMap(server->server.as(PrefixServer.type))
+			.flatMap(server->server.getInfo())
+			.switchIfEmpty(PrefixServer.empty(data.getConnection()))
+			.flatMap(info->{
+				for (String prefix: info.getPrefixes()) {
+					//Check if we match the prefixes
+					if (parser.peek(prefix.length()).equals(prefix)) {
+						parser.eat(prefix.length());
+						return Mono.just(true);
+					}
 				}
-			}
-			//TODO: Support ping prefix
-			return Mono.just(false);
-		});
+				//TODO: Support ping prefix
+				return Mono.just(false);
+			});
 	}
-	
+
 	private Mono<Boolean> runCommand(CommandContainer commands, CommandData data, ArgumentParser parser) {
 		//Lookup the command
 		Command c = commands.getCommand(parser.eat(), data.getLocale()); //TODO: Detect preferred locale

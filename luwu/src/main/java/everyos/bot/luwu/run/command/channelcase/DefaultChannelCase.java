@@ -5,6 +5,7 @@ import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.run.command.modules.battle.BattleCommands;
 import everyos.bot.luwu.run.command.modules.chatlink.setup.LinkSetupCommands;
+import everyos.bot.luwu.run.command.modules.configuration.ConfigurationCommands;
 import everyos.bot.luwu.run.command.modules.easteregg.EasterEggCommands;
 import everyos.bot.luwu.run.command.modules.fun.FunCommands;
 import everyos.bot.luwu.run.command.modules.info.InfoCommands;
@@ -39,6 +40,9 @@ public class DefaultChannelCase extends CommandChannelCase {
 		
 		commands.category("privacy");
 		PrivacyCommands.installTo(commands);
+		
+		commands.category("configuration");
+		ConfigurationCommands.installTo(commands);
 		
 		commands.category("channel");
 		LinkSetupCommands.installTo(commands);

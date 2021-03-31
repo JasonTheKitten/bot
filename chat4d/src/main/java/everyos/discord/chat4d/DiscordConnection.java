@@ -116,4 +116,10 @@ public class DiscordConnection implements ChatConnection {
 	public Mono<ChatGuild> getGuildByID(long id) {
 		return connection.getGuildById(Snowflake.of(id)).map(guild->new DiscordGuild(this, guild));
 	}
+
+	@Override
+	public Mono<ChatUser> getSelfAsUser() {
+		return connection.getSelf()
+			.map(user->new DiscordUser(this, user));
+	}
 }

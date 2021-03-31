@@ -14,7 +14,7 @@ public class CommandEntry {
 	}
 	
 	public Command getIfMatches(String name, Locale locale) {
-		if (name.equals(locale.localize(label))) return command;
+		if (name.equalsIgnoreCase(locale.localize(label))) return command;
 		return null;
 	}
 

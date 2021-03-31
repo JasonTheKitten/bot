@@ -356,6 +356,28 @@
 	"command.welcome.help.extended": "To clear a welcome message, run this command without arguments.\nTo set a welcome message, run this command with the following arguments:\n**channel** The channel or the id of the channel in which you would like welcome messages to be sent.\n**message** The message to be sent when a user joins the server.\n\nThe following symbols can be used to enhance your welcome message:\n**${user.name}** The name of the user who has joined.\n**${user.ping} The mention of the user who has joined.\n**${server.name}** The name of this server.\n**${server.members}** The number of members in this server, including bots.\n${server.users} The number of members in this server, excluding bots.",
 	
 	"command.leave": "leave",
-	"command.leave.help": "**[channel message]** Set (or clear) a leave message to send your best re"
+	"command.leave.help": "**[channel message]** Set (or clear) a leave message to send your best regrads.",
 	
+	"command.prefix": "prefix",
+	"command.prefix.help": "**<subcommand>** This module allows for managing bot prefixes.",
+	"command.prefix.help.extended": "Manage bot prefixes.",
+	
+	"command.prefix.add": "add",
+	"command.prefix.add.help": "**\"<prefix>\"** Add a prefix to the bot (must be in \"quotes\")",
+	"command.prefix.add.help.extended": "**<prefix>** The prefix to be added, in \"quotes\".",
+	"command.prefix.add.added": "The prefix has been succesfully added, uwu.",
+	
+	"command.prefix.remove": "remove",
+	"command.prefix.remove.help": "**\"<prefix>\"** Remove a prefix from the bot (must be in \"quotes\")",
+	"command.prefix.remove.help.extended": "**<prefix>** The prefix to be removed, in \"quotes\".",
+	"command.prefix.remove.removed": "The prefix has been succesfully removed, Luwu!",
+	
+	"command.prefix.list": "list",
+	"command.prefix.list.help": "Lists configured prefix",
+	"command.prefix.list.help.extended": "Does not include ping prefixes",
+	
+	"command.prefix.remove.nosuchprefix": "This prefix did not exist!",
+	"command.prefix.remove.emptyprefix": "Selected prefix must contain *actual text*.",
+	
+	"command.prefix.list.title": "Server prefixes"
 }

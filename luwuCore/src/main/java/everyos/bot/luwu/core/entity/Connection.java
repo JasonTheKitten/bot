@@ -35,6 +35,11 @@ public class Connection {
 		return connection.getGuildByID(id.getLong()).map(server->new Server(this, server));
 	}
 	
+	public Mono<User> getSelfAsUser() {
+		return connection.getSelfAsUser()
+			.map(member->new User(this, member));
+	}
+	
 	public Client getClient() {
 		return client;
 	}

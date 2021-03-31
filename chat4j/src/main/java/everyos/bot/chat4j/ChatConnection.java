@@ -29,4 +29,6 @@ public interface ChatConnection {
 	Mono<ChatUser> getUserByID(long id);
 	Mono<ChatChannel> getChannelByID(long id);
 	Mono<ChatGuild> getGuildByID(long long1);
+
+	Mono<ChatUser> getSelfAsUser();
 }
