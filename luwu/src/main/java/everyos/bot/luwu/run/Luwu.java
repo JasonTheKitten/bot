@@ -6,9 +6,11 @@ import org.slf4j.Logger;
 
 import everyos.bot.luwu.core.BotEngineBuilder;
 import everyos.bot.luwu.core.Configuration;
+import everyos.bot.luwu.core.entity.event.MemberEvent;
 import everyos.bot.luwu.core.entity.event.MemberJoinEvent;
 import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
 import everyos.bot.luwu.core.entity.event.ReactionEvent;
+import everyos.bot.luwu.core.entity.event.ServerEvent;
 import everyos.bot.luwu.core.event.MessageCreateEventProcessor;
 import everyos.bot.luwu.discord.DiscordClientBuilder;
 import everyos.bot.luwu.language.ResourceLocale;
@@ -23,7 +25,9 @@ import everyos.bot.luwu.run.command.modules.role.autorole.AutoroleHooks;
 import everyos.bot.luwu.run.command.modules.role.reaction.ReactionHooks;
 import everyos.bot.luwu.run.command.modules.starboard.StarboardHooks;
 import everyos.bot.luwu.run.command.modules.suggestions.SuggestionChannelCase;
+import everyos.bot.luwu.run.command.modules.welcome.WelcomeHooks;
 import everyos.bot.luwu.run.command.usercase.DefaultUserCase;
+import everyos.bot.luwu.run.hook.StatusHooks;
 import reactor.core.publisher.Mono;
 
 public class Luwu {
@@ -77,10 +81,6 @@ public class Luwu {
 		engineBuilder.registerLanguage(TURKISH_LANGUAGE, new ResourceLocale("language/tr_TR.json"));
 		engineBuilder.setDefaultLanguage(ENGLISH_LANGUAGE);
 		
-		// Set the bot's status
-		engineBuilder.setDefaultStatus("Playing sleepyhead");
-		engineBuilder.setServerCountStatus("Watching ${server} servers | luwu help | Luwu!"); //TODO
-		
 		// Register channel behaviors
 		engineBuilder.registerChannelCase(DEFAULT_CHANNELCASE, DefaultChannelCase.get());
 		engineBuilder.registerChannelCase(CHATLINK_CHANNELCASE, ChatLinkChannelCase.get());
@@ -104,7 +104,9 @@ public class Luwu {
 		engineBuilder.registerHook(MessageCreateEvent.class, LevelHooks::levelHook);
 		engineBuilder.registerHook(ReactionEvent.class, ReactionHooks::reactionHook);
 		engineBuilder.registerHook(MemberJoinEvent.class, AutoroleHooks::autoroleHook);
+		engineBuilder.registerHook(MemberEvent.class, WelcomeHooks::welcomeHook);
 		engineBuilder.registerHook(ReactionEvent.class, StarboardHooks::starboardHook);
+		engineBuilder.registerHook(ServerEvent.class, StatusHooks::statusHook);
 		
 		// Start the bot
 		return engineBuilder.build().start();

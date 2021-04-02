@@ -4,6 +4,7 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
+import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.ReactionAddEvent;
 import discord4j.core.event.domain.message.ReactionRemoveEvent;
@@ -13,7 +14,9 @@ import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.event.ChatEvent;
+import everyos.bot.chat4j.event.ChatMemberEvent;
 import everyos.bot.chat4j.event.ChatMemberJoinEvent;
+import everyos.bot.chat4j.event.ChatMemberLeaveEvent;
 import everyos.bot.chat4j.event.ChatMessageCreateEvent;
 import everyos.bot.chat4j.event.ChatMessageEvent;
 import everyos.bot.chat4j.event.ChatReactionAddEvent;
@@ -23,6 +26,7 @@ import everyos.discord.chat4d.entity.DiscordChannel;
 import everyos.discord.chat4d.entity.DiscordGuild;
 import everyos.discord.chat4d.entity.DiscordUser;
 import everyos.discord.chat4d.event.DiscordMemberJoinEvent;
+import everyos.discord.chat4d.event.DiscordMemberLeaveEvent;
 import everyos.discord.chat4d.event.DiscordMessageCreateEvent;
 import everyos.discord.chat4d.event.DiscordReactionAddEvent;
 import everyos.discord.chat4d.event.DiscordReactionRemoveEvent;
@@ -94,10 +98,19 @@ public class DiscordConnection implements ChatConnection {
 		} else if (cls == ChatReactionRemoveEvent.class) {
 			return (Flux<T>) dispatcher.on(ReactionRemoveEvent.class)
 				.map(event->new DiscordReactionRemoveEvent(this, event));
+		} else if (cls == ChatMemberEvent.class) {
+			return (Flux<T>) Flux.merge(
+				generateInternalEventListener(ChatMemberJoinEvent.class),
+				generateInternalEventListener(ChatMemberLeaveEvent.class));
 		} else if (cls == ChatMemberJoinEvent.class) {
 			return (Flux<T>) dispatcher.on(MemberJoinEvent.class)
 				.map(event->new DiscordMemberJoinEvent(this, event));
+		} else if (cls == ChatMemberLeaveEvent.class) {
+			return (Flux<T>) dispatcher.on(MemberLeaveEvent.class)
+				.map(event->new DiscordMemberLeaveEvent(this, event));
 		}
+		
+		//TODO: Consider just using a HashMap instead of creating this giant if-else chain
 		
 		return null;
 	}

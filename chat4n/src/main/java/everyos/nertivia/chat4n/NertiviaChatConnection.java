@@ -112,6 +112,7 @@ public class NertiviaChatConnection implements ChatConnection {
 
 	@Override
 	public Mono<ChatUser> getSelfAsUser() {
-		return Mono.empty(); //TODO
+		return client.getSelfAsUser()
+			.map(user->new NertiviaUser(this, user));
 	}
 }

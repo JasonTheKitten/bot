@@ -18,6 +18,7 @@ import everyos.bot.luwu.run.command.modules.role.RoleCommands;
 import everyos.bot.luwu.run.command.modules.starboard.StarboardCommands;
 import everyos.bot.luwu.run.command.modules.suggestions.SuggestionCommands;
 import everyos.bot.luwu.run.command.modules.utility.UtilityCommands;
+import everyos.bot.luwu.run.command.modules.welcome.WelcomeCommands;
 import reactor.core.publisher.Mono;
 
 public class DefaultChannelCase extends CommandChannelCase {
@@ -53,6 +54,7 @@ public class DefaultChannelCase extends CommandChannelCase {
 		commands.category("utility");
 		UtilityCommands.installTo(commands);
 		RoleCommands.installTo(commands);
+		WelcomeCommands.installTo(commands);
 		
 		
 		commands.category(null);

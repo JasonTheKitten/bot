@@ -99,7 +99,11 @@ public class NertiviaClient {
 	private void info(String string, boolean error) {
 		String cls = this.toString();
 		cls = cls.substring(cls.indexOf("@")+1);
-		logger.info("[C:"+cls+"] "+string);
+		if (error) {
+			logger.info("[C:"+cls+"] "+string);
+		} else {
+			logger.info("[C:"+cls+"] "+string);
+		}
 	}
 	
 	public Mono<Channel> getChannelByID(long cid) {
@@ -116,5 +120,10 @@ public class NertiviaClient {
 	
 	public Mono<User> getUserByID(long uid) {
 		return User.of(this, options.instance, uid);
+	}
+
+	public Mono<User> getSelfAsUser() {
+		// TODO
+		return Mono.just(new User(this, options.instance, -1L, true));
 	}
 }

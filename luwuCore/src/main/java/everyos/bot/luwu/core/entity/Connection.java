@@ -2,12 +2,15 @@ package everyos.bot.luwu.core.entity;
 
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.event.ChatMemberJoinEvent;
+import everyos.bot.chat4j.event.ChatMemberLeaveEvent;
 import everyos.bot.chat4j.event.ChatMessageCreateEvent;
 import everyos.bot.chat4j.event.ChatReactionAddEvent;
 import everyos.bot.chat4j.event.ChatReactionRemoveEvent;
 import everyos.bot.luwu.core.BotEngine;
 import everyos.bot.luwu.core.entity.event.Event;
+import everyos.bot.luwu.core.entity.event.MemberEvent;
 import everyos.bot.luwu.core.entity.event.MemberJoinEvent;
+import everyos.bot.luwu.core.entity.event.MemberLeaveEvent;
 import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
 import everyos.bot.luwu.core.entity.event.MessageEvent;
 import everyos.bot.luwu.core.entity.event.ReactionAddEvent;
@@ -53,7 +56,7 @@ public class Connection {
 		if (cls==Event.class) {
 			return (Flux<T>) Flux.merge(
 				generateEventListener(MessageEvent.class),
-				generateEventListener(MemberJoinEvent.class));
+				generateEventListener(MemberEvent.class));
 		}
 		if (cls==MessageEvent.class) {
 			return (Flux<T>) Flux.merge(
@@ -77,11 +80,22 @@ public class Connection {
 			return (Flux<T>) connection.generateEventListener(ChatReactionRemoveEvent.class)
 				.map(event->new ReactionRemoveEvent(this, event));
 		}
+		if (cls==MemberEvent.class) {
+			return (Flux<T>) Flux.merge(
+				generateEventListener(MemberJoinEvent.class),
+				generateEventListener(MemberLeaveEvent.class));
+		}
 		if (cls==MemberJoinEvent.class) {
 			return (Flux<T>) connection.generateEventListener(ChatMemberJoinEvent.class)
 				.map(event->new MemberJoinEvent(this, event));
 		}
+		if (cls==MemberLeaveEvent.class) {
+			return (Flux<T>) connection.generateEventListener(ChatMemberLeaveEvent.class)
+				.map(event->new MemberLeaveEvent(this, event));
+		}
 		return Flux.empty();
+		
+		//TODO: Consider using HashMap instead of this giant if chain
 	}
 	//TODO: SupportsEvent
 }

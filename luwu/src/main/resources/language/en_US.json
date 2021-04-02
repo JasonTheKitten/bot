@@ -82,7 +82,7 @@
 	"command.level.help": "**<subcommand>** Check user levels, and manage the leveling system.",
 	"command.level.help.extended": "This module allows for checking levels and configuring leveling settings.",
 	"command.level.message": "message",
-	"command.level.message.help": "**<channelid> <messageid>** Enable or disable level messages (see extended help).",
+	"command.level.message.help": "**[<channelid> <messageid>]** Enable or disable level messages (see extended help).",
 	"command.level.message.help.extended": "Run without arguments to disable level messaging\n**<channelid>** The channel messages should be sent to (todo).\n**<messageid>** The message to be sent (todo).",
 	"command.level.messageset": "Set the levelling message to `${message}` in Channel ID: `${channel}`",
 	"command.link.accept": "accept",
@@ -353,7 +353,7 @@
 	
 	"command.welcome": "welcome",
 	"command.welcome.help": "**[channel message]** Set (or clear) a welcome message to greet every user who joins.",
-	"command.welcome.help.extended": "To clear a welcome message, run this command without arguments.\nTo set a welcome message, run this command with the following arguments:\n**channel** The channel or the id of the channel in which you would like welcome messages to be sent.\n**message** The message to be sent when a user joins the server.\n\nThe following symbols can be used to enhance your welcome message:\n**${user.name}** The name of the user who has joined.\n**${user.ping} The mention of the user who has joined.\n**${server.name}** The name of this server.\n**${server.members}** The number of members in this server, including bots.\n${server.users} The number of members in this server, excluding bots.",
+	"command.welcome.help.extended": "To clear a welcome message, run this command without arguments.\nTo set a welcome message, run this command with the following arguments:\n**channel** The channel or the id of the channel in which you would like welcome messages to be sent.\n**message** The message to be sent when a user joins the server.\n\nThe following symbols can be used to enhance your welcome message:\n**${user.name}** The name of the user who has joined.\n**${user.ping}** The mention of the user who has joined.\n**${server.name}** The name of this server.\n**${server.members}** The number of members in this server, including bots.\n**${server.users}** The number of members in this server, excluding bots.",
 	
 	"command.leave": "leave",
 	"command.leave.help": "**[channel message]** Set (or clear) a leave message to send your best regrads.",

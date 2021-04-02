@@ -19,7 +19,15 @@ class HookBinding<T extends Event> {
 	public Mono<Void> apply(Mono<Void> chain, Event e) {
 		if (eventClass.isAssignableFrom(e.getClass())) {
 			@SuppressWarnings("unchecked")
-			Mono<Void> resultingMono = Mono.fromCallable(()->func.apply((T) e)).flatMap(m->m);
+			Mono<Void> resultingMono =
+				Mono.fromCallable(()->{
+					return func.apply((T) e)
+						.onErrorResume(ex->{
+							ex.printStackTrace();
+							return Mono.empty();
+						});
+				})
+				.flatMap(m->m);
 			
 			if (synchronous) return chain.then(resultingMono);
 			return chain.and(resultingMono);

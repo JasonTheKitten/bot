@@ -18,6 +18,12 @@ public class WelcomeServer extends Server {
 		super(connection, guild, documents);
 	}
 	
+	public Mono<WelcomeServerInfo> getInfo() {
+		return getGlobalDocument().map(doc->{
+			return new WelcomeServerInfoImp(doc.getObject());
+		});
+	}
+	
 	public Mono<Void> edit(Consumer<WelcomeServerEditSpec> func) {
 		return getGlobalDocument().flatMap(doc->{
 			func.accept(new WelcomeServerEditSpecImp(doc.getObject()));

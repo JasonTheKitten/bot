@@ -9,7 +9,7 @@ import everyos.discord.chat4d.entity.DiscordGuild;
 import everyos.discord.chat4d.entity.DiscordMember;
 import reactor.core.publisher.Mono;
 
-public class DiscordMemberJoinEvent extends DiscordEvent implements ChatMemberJoinEvent {
+public class DiscordMemberJoinEvent extends DiscordMemberEvent implements ChatMemberJoinEvent {
 	private MemberJoinEvent joinEvent;
 
 	public DiscordMemberJoinEvent(ChatConnection connection, MemberJoinEvent event) {
