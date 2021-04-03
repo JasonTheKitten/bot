@@ -6,6 +6,7 @@ import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.run.command.modules.battle.BattleCommands;
 import everyos.bot.luwu.run.command.modules.chatlink.setup.LinkSetupCommands;
 import everyos.bot.luwu.run.command.modules.configuration.ConfigurationCommands;
+import everyos.bot.luwu.run.command.modules.currency.FethCommands;
 import everyos.bot.luwu.run.command.modules.easteregg.EasterEggCommands;
 import everyos.bot.luwu.run.command.modules.fun.FunCommands;
 import everyos.bot.luwu.run.command.modules.info.InfoCommands;
@@ -37,6 +38,7 @@ public class DefaultChannelCase extends CommandChannelCase {
 		MusicCommands.installTo(commands);
 		FunCommands.installTo(commands);
 		LevelCommands.installTo(commands);
+		FethCommands.installTo(commands);
 		
 		commands.category("info");
 		InfoCommands.installTo(commands);

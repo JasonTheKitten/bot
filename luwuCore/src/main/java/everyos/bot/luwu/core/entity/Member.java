@@ -90,7 +90,7 @@ public class Member extends User implements InterfaceProvider {
 		return getNamedDocument("members");
 	}
 	
-	public <T extends Member> T getWithExtension(MemberFactory<T> factory) {
+	public <T extends Member> T as(MemberFactory<T> factory) {
 		return factory.create(getConnection(), member, getDocuments());
 	}
 	

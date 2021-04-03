@@ -27,7 +27,7 @@ public class LevelCheckCommand extends CommandBase {
 				return Mono.just(server);
 			});
 		}).flatMap(server->{
-			LevelMember member = data.getInvoker().getWithExtension(LevelMember.type);
+			LevelMember member = data.getInvoker().as(LevelMember.type);
 			return member.getLevelState().flatMap(levelState->{
 				ChannelTextInterface textGrip = data.getChannel().getInterface(ChannelTextInterface.class);
 				return textGrip.send(

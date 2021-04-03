@@ -31,16 +31,16 @@ public class LogsHooks {
 				if (author.isBot()) return Mono.empty();
 				return logChannel.send(spec->{
 					String oldContent = ((MessageEditEvent) e).getOldMessage()
-						.map(msg->msg.getContent().orElse(""))
+						.flatMap(msg->msg.getContent())
 						.orElse("");
 					
 					spec.setEmbed(embed->{
 						embed.setTitle("Message Editted");
-						StringBuilder desc = new StringBuilder("**Old Message:** ");
+						StringBuilder desc = new StringBuilder();
 						if (oldContent.isEmpty()) {
 							desc.append("**Old Message Unavailable**\n");
 						} else {
-							desc.append(oldContent+'\n');
+							desc.append("**Old Message:** "+oldContent+'\n');
 						}
 						desc.append("**New Message:** ");
 						desc.append(message.getContent().orElse(""));

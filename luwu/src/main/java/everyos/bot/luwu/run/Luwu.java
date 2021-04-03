@@ -20,6 +20,7 @@ import everyos.bot.luwu.nertivia.NertiviaClientBuilder;
 import everyos.bot.luwu.run.command.channelcase.DefaultChannelCase;
 import everyos.bot.luwu.run.command.channelcase.PrivateChannelCase;
 import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannelCase;
+import everyos.bot.luwu.run.command.modules.currency.FethHooks;
 import everyos.bot.luwu.run.command.modules.leveling.LevelHooks;
 import everyos.bot.luwu.run.command.modules.logging.LogsHooks;
 import everyos.bot.luwu.run.command.modules.oneword.OneWordChannelCase;
@@ -102,7 +103,6 @@ public class Luwu {
 		engineBuilder.setDefaultUserCase(DEFAULT_USERCASE);
 		
 		// Register hooks
-		engineBuilder.registerHook(MessageCreateEvent.class, MessageCreateEventProcessor::apply);
 		engineBuilder.registerHook(MessageCreateEvent.class, LevelHooks::levelHook);
 		engineBuilder.registerHook(ReactionEvent.class, ReactionHooks::reactionHook);
 		engineBuilder.registerHook(MemberJoinEvent.class, AutoroleHooks::autoroleHook);
@@ -110,6 +110,8 @@ public class Luwu {
 		engineBuilder.registerHook(ReactionEvent.class, StarboardHooks::starboardHook);
 		engineBuilder.registerHook(ServerEvent.class, StatusHooks::statusHook);
 		engineBuilder.registerHook(MessageEvent.class, LogsHooks::logsHook);
+		engineBuilder.registerHook(MessageCreateEvent.class, FethHooks::fethHook);
+		engineBuilder.registerSequencedHook(MessageCreateEvent.class, MessageCreateEventProcessor::apply);
 		
 		// Start the bot
 		return engineBuilder.build().start();

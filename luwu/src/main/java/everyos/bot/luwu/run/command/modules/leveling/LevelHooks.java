@@ -13,7 +13,7 @@ public abstract class LevelHooks {
 		return event.getSenderAsMember().flatMap(sender->{
 			if (sender.isBot()) return Mono.empty();
 			
-			LevelMember member = sender.getWithExtension(LevelMember.type);
+			LevelMember member = sender.as(LevelMember.type);
 			
 			return sender.getServer().flatMap(server->server.as(LevelServer.type)).flatMap(server->{
 				return server.getLevelInfo().flatMap(info->{
