@@ -4,6 +4,8 @@ import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.event.ChatMemberJoinEvent;
 import everyos.bot.chat4j.event.ChatMemberLeaveEvent;
 import everyos.bot.chat4j.event.ChatMessageCreateEvent;
+import everyos.bot.chat4j.event.ChatMessageDeleteEvent;
+import everyos.bot.chat4j.event.ChatMessageEditEvent;
 import everyos.bot.chat4j.event.ChatReactionAddEvent;
 import everyos.bot.chat4j.event.ChatReactionRemoveEvent;
 import everyos.bot.luwu.core.BotEngine;
@@ -12,6 +14,8 @@ import everyos.bot.luwu.core.entity.event.MemberEvent;
 import everyos.bot.luwu.core.entity.event.MemberJoinEvent;
 import everyos.bot.luwu.core.entity.event.MemberLeaveEvent;
 import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
+import everyos.bot.luwu.core.entity.event.MessageDeleteEvent;
+import everyos.bot.luwu.core.entity.event.MessageEditEvent;
 import everyos.bot.luwu.core.entity.event.MessageEvent;
 import everyos.bot.luwu.core.entity.event.ReactionAddEvent;
 import everyos.bot.luwu.core.entity.event.ReactionEvent;
@@ -61,7 +65,9 @@ public class Connection {
 		if (cls==MessageEvent.class) {
 			return (Flux<T>) Flux.merge(
 				generateEventListener(MessageCreateEvent.class),
-				generateEventListener(ReactionEvent.class));
+				generateEventListener(ReactionEvent.class),
+				generateEventListener(MessageDeleteEvent.class),
+				generateEventListener(MessageEditEvent.class));
 		}
 		if (cls==MessageCreateEvent.class) {
 			return (Flux<T>) connection.generateEventListener(ChatMessageCreateEvent.class)
@@ -92,6 +98,14 @@ public class Connection {
 		if (cls==MemberLeaveEvent.class) {
 			return (Flux<T>) connection.generateEventListener(ChatMemberLeaveEvent.class)
 				.map(event->new MemberLeaveEvent(this, event));
+		}
+		if (cls==MessageDeleteEvent.class) {
+			return (Flux<T>) connection.generateEventListener(ChatMessageDeleteEvent.class)
+				.map(event->new MessageDeleteEvent(this, event));
+		}
+		if (cls==MessageEditEvent.class) {
+			return (Flux<T>) connection.generateEventListener(ChatMessageEditEvent.class)
+				.map(event->new MessageEditEvent(this, event));
 		}
 		return Flux.empty();
 		

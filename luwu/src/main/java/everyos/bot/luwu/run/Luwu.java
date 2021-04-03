@@ -9,6 +9,7 @@ import everyos.bot.luwu.core.Configuration;
 import everyos.bot.luwu.core.entity.event.MemberEvent;
 import everyos.bot.luwu.core.entity.event.MemberJoinEvent;
 import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
+import everyos.bot.luwu.core.entity.event.MessageEvent;
 import everyos.bot.luwu.core.entity.event.ReactionEvent;
 import everyos.bot.luwu.core.entity.event.ServerEvent;
 import everyos.bot.luwu.core.event.MessageCreateEventProcessor;
@@ -20,6 +21,7 @@ import everyos.bot.luwu.run.command.channelcase.DefaultChannelCase;
 import everyos.bot.luwu.run.command.channelcase.PrivateChannelCase;
 import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannelCase;
 import everyos.bot.luwu.run.command.modules.leveling.LevelHooks;
+import everyos.bot.luwu.run.command.modules.logging.LogsHooks;
 import everyos.bot.luwu.run.command.modules.oneword.OneWordChannelCase;
 import everyos.bot.luwu.run.command.modules.role.autorole.AutoroleHooks;
 import everyos.bot.luwu.run.command.modules.role.reaction.ReactionHooks;
@@ -107,6 +109,7 @@ public class Luwu {
 		engineBuilder.registerHook(MemberEvent.class, WelcomeHooks::welcomeHook);
 		engineBuilder.registerHook(ReactionEvent.class, StarboardHooks::starboardHook);
 		engineBuilder.registerHook(ServerEvent.class, StatusHooks::statusHook);
+		engineBuilder.registerHook(MessageEvent.class, LogsHooks::logsHook);
 		
 		// Start the bot
 		return engineBuilder.build().start();

@@ -6,6 +6,8 @@ import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.event.domain.message.MessageDeleteEvent;
+import discord4j.core.event.domain.message.MessageUpdateEvent;
 import discord4j.core.event.domain.message.ReactionAddEvent;
 import discord4j.core.event.domain.message.ReactionRemoveEvent;
 import everyos.bot.chat4j.ChatClient;
@@ -18,6 +20,8 @@ import everyos.bot.chat4j.event.ChatMemberEvent;
 import everyos.bot.chat4j.event.ChatMemberJoinEvent;
 import everyos.bot.chat4j.event.ChatMemberLeaveEvent;
 import everyos.bot.chat4j.event.ChatMessageCreateEvent;
+import everyos.bot.chat4j.event.ChatMessageDeleteEvent;
+import everyos.bot.chat4j.event.ChatMessageEditEvent;
 import everyos.bot.chat4j.event.ChatMessageEvent;
 import everyos.bot.chat4j.event.ChatReactionAddEvent;
 import everyos.bot.chat4j.event.ChatReactionEvent;
@@ -28,6 +32,8 @@ import everyos.discord.chat4d.entity.DiscordUser;
 import everyos.discord.chat4d.event.DiscordMemberJoinEvent;
 import everyos.discord.chat4d.event.DiscordMemberLeaveEvent;
 import everyos.discord.chat4d.event.DiscordMessageCreateEvent;
+import everyos.discord.chat4d.event.DiscordMessageDeleteEvent;
+import everyos.discord.chat4d.event.DiscordMessageEditEvent;
 import everyos.discord.chat4d.event.DiscordReactionAddEvent;
 import everyos.discord.chat4d.event.DiscordReactionRemoveEvent;
 import reactor.core.publisher.Flux;
@@ -84,7 +90,9 @@ public class DiscordConnection implements ChatConnection {
 		} else if (cls == ChatMessageEvent.class) {
 			return (Flux<T>) Flux.merge(
 				generateInternalEventListener(ChatMessageCreateEvent.class),
-				generateInternalEventListener(ChatReactionEvent.class));
+				generateInternalEventListener(ChatReactionEvent.class),
+				generateInternalEventListener(ChatMessageEditEvent.class),
+				generateInternalEventListener(ChatMessageDeleteEvent.class));
 		} else if (cls == ChatMessageCreateEvent.class) {
 			return (Flux<T>) dispatcher.on(MessageCreateEvent.class)
 				.map(event->new DiscordMessageCreateEvent(this, event));
@@ -108,6 +116,12 @@ public class DiscordConnection implements ChatConnection {
 		} else if (cls == ChatMemberLeaveEvent.class) {
 			return (Flux<T>) dispatcher.on(MemberLeaveEvent.class)
 				.map(event->new DiscordMemberLeaveEvent(this, event));
+		} else if (cls == ChatMessageDeleteEvent.class) {
+			return (Flux<T>) dispatcher.on(MessageDeleteEvent.class)
+				.map(event->new DiscordMessageDeleteEvent(this, event));
+		} else if (cls == ChatMessageEditEvent.class) {
+			return (Flux<T>) dispatcher.on(MessageUpdateEvent.class)
+				.map(event->new DiscordMessageEditEvent(this, event));
 		}
 		
 		//TODO: Consider just using a HashMap instead of creating this giant if-else chain

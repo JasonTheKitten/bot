@@ -1,6 +1,7 @@
 package everyos.nertivia.chat4n.event;
 
 import everyos.bot.chat4j.ChatConnection;
+import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.entity.ChatMessage;
 import everyos.bot.chat4j.entity.ChatUser;
@@ -27,6 +28,11 @@ public class NertiviaMessageCreateEvent extends NertiviaMessageEvent implements 
 	}
 
 	@Override public Mono<ChatMember> getSenderAsMember() {
+		return Mono.empty();
+	}
+
+	@Override
+	public Mono<ChatGuild> getGuild() {
 		return Mono.empty();
 	}
 }

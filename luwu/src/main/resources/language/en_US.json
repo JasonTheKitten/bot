@@ -379,5 +379,11 @@
 	"command.prefix.remove.nosuchprefix": "This prefix did not exist!",
 	"command.prefix.remove.emptyprefix": "Selected prefix must contain *actual text*.",
 	
-	"command.prefix.list.title": "Server prefixes"
+	"command.prefix.list.title": "Server prefixes",
+	
+	"command.logs": "logs",
+	"command.logs.help": "**[channel]** Set or disable the logs channel.",
+	"command.logs.help.extends": "The logs channel allows you to log message edits or deletions.\n**No arguments** Disable the logs channel\n**[channel]** Set the logs channel.",
+	"command.logs.setmessage": "The log channel has been set!",
+	"command.logs.unsetmessage": "The log channel has been disabled!"
 }

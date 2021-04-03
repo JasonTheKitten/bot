@@ -10,6 +10,7 @@ import everyos.bot.luwu.run.command.modules.easteregg.EasterEggCommands;
 import everyos.bot.luwu.run.command.modules.fun.FunCommands;
 import everyos.bot.luwu.run.command.modules.info.InfoCommands;
 import everyos.bot.luwu.run.command.modules.leveling.LevelCommands;
+import everyos.bot.luwu.run.command.modules.logging.LogsCommands;
 import everyos.bot.luwu.run.command.modules.moderation.ModerationCommands;
 import everyos.bot.luwu.run.command.modules.music.MusicCommands;
 import everyos.bot.luwu.run.command.modules.oneword.OneWordCommands;
@@ -30,6 +31,7 @@ public class DefaultChannelCase extends CommandChannelCase {
 		
 		commands.category("moderation");
 		ModerationCommands.installTo(commands);
+		LogsCommands.installTo(commands);
 		
 		commands.category("fun");
 		MusicCommands.installTo(commands);

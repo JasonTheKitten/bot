@@ -4,10 +4,12 @@ import java.util.Optional;
 
 import discord4j.core.event.domain.message.ReactionAddEvent;
 import everyos.bot.chat4j.ChatConnection;
+import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.entity.ChatMessage;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.event.ChatReactionAddEvent;
+import everyos.discord.chat4d.entity.DiscordGuild;
 import everyos.discord.chat4d.entity.DiscordMember;
 import everyos.discord.chat4d.entity.DiscordMessage;
 import everyos.discord.chat4d.entity.DiscordUser;
@@ -48,4 +50,9 @@ public class DiscordReactionAddEvent extends DiscordReactionEvent implements Cha
 			.map(member->DiscordMember.instatiate(getConnection(), member));
 	}
 
+	@Override
+	public Mono<ChatGuild> getGuild() {
+		return reactionEvent.getGuild()
+			.map(guild->new DiscordGuild(getConnection(), guild));
+	}
 }
