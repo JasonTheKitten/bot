@@ -12,6 +12,10 @@ public class MusicPlaylistCommand extends MultiCommand {
 	public CommandContainer getCommands() {
 		CommandContainer container = new CommandContainer();
 		
+		container.registerCommand("command.music.playlist.create", new MusicPlaylistCreateCommand());
+		container.registerCommand("command.music.playlist.delete", new MusicPlaylistDeleteCommand());
+		container.registerCommand("command.music.playlist.list", new MusicPlaylistListCommand());
+		
 		return container;
 	}
 }

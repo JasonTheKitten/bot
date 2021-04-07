@@ -28,6 +28,7 @@
 	"command.easteregg.uwu": "uwu",
 	"command.embed": "embed",
 	"command.embed.help": "**[args..]** Allows for the creation of embeds (see extended help).",
+	"command.embed.help.extended": "All parameters are wrapped in \"quotes\".\n**[--title, -t <title>]** Set the embed title.\n**[-d, --desc, --description <desc>]** Set the embed description.\n**[-f, --field <name> <desc>]** Add a field to the embed.\n**[-i, --image <url>]** Set the embed's image.",
 	"command.error.banmax": "You may only ban up to ${max} user(s) at a time!",
 	"command.error.banmin": "You must ban at least ${min} user(s) at a time!",
 	"command.error.channelid": "a Channel ID or channel",
@@ -417,5 +418,28 @@
 	"command.feth.daily.help.extended": "This command can give up to 20 feth each 24 hours.",
 	"command.feth.daily.cooldown": "Sorry, but there is a day-long cooldown. Come back soon, maybe?",
 	"command.feth.daily.message": "You have received your daily feth, Luwu!",
-	"command.feth.disabled": "Disabled."
+	"command.feth.disabled": "Disabled.",
+	
+	"command.music.playlist": "playlist",
+	"command.music.playlist.help": "**<subcommand>** The playlist module; Manage or play playlists.",
+	"command.music.playlist.help.extended": "Manage or play playlists.",
+	
+	"command.music.playlist.create": "create",
+	"command.music.playlist.create.help": "**\"<name>\"** Create a new playlist.",
+	"command.music.playlist.create.help.extended": "**<name>** The name of the playlist to be created.",
+	"command.music.playlist.create.message": "The playlist has been created!",
+	
+	"command.music.playlist.delete": "delete",
+	"command.music.playlist.delete.help": "**\"<name>\"** Delete an old playlist.",
+	"command.music.playlist.delete.help.extended": "**<name>** The name of the playlist to be deleted.",
+	"command.music.playlist.delete.message": "The playlist has been deleted!",
+	
+	"command.music.playlist.list": "list",
+	"command.music.playlist.list.help": "**\"[name]\"** List available playlists, or the songs within a playlist",
+	"command.music.playlist.list.help.extended": "**[name]** The name of the playlist to be listed. If no name is specified, this command will instead list the names of existant playlists..",
+	"command.music.playlist.list.alllists": "All Playlists",
+	
+	"command.translate": "translate",
+	"command.translate.help": "**\"<quote>\"** Translate some text (beta).",
+	"command.translate.help.extended": "**\"<quote>\"** The text to be translated, in \"quotes\"."
 }

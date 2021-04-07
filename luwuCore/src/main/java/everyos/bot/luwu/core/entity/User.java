@@ -33,17 +33,20 @@ public class User implements InterfaceProvider {
 		return user.getPrivateChannel().map(channel->new Channel(connection, channel));
 	}
 
-	@Override public <T extends Interface> boolean supportsInterface(Class<T> cls) {
+	@Override
+	public <T extends Interface> boolean supportsInterface(Class<T> cls) {
 		//return user.supportsInterface(cls);
 		return false;
 	}
 
-	@Override public <T extends Interface> T getInterface(Class<T> cls) {
+	@Override
+	public <T extends Interface> T getInterface(Class<T> cls) {
 		//return user.getInterface(cls);
 		return null;
 	}
 	
-	@Override public Client getClient() {
+	@Override
+	public Client getClient() {
 		return connection.getClient();
 	}
 	
@@ -70,6 +73,10 @@ public class User implements InterfaceProvider {
 	@Override
 	public Connection getConnection() {
 		return connection;
+	}
+	
+	public <T extends User> Mono<T> as(UserFactory<T> type) {
+		return type.create(connection, user, documents);
 	}
 	
 	protected Map<String, DBDocument> getDocuments() {

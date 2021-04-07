@@ -8,16 +8,17 @@ import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.CommandBase;
+import everyos.bot.luwu.run.command.modules.music.playlist.internal.PlaylistInfo;
 import everyos.bot.luwu.run.command.modules.music.playlist.internal.PlaylistUser;
 import reactor.core.publisher.Mono;
 
-public class MusicPlaylistCreateCommand extends CommandBase {
-	public MusicPlaylistCreateCommand() {
-		super("command.music.playlist.create", e->true,
-			ChatPermission.SEND_MESSAGES,
+public class MusicPlaylistListCommand extends CommandBase {
+	public MusicPlaylistListCommand() {
+		super("command.music.playlist.list", e->true,
+			ChatPermission.SEND_MESSAGES | ChatPermission.SEND_EMBEDS,
 			ChatPermission.NONE);
 	}
-
+	
 	@Override
 	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		Locale locale = data.getLocale();
@@ -28,19 +29,37 @@ public class MusicPlaylistCreateCommand extends CommandBase {
 	}
 
 	private Mono<String> parseArgs(ArgumentParser parser, Locale locale) {
+		if (parser.isEmpty()) {
+			return Mono.just("");
+		}
 		if (!parser.couldBeQuote()) {
 			return expect(locale, parser, "command.error.quote");
 		}
-		//TODO: Should we check the size of the playlist name?
+		
 		return Mono.just(parser.eatQuote());
 	}
 
 	private Mono<Void> runCommand(Channel channel, Member member, String name, Locale locale) {
 		return member.as(PlaylistUser.type)
-			.flatMap(m->m.edit(spec->{
-				spec.createPlaylist(name);
-			}))
-			.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.music.playlist.create.message")))
+			.flatMap(m->m.getInfo())
+			.flatMap(info->{
+				if (name.isEmpty()) {
+					StringBuilder desc = new StringBuilder();
+					for (PlaylistInfo playlist: info.getPlaylists()) {
+						desc.append("**"+playlist.getName()+"**\n");
+					}
+					return channel.getInterface(ChannelTextInterface.class).send(spec->{
+						spec.setEmbed(embed->{
+							embed.setTitle(locale.localize("command.music.playlist.list.alllists"));
+							embed.setDescription(desc.toString());
+						});
+					});
+				}
+				
+				return channel.getInterface(ChannelTextInterface.class).send(embed->{
+					
+				});
+			})
 			.then();
 	}
 }

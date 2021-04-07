@@ -11,5 +11,6 @@ public final class UtilityCommands {
 		container.registerCommand("command.embed", new EmbedCommand());
 		container.registerCommand("command.profile", new ProfileCommand());
 		container.registerCommand("command.suggest", new SuggestCommand());
+		container.registerCommand("command.translate", new TranslateCommand());
 	}
 }
