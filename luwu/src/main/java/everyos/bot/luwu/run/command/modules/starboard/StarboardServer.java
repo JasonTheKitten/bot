@@ -113,14 +113,28 @@ public class StarboardServer extends Server {
 
 		@Override
 		public void addEmojiLevel(int level, EmojiID emoji) {
-			// TODO Auto-generated method stub
+			removeEmojiLevel(level);
 			
+			DBArray starsArr = object.getOrCreateArray("stars");
+			
+			starsArr.add(level);
+			starsArr.add(emoji.toString());
 		}
 
 		@Override
 		public void removeEmojiLevel(int level) {
-			// TODO Auto-generated method stub
+			DBArray starsArr = object.getOrCreateArray("stars");
+			if (starsArr.getLength() == 0) {
+				addDefaultStars(starsArr);
+			}
 			
+			for (int i=0; i<starsArr.getLength(); i+=2) {
+				if (starsArr.getInt(i)==level) {
+					starsArr.remove(i);
+					starsArr.remove(i);
+					break;
+				}
+			}
 		}
 
 		@Override

@@ -108,7 +108,7 @@ public abstract class ArgumentParser {
     }
 
     public long eatNumerical() {
-        return Long.valueOf(peek());
+        return Long.valueOf(eat());
     }
 	
 	public abstract boolean couldBeUserID();

@@ -50,7 +50,7 @@ public class StarboardAddCommand extends CommandBase {
 			.flatMap(c->c.edit(spec->{
 				spec.addEmojiLevel(level, emoji);
 			}))
-			.then(channel.getInterface(ChannelTextInterface.class).send("command.starboard.add.message"))
+			.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.starboard.add.message")))
 			.then();
 				
 	}

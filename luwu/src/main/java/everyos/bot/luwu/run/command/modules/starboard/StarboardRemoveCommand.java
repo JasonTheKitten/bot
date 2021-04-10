@@ -41,7 +41,7 @@ public class StarboardRemoveCommand extends CommandBase {
 			.flatMap(c->c.edit(spec->{
 				spec.removeEmojiLevel(level);
 			}))
-			.then(channel.getInterface(ChannelTextInterface.class).send("command.starboard.remove.message"))
+			.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.starboard.remove.message")))
 			.then();
 		
 		//TODO: What if 0 emojis remain?
