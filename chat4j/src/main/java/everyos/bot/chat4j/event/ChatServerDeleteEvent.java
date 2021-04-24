@@ -1,5 +1,5 @@
 package everyos.bot.chat4j.event;
 
-public interface ChatServerDeleteEvent {
+public interface ChatServerDeleteEvent extends ChatServerEvent {
 
 }

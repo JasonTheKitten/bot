@@ -3,6 +3,8 @@ package everyos.discord.chat4d;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
+import discord4j.core.event.domain.guild.GuildCreateEvent;
+import discord4j.core.event.domain.guild.GuildDeleteEvent;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -10,6 +12,9 @@ import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.event.domain.message.MessageUpdateEvent;
 import discord4j.core.event.domain.message.ReactionAddEvent;
 import discord4j.core.event.domain.message.ReactionRemoveEvent;
+import discord4j.core.object.presence.Activity;
+import discord4j.core.object.presence.Presence;
+import discord4j.discordjson.json.ActivityUpdateRequest;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
@@ -26,6 +31,11 @@ import everyos.bot.chat4j.event.ChatMessageEvent;
 import everyos.bot.chat4j.event.ChatReactionAddEvent;
 import everyos.bot.chat4j.event.ChatReactionEvent;
 import everyos.bot.chat4j.event.ChatReactionRemoveEvent;
+import everyos.bot.chat4j.event.ChatServerCreateEvent;
+import everyos.bot.chat4j.event.ChatServerDeleteEvent;
+import everyos.bot.chat4j.event.ChatServerEvent;
+import everyos.bot.chat4j.event.ChatServerOutageEvent;
+import everyos.bot.chat4j.status.StatusType;
 import everyos.discord.chat4d.entity.DiscordChannel;
 import everyos.discord.chat4d.entity.DiscordGuild;
 import everyos.discord.chat4d.entity.DiscordUser;
@@ -36,6 +46,9 @@ import everyos.discord.chat4d.event.DiscordMessageDeleteEvent;
 import everyos.discord.chat4d.event.DiscordMessageEditEvent;
 import everyos.discord.chat4d.event.DiscordReactionAddEvent;
 import everyos.discord.chat4d.event.DiscordReactionRemoveEvent;
+import everyos.discord.chat4d.event.DiscordServerCreateEvent;
+import everyos.discord.chat4d.event.DiscordServerDeleteEvent;
+import everyos.discord.chat4d.event.DiscordServerOutageEvent;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -86,7 +99,8 @@ public class DiscordConnection implements ChatConnection {
 		if (cls == ChatEvent.class) {
 			return (Flux<T>) Flux.merge(
 				generateInternalEventListener(ChatMessageEvent.class),
-				generateInternalEventListener(ChatMemberJoinEvent.class));
+				generateInternalEventListener(ChatMemberJoinEvent.class),
+				generateInternalEventListener(ChatServerEvent.class));
 		} else if (cls == ChatMessageEvent.class) {
 			return (Flux<T>) Flux.merge(
 				generateInternalEventListener(ChatMessageCreateEvent.class),
@@ -122,6 +136,22 @@ public class DiscordConnection implements ChatConnection {
 		} else if (cls == ChatMessageEditEvent.class) {
 			return (Flux<T>) dispatcher.on(MessageUpdateEvent.class)
 				.map(event->new DiscordMessageEditEvent(this, event));
+		} else if (cls == ChatServerEvent.class) {
+			return (Flux<T>) Flux.merge(
+				generateInternalEventListener(ChatServerCreateEvent.class),
+				generateInternalEventListener(ChatServerDeleteEvent.class),
+				generateInternalEventListener(ChatServerOutageEvent.class));
+		} else if (cls == ChatServerCreateEvent.class) {
+			return (Flux<T>) dispatcher.on(GuildCreateEvent.class)
+				.map(event->new DiscordServerCreateEvent(this, event));
+		} else if (cls == ChatServerDeleteEvent.class) {
+			return (Flux<T>) dispatcher.on(GuildDeleteEvent.class)
+				.filter(event->!event.isUnavailable())
+				.map(event->new DiscordServerDeleteEvent(this, event));
+		} else if (cls == ChatServerOutageEvent.class) {
+			return (Flux<T>) dispatcher.on(GuildDeleteEvent.class)
+				.filter(event->event.isUnavailable())
+				.map(event->new DiscordServerOutageEvent(this, event));
 		}
 		
 		//TODO: Consider just using a HashMap instead of creating this giant if-else chain
@@ -148,5 +178,35 @@ public class DiscordConnection implements ChatConnection {
 	public Mono<ChatUser> getSelfAsUser() {
 		return connection.getSelf()
 			.map(user->new DiscordUser(this, user));
+    }
+    
+    @Override
+    public long getSelfID() {
+        return connection.getSelfId().asLong();
+    }
+
+	@Override
+	public boolean supportsStatus(StatusType type) {
+		switch(type) {
+			case PLAYING:
+			case WATCHING:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	@Override
+	public Mono<Void> setStatus(StatusType type, String text) {
+		ActivityUpdateRequest activity = null;
+		switch(type) {
+			case WATCHING:
+				activity = Activity.watching(text);
+				break;
+			case PLAYING:
+			default:
+				activity = Activity.playing(text);
+		}
+		return connection.updatePresence(Presence.online(activity));
 	}
 }

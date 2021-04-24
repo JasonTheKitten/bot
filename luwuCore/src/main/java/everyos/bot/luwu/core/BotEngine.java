@@ -21,11 +21,13 @@ public class BotEngine {
 	private BotEngineConfiguration configuration;
 	private Map<Integer, Connection> connections;
 	private HookBinding<?>[] hooks;
+	private TimedTask[] timedTasks;
 	
 	public BotEngine(BotEngineConfiguration configuration) {
 		this.configuration = configuration;
 		this.connections = new HashMap<>();
 		this.hooks = configuration.getHooks();
+		this.timedTasks = configuration.getTimedTasks();
 		
 		final ClientWrapper[] clientWrappers = configuration.getClients();
 		clients = new Client[clientWrappers.length];
@@ -51,7 +53,7 @@ public class BotEngine {
 
 	//Creating event handlers
 	private Mono<Void> createHandlers(Connection connection) {
-		return hook(connection, Event.class).then();
+		return timedTasks(connection).and(hook(connection, Event.class)).then();
 	}
 
 	private <T extends Event> Flux<T> hook(Connection connection, Class<T> eventClass) {
@@ -78,6 +80,16 @@ public class BotEngine {
 				return Mono.empty();
 			}
 		});
+	}
+	
+	private Mono<Void> timedTasks(Connection connection) {
+		Mono<Void> m1 = Mono.empty();
+		
+		for (TimedTask m2: timedTasks) {
+			m1 = m2.apply(connection, m1);
+		}
+		
+		return m1;
 	}
 
 	public Mono<ChannelCase> getChannelCase(CommandData data) {

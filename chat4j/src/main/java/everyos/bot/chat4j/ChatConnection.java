@@ -4,6 +4,7 @@ import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.entity.ChatUser;
 import everyos.bot.chat4j.event.ChatEvent;
+import everyos.bot.chat4j.status.StatusType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,5 +31,10 @@ public interface ChatConnection {
 	Mono<ChatChannel> getChannelByID(long id);
 	Mono<ChatGuild> getGuildByID(long long1);
 
-	Mono<ChatUser> getSelfAsUser();
+    Mono<ChatUser> getSelfAsUser();
+    
+    long getSelfID();
+
+	boolean supportsStatus(StatusType type);
+	Mono<Void> setStatus(StatusType type, String text);
 }

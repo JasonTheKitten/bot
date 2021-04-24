@@ -27,6 +27,7 @@ public interface BotEngineConfiguration {
 	Locale getLocale(String name);
 
 	HookBinding<?>[] getHooks();
+	TimedTask[] getTimedTasks();
 
 	// Should not exist
 	Configuration getConfiguration();

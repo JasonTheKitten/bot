@@ -30,7 +30,7 @@ import everyos.bot.luwu.run.command.modules.starboard.StarboardHooks;
 import everyos.bot.luwu.run.command.modules.suggestions.SuggestionChannelCase;
 import everyos.bot.luwu.run.command.modules.welcome.WelcomeHooks;
 import everyos.bot.luwu.run.command.usercase.DefaultUserCase;
-import everyos.bot.luwu.run.hook.StatusHooks;
+import everyos.bot.luwu.run.status.StatusHooks;
 import reactor.core.publisher.Mono;
 
 public class Luwu {
@@ -112,6 +112,9 @@ public class Luwu {
 		engineBuilder.registerHook(MessageEvent.class, LogsHooks::logsHook);
 		engineBuilder.registerHook(MessageCreateEvent.class, FethHooks::fethHook);
 		engineBuilder.registerSequencedHook(MessageCreateEvent.class, MessageCreateEventProcessor::apply);
+
+		//Register repeating tasks
+		engineBuilder.registerRepeatingTask(10000, StatusHooks::statusUpdateHook);
 		
 		// Start the bot
 		return engineBuilder.build().start();

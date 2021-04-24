@@ -11,6 +11,7 @@ import everyos.bot.chat4j.event.ChatMessageEvent;
 import everyos.bot.chat4j.event.ChatReactionAddEvent;
 import everyos.bot.chat4j.event.ChatReactionEvent;
 import everyos.bot.chat4j.event.ChatReactionRemoveEvent;
+import everyos.bot.chat4j.status.StatusType;
 import everyos.nertivia.chat4n.entity.NertiviaChannel;
 import everyos.nertivia.chat4n.entity.NertiviaServer;
 import everyos.nertivia.chat4n.entity.NertiviaUser;
@@ -114,5 +115,21 @@ public class NertiviaChatConnection implements ChatConnection {
 	public Mono<ChatUser> getSelfAsUser() {
 		return client.getSelfAsUser()
 			.map(user->new NertiviaUser(this, user));
+	}
+
+	@Override
+	public long getSelfID() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean supportsStatus(StatusType type) {
+		return false;
+	}
+
+	@Override
+	public Mono<Void> setStatus(StatusType type, String text) {
+		return Mono.empty();
 	}
 }

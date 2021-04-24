@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation 'io.projectreactor:reactor-core:3.4.4'
+    implementation 'io.projectreactor:reactor-core:3.4.5'
     api project(":chat4j")
     api project(":nertivia4j")
 }

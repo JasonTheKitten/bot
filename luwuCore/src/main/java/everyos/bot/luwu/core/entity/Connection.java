@@ -8,6 +8,9 @@ import everyos.bot.chat4j.event.ChatMessageDeleteEvent;
 import everyos.bot.chat4j.event.ChatMessageEditEvent;
 import everyos.bot.chat4j.event.ChatReactionAddEvent;
 import everyos.bot.chat4j.event.ChatReactionRemoveEvent;
+import everyos.bot.chat4j.event.ChatServerCreateEvent;
+import everyos.bot.chat4j.event.ChatServerDeleteEvent;
+import everyos.bot.chat4j.status.Status;
 import everyos.bot.luwu.core.BotEngine;
 import everyos.bot.luwu.core.entity.event.Event;
 import everyos.bot.luwu.core.entity.event.MemberEvent;
@@ -20,6 +23,9 @@ import everyos.bot.luwu.core.entity.event.MessageEvent;
 import everyos.bot.luwu.core.entity.event.ReactionAddEvent;
 import everyos.bot.luwu.core.entity.event.ReactionEvent;
 import everyos.bot.luwu.core.entity.event.ReactionRemoveEvent;
+import everyos.bot.luwu.core.entity.event.ServerCreateEvent;
+import everyos.bot.luwu.core.entity.event.ServerDeleteEvent;
+import everyos.bot.luwu.core.entity.event.ServerEvent;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -45,7 +51,9 @@ public class Connection {
 	public Mono<User> getSelfAsUser() {
 		return connection.getSelfAsUser()
 			.map(member->new User(this, member));
-	}
+    }
+    
+    
 	
 	public Client getClient() {
 		return client;
@@ -60,7 +68,8 @@ public class Connection {
 		if (cls==Event.class) {
 			return (Flux<T>) Flux.merge(
 				generateEventListener(MessageEvent.class),
-				generateEventListener(MemberEvent.class));
+				generateEventListener(MemberEvent.class),
+				generateEventListener(ServerEvent.class));
 		}
 		if (cls==MessageEvent.class) {
 			return (Flux<T>) Flux.merge(
@@ -107,9 +116,39 @@ public class Connection {
 			return (Flux<T>) connection.generateEventListener(ChatMessageEditEvent.class)
 				.map(event->new MessageEditEvent(this, event));
 		}
+		if (cls==ServerEvent.class) {
+			return (Flux<T>) Flux.merge(
+				generateEventListener(ServerCreateEvent.class),
+				generateEventListener(ServerDeleteEvent.class));
+		}
+		if (cls==ServerCreateEvent.class) {
+			return (Flux<T>) connection.generateEventListener(ChatServerCreateEvent.class)
+				.map(event->new ServerCreateEvent(this, event));
+		}
+		if (cls==ServerDeleteEvent.class) {
+			return (Flux<T>) connection.generateEventListener(ChatServerDeleteEvent.class)
+				.map(event->new ServerDeleteEvent(this, event));
+		}
 		return Flux.empty();
 		
 		//TODO: Consider using HashMap instead of this giant if chain
 	}
 	//TODO: SupportsEvent
+
+    public Mono<Void> setStatus(Status[] status) {
+    	if (status.length == 0) {
+    		//TODO: Clear status
+    		return Mono.empty();
+    	}
+    	for (int i=0; i<status.length; i++) {
+    		if (connection.supportsStatus(status[i].getType())) {
+    			return connection.setStatus(status[i].getType(), status[i].getText());
+    		}
+    	}
+        return connection.setStatus(status[0].getType(), status[0].getText());
+    }
+
+	public long getSelfID() {
+		return connection.getSelfID();
+	}
 }
