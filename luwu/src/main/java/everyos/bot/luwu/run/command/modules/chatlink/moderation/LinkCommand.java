@@ -18,11 +18,15 @@ public class LinkCommand extends MultiCommand implements Command {
         Command linkLocalMuteCommand = new LinkLocalMuteCommand();
         Command linkDisambiguationMuteCommand = new LinkDisambiguationMuteCommand();
         Command linkOptCommand = new LinkOptCommand();
+        Command linkRulesCommand = new LinkRulesCommand();
+        Command linkSetRulesCommand = new LinkSetRulesCommand();
         
         commands.registerCommand("command.link.accept", linkAcceptCommand);
         commands.registerCommand("command.link.mute.global", linkGlobalMuteCommand);
         commands.registerCommand("command.link.mute.local", linkLocalMuteCommand);
         commands.registerCommand("command.link.opt", linkOptCommand);
+        commands.registerCommand("command.link.rules", linkRulesCommand);
+        commands.registerCommand("command.link.setrules", linkSetRulesCommand);
         
         commands.category(null);
         commands.registerCommand("command.link.mute.disambiguation", linkDisambiguationMuteCommand);

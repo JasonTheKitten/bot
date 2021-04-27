@@ -2,8 +2,10 @@ package everyos.bot.luwu.core.entity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import everyos.bot.chat4j.entity.ChatGuild;
+import everyos.bot.chat4j.functionality.channel.ChannelCreateSpec;
 import everyos.bot.luwu.core.database.DBDocument;
 import everyos.bot.luwu.core.functionality.Interface;
 import everyos.bot.luwu.core.functionality.InterfaceProvider;
@@ -69,5 +71,10 @@ public class Server implements InterfaceProvider {
 	
 	protected Mono<DBDocument> getGlobalDocument() {
 		return getNamedDocument("servers");
+	}
+
+	public Mono<Channel> createChannel(Consumer<ChannelCreateSpec> func) {
+		return guild.createChannel(func)
+			.map(channel->new Channel(connection, channel));
 	}
 }

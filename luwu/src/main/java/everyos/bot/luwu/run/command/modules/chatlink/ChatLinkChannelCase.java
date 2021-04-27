@@ -88,8 +88,8 @@ public class ChatLinkChannelCase extends CommandChannelCase {
 			.filter(v->v)
 			.switchIfEmpty(
 				Mono.error(new TextException(locale.localize("command.link.error.agreement",
-					"rules", link.getRules().orElse("> "+locale.localize("command.link.norules")
-						.replace("\n", "> ")))))
+					"rules", "> "+link.getRules().orElse(locale.localize("command.link.norules"))
+					.replace("\n", "\n> "))))
 			)
 			.then();
 	}

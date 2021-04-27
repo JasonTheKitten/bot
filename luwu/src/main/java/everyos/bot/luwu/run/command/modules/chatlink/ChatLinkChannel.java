@@ -22,11 +22,11 @@ public class ChatLinkChannel extends Channel {
 	
 	//TODO: Quality of life: move some of this to a binding for easier use
 	
-	public Mono<Void> edit(Consumer<ChatLinkEditSpec> func) {
+	public Mono<Void> edit(Consumer<ChatLinkChannelEditSpec> func) {
 		return getGlobalDocument().flatMap(document->{
 			DBObject channelData = document.getObject().getOrDefaultObject("data", null);
 			if (channelData==null) return Mono.error(new Exception("Channel data was null"));
-			func.accept(new ChatLinkEditSpec() {
+			func.accept(new ChatLinkChannelEditSpec() {
 				@Override
 				public void setVerified(boolean b) {
 					if (b) {
@@ -41,14 +41,19 @@ public class ChatLinkChannel extends Channel {
 					//TODO: Connection ID
 					channelData.getOrCreateArray("muted").add(user.getLong());
 				}
+
+				@Override
+				public void removeMutedUser(UserID user) {
+					channelData.getOrCreateArray("muted").removeAll(user.getLong());
+				}
 			});
 			return document.save();
 		});
 	}
 	
-	public Mono<ChatLinkInfo> getInfo() {
+	public Mono<ChatLinkChannelInfo> getInfo() {
 		return getGlobalDocument().map(document->{
-			return new ChatLinkInfo() {
+			return new ChatLinkChannelInfo() {
 				public long getLinkID() {
 					DBObject data = document.getObject().getOrDefaultObject("data", null);
 					return data.getOrDefaultLong("chatlinkid", -1L);

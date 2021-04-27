@@ -1,6 +1,6 @@
 package everyos.bot.luwu.run.command.modules.chatlink;
 
-public interface ChatLinkInfo {
+public interface ChatLinkChannelInfo {
 	long getLinkID();
 	boolean isVerified();
 }

@@ -5,13 +5,15 @@ import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.Locale;
+import everyos.bot.luwu.core.exception.TextException;
+import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.CommandBase;
 import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannel;
 import reactor.core.publisher.Mono;
 
 public class LinkSetRulesCommand extends CommandBase {
 	public LinkSetRulesCommand() {
-		super("command.link.rules", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
+		super("command.link.setrules", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.MANAGE_CHANNELS);
 	}
 
 	@Override
@@ -23,14 +25,19 @@ public class LinkSetRulesCommand extends CommandBase {
 	}
 
 	private Mono<String> parseArguments(ArgumentParser parser, Locale locale) {
-		return null;
+		String rules = parser.getRemaining().strip();
+		if (rules.length()>800) {
+			return Mono.error(new TextException("command.link.setrules.limit"));
+		}
+		return Mono.just(rules);
 	}
 	
 	private Mono<Void> runCommand(Channel channel, String rules, Locale locale) {
 		return channel.as(ChatLinkChannel.type)
 			.flatMap(c->c.getLink())
 			.flatMap(link->{
-				return link.setRules(rules);
-			});
+				return link.setRules(rules)
+					.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.link.setrules.message")));
+			}).then();
 	}
 }

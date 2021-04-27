@@ -14,12 +14,14 @@ public class MessageCreateEventProcessor {
 		// You see. The annoying thing about asynchronous programming is how much work it takes to get just 3 variables.
 		// I mean, we could use .zipWith, but that's not much better
 		return event.getMessage().flatMap(message->{
-			return message.getChannel().flatMap(channel->{
-				return event.getSender()
-					.filter(sender->!sender.isBot())
-					.flatMap(sender->sender.asMemberOf(channel))
-					.map(sender->new CommandData(message, sender, channel, event.getShard()));
-			});
+			return message.getChannel()
+				.filter(channel->!channel.isUnsafe())
+				.flatMap(channel->{
+					return event.getSender()
+						.filter(sender->!sender.isBot())
+						.flatMap(sender->sender.asMemberOf(channel))
+						.map(sender->new CommandData(message, sender, channel, event.getShard()));
+				});
 		}).flatMap(data->{
 			ArgumentParser parser = event.getClient().getBehaviour().createParser(event.getConnection(), data.getMessage().getContent().orElse(""));
 			return event.getConnection().getBotEngine().getUserCase(data)

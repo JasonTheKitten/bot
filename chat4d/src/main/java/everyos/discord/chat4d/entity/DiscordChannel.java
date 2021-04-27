@@ -82,4 +82,17 @@ public class DiscordChannel implements ChatChannel {
 		return channel.getClient().getMessageById(channel.getId(), Snowflake.of(id))
 			.map(message->new DiscordMessage(connection, message));
 	}
+	
+	@Override
+	public boolean isUnsafe() {
+		if (channel instanceof TextChannel) {
+			return ((TextChannel) channel).isNsfw();
+		}
+		return false;
+	}
+
+	@Override
+	public Mono<Void> delete() {
+		return channel.delete();
+	}
 }

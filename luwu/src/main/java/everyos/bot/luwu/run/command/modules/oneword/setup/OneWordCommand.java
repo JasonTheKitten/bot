@@ -22,7 +22,7 @@ public class OneWordCommand extends CommandBase {
 		Locale locale = data.getLocale();
 		
 		return parseArgs(parser, locale)
-			.flatMap(useCurrentChannel->createChannelIfDesired(!useCurrentChannel, data.getChannel()))
+			.flatMap(useCurrentChannel->createChannelIfDesired(!useCurrentChannel, data.getChannel(), data.getLocale()))
 			.flatMap(channel->runCommand(channel, data.getChannel(), locale));
 	}
 
@@ -38,8 +38,17 @@ public class OneWordCommand extends CommandBase {
 		return Mono.just(false);
 	}
 	
-	private Mono<Channel> createChannelIfDesired(boolean createNewChannel, Channel channel) {
-		return Mono.just(channel); //TODO
+	private Mono<Channel> createChannelIfDesired(boolean createNewChannel, Channel channel, Locale locale) {
+		if (createNewChannel) {
+			return channel
+				.getServer()
+				.flatMap(server->server.createChannel(spec->{
+					spec.setName(locale.localize("command.oneword.channelname"));
+					spec.setTopic(locale.localize("command.oneword.channeltopic"));
+				}));
+		} else {
+			return Mono.just(channel);
+		}
 	}
 
 	private Mono<Void> runCommand(Channel channel, Channel outputChannel, Locale locale) {

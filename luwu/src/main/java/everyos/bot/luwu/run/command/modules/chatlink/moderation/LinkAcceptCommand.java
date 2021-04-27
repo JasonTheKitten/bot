@@ -8,7 +8,6 @@ import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.ChannelID;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Message;
-import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.CommandBase;
@@ -34,7 +33,7 @@ public class LinkAcceptCommand extends CommandBase {
 		return data.getChannel().as(ChatLinkChannel.type)
 			.flatMap(clchannel->clchannel.getLink())
 			.flatMap(link->{
-				return checkPerms(link, data.getChannel().getID(), data.getInvoker().getID(), locale)
+				return ChatLink.checkPerms(link, data.getChannel().getID(), data.getInvoker().getID(), locale)
 					.then(parseArguments(parser, locale))
 					.flatMap(id->id.getChannel())
 					.flatMap(channel->channel.as(ChatLinkChannel.type))
@@ -69,15 +68,7 @@ public class LinkAcceptCommand extends CommandBase {
 		}
 		
 		return Mono.just(new ChannelID(id.getConnection(), id.getLong(), cliid));
-	}
-	
-	private Mono<Void> checkPerms(ChatLink link, ChannelID channelID, UserID userID, Locale locale) {
-		//TODO: Finish this
-		return Mono.just(link.isAdmin(channelID))
-			.filter(v->!v)
-			.flatMap(v->Mono.error(new TextException(locale.localize("command.link.permsmissing"))))
-			.then();
-	}
+	} 
 	
 	private Mono<Message> verify(ChatLinkChannel clchannel, Channel invokingChannel, Locale locale) {
 		ChannelTextInterface textGrip = invokingChannel.getInterface(ChannelTextInterface.class);

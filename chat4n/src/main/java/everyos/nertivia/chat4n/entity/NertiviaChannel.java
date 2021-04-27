@@ -78,4 +78,14 @@ public class NertiviaChannel implements ChatChannel {
 	public Channel getRaw() {
 		return channel;
 	}
+
+	@Override
+	public boolean isUnsafe() {
+		return false;
+	}
+
+	@Override
+	public Mono<Void> delete() {
+		return Mono.empty();
+	}
 }

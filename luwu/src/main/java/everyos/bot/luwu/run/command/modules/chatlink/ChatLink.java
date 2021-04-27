@@ -22,42 +22,6 @@ import reactor.core.publisher.Mono;
 import xyz.downgoon.snowflake.Snowflake;
 
 public class ChatLink {
-	//Static Methods
-	public static Mono<ChatLink> getByName(BotEngine engine, String name) {
-		return engine.getDatabase().collection("chatlinks").scan().filter(Filters.eq("name", name)).orEmpty()
-			.flatMap(doc -> loadFromDB(engine, doc));
-	}
-
-	public static Mono<ChatLink> getByID(BotEngine engine, long id) {
-		return engine.getDatabase().collection("chatlinks").scan().filter(Filters.eq("clid", id)).orEmpty()
-			.flatMap(doc -> loadFromDB(engine, doc));
-	}
-	
-	// TODO: Cache chatlink data
-	public static Mono<ChatLink> createChatLink(BotEngine engine) {
-		return Mono.just(true).flatMap(b -> {
-			long linkID = new Snowflake(0, 0).nextId();
-			return engine.getDatabase().collection("chatlinks").scan().with("clid", linkID).orCreate(editSpec -> {
-			}).flatMap(doc -> doc.save().then(loadFromDB(engine, doc)));
-		});
-	}
-
-	private static Mono<ChatLink> loadFromDB(BotEngine engine, DBDocument document) {
-		long linkID = document.getObject().getOrDefaultLong("clid", -1L);
-		// Get channels
-		return engine.getDatabase().collection("channels").scan()
-			.with("data.chatlinkid", linkID)
-			.with("type", "chatlink").rest().flatMap(channelDocument -> {
-				int clientID = channelDocument.getObject().getOrDefaultInt("cliid", 0);
-				long channelID = channelDocument.getObject().getOrDefaultLong("cid", -1L);
-				Connection connection = engine.getConnectionByID(clientID);
-				return new ChannelID(connection, channelID, clientID).getChannel();
-			}).flatMap(channel->channel.as(ChatLinkChannel.type)).collectList()
-			// Get link
-			.map(list->new ChatLink(engine, document, list));
-	}
-	
-	
 	//Main Class
 	private DBDocument document;
 	private BotEngine botEngine;
@@ -70,7 +34,6 @@ public class ChatLink {
 		this.document = document;
 		this.id = document.getObject().getOrDefaultLong("clid", -1L);
 		this.channelCache = channels;
-		// data.chatlinkid
 	}
 
 	public long getID() {
@@ -208,7 +171,11 @@ public class ChatLink {
 	}
 	
 	public Mono<Void> setRules(String rules) {
-		document.getObject().set("rules", rules);
+		if (rules.isEmpty()) {
+			document.getObject().remove("rules");
+		} else {
+			document.getObject().set("rules", rules);
+		}
 		return document.save();
 	}
 	
@@ -231,5 +198,48 @@ public class ChatLink {
 	private Locale getDefaultLocale() {	
 		return botEngine.getLocale(botEngine.getDefaultLocaleName());
 		//TODO
+	}
+	
+	//Static Methods
+	public static Mono<ChatLink> getByName(BotEngine engine, String name) {
+		return engine.getDatabase().collection("chatlinks").scan().filter(Filters.eq("name", name)).orEmpty()
+			.flatMap(doc -> loadFromDB(engine, doc));
+	}
+
+	public static Mono<ChatLink> getByID(BotEngine engine, long id) {
+		return engine.getDatabase().collection("chatlinks").scan().filter(Filters.eq("clid", id)).orEmpty()
+			.flatMap(doc -> loadFromDB(engine, doc));
+	}
+	
+	// TODO: Cache chatlink data
+	public static Mono<ChatLink> createChatLink(BotEngine engine) {
+		return Mono.just(true).flatMap(b -> {
+			long linkID = new Snowflake(0, 0).nextId();
+			return engine.getDatabase().collection("chatlinks").scan().with("clid", linkID).orCreate(editSpec -> {
+			}).flatMap(doc -> doc.save().then(loadFromDB(engine, doc)));
+		});
+	}
+
+	private static Mono<ChatLink> loadFromDB(BotEngine engine, DBDocument document) {
+		long linkID = document.getObject().getOrDefaultLong("clid", -1L);
+		// Get channels
+		return engine.getDatabase().collection("channels").scan()
+			.with("data.chatlinkid", linkID)
+			.with("type", "chatlink").rest().flatMap(channelDocument -> {
+				int clientID = channelDocument.getObject().getOrDefaultInt("cliid", 0);
+				long channelID = channelDocument.getObject().getOrDefaultLong("cid", -1L);
+				Connection connection = engine.getConnectionByID(clientID);
+				return new ChannelID(connection, channelID, clientID).getChannel();
+			}).flatMap(channel->channel.as(ChatLinkChannel.type)).collectList()
+			// Get link
+			.map(list->new ChatLink(engine, document, list));
+	}
+	
+	public static Mono<Void> checkPerms(ChatLink link, ChannelID channelID, UserID userID, Locale locale) {
+		//TODO: Finish this
+		return Mono.just(link.isAdmin(channelID))
+			.filter(v->!v)
+			.flatMap(v->Mono.error(new TextException(locale.localize("command.link.permsmissing"))))
+			.then();
 	}
 }

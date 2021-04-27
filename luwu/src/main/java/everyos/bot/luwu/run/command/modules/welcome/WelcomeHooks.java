@@ -41,6 +41,8 @@ public class WelcomeHooks {
 								.replace("${user.name}", member.getHumanReadableID())
 								.replace("@", "@\u200E")
 								.replace("${user.ping}", "<@"+member.getID().toString()+">")
+								.replace("${server.members}", "an unspecified number of")
+								.replace("${server.users}", "an unspecified number of")
 							+ "(Message set by server admin)");
 						}); //TODO: Localize
 							

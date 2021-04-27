@@ -12,15 +12,19 @@ public interface ChatChannel extends ChatInterfaceProvider {
 	 * Get an ID representing this channel
 	 * @return An ID representing this channel
 	 */
-	public long getID();
+	long getID();
 
-	public ChatConnection getConnection();
+	ChatConnection getConnection();
 	
-	public Mono<ChatGuild> getGuild();
+	Mono<ChatGuild> getGuild();
 
-	public String getName();
+	String getName();
 	
-	public boolean isPrivate();
+	boolean isPrivate();
 
-	public Mono<ChatMessage> getMessageByID(long mid);
+	Mono<ChatMessage> getMessageByID(long mid);
+
+	boolean isUnsafe();
+
+	Mono<Void> delete();
 }

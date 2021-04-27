@@ -1,4 +1,4 @@
-package everyos.bot.luwu.run.command.modules.tickets;
+package everyos.bot.luwu.run.command.modules.tickets.setup;
 
 import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandContainer;
@@ -13,9 +13,12 @@ public class TicketCommand extends MultiCommand {
 		this.commands = new CommandContainer();
 		
 		Command ticketCreateCommand = new TicketCreateCommand();
+		Command ticketEnableCommand = new TicketEnableCommand(false);
+		Command ticketDisableCommand = new TicketEnableCommand(true);
 		
 		commands.registerCommand("command.ticket.create", ticketCreateCommand);
-		//TODO: Enable command
+		commands.registerCommand("command.ticket.enable", ticketEnableCommand);
+		commands.registerCommand("command.ticket.disable", ticketDisableCommand);
 	}
 
 	@Override

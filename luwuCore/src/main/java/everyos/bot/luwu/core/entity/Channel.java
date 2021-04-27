@@ -123,6 +123,14 @@ public class Channel implements InterfaceProvider {
 		return channel.getMessageByID(messageID.getLong())
 			.map(message->new Message(connection, message));
 	}
+
+	public boolean isUnsafe() {
+		return channel.isUnsafe();
+	}
+
+	public Mono<Void> delete() {
+		return channel.delete();
+	}
 	
 	//TODO: Read+Edit
 }

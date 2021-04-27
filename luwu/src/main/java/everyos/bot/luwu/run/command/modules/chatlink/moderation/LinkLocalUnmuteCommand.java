@@ -11,9 +11,9 @@ import everyos.bot.luwu.run.command.CommandBase;
 import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannel;
 import reactor.core.publisher.Mono;
 
-public class LinkLocalMuteCommand extends CommandBase {
-	public LinkLocalMuteCommand() {
-		super("command.link.mute.local", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.MANAGE_MEMBERS);
+public class LinkLocalUnmuteCommand extends CommandBase {
+	public LinkLocalUnmuteCommand() {
+		super("command.link.unmute.local", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.MANAGE_MEMBERS);
 	}
 
 	@Override
@@ -37,16 +37,16 @@ public class LinkLocalMuteCommand extends CommandBase {
 		return channel.as(ChatLinkChannel.type)
 			.flatMap(clchannel->{
 				//TODO: Ensure guild is member of link
-				return muteUserLocally(user, clchannel, locale);
+				return unmuteUserLocally(user, clchannel, locale);
 			});
 	}
 
-	private Mono<Void> muteUserLocally(UserID user, ChatLinkChannel channel, Locale locale) {
+	private Mono<Void> unmuteUserLocally(UserID user, ChatLinkChannel channel, Locale locale) {
 		return
 			channel.edit(spec->{
-				spec.addMutedUser(user);
+				spec.removeMutedUser(user);
 			})
-			.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.link.mute.local.message")))
+			.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.link.unmute.local.message")))
 			.then();
 	}
 }
