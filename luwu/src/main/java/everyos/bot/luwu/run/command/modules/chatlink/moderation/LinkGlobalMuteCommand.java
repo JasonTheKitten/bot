@@ -6,8 +6,8 @@ import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.run.command.CommandBase;
-import everyos.bot.luwu.run.command.modules.chatlink.ChatLink;
-import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannel;
+import everyos.bot.luwu.run.command.modules.chatlink.channel.ChatLinkChannel;
+import everyos.bot.luwu.run.command.modules.chatlink.link.ChatLink;
 import reactor.core.publisher.Mono;
 
 public class LinkGlobalMuteCommand extends CommandBase {

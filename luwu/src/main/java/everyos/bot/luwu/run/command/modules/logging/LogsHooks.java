@@ -35,7 +35,7 @@ public class LogsHooks {
 						.orElse("");
 					
 					spec.setEmbed(embed->{
-						embed.setTitle("Message Editted");
+						embed.setTitle("Message Edited");
 						StringBuilder desc = new StringBuilder();
 						if (oldContent.isEmpty()) {
 							desc.append("**Old Message Unavailable**\n");

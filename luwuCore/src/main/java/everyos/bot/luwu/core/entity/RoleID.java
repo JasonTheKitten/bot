@@ -3,6 +3,12 @@ package everyos.bot.luwu.core.entity;
 import java.util.Objects;
 
 public class RoleID {
+	public static RoleID everyone(Connection connection) {
+		return new RoleID(connection, EVERYONE);
+	}
+	
+	public static final long EVERYONE = -1;
+	
 	@SuppressWarnings("unused")
 	private Connection connection;
 	private long rid;

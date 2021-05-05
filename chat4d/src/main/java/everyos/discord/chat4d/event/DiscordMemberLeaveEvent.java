@@ -20,7 +20,7 @@ public class DiscordMemberLeaveEvent extends DiscordMemberEvent implements ChatM
 	@Override
 	public ChatMember getMember() {
 		return DiscordMember.instatiate(getConnection(), leaveEvent.getMember().get());
-		//TODO: Why exactly is this optional?
+		//TODO: Return an optional instead
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package everyos.bot.luwu.run.command.modules.tickets;
+package everyos.bot.luwu.run.command.modules.tickets.member;
 
 import java.util.Optional;
 

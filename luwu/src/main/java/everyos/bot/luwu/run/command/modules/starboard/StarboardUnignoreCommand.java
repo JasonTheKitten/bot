@@ -32,7 +32,7 @@ public class StarboardUnignoreCommand extends CommandBase {
 			return expect(locale, parser, "command.error.channelid");
 		}
 		
-		ChannelID channelID = parser.eatChannelID();
+		ChannelID channelID = parser.eatUncheckedChannelID();
 
 		return Mono.just(channelID);
 	}

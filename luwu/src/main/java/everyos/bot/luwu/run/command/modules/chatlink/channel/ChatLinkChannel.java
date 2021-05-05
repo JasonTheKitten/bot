@@ -1,4 +1,4 @@
-package everyos.bot.luwu.run.command.modules.chatlink;
+package everyos.bot.luwu.run.command.modules.chatlink.channel;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -9,6 +9,7 @@ import everyos.bot.luwu.core.database.DBObject;
 import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.Connection;
 import everyos.bot.luwu.core.entity.UserID;
+import everyos.bot.luwu.run.command.modules.chatlink.link.ChatLink;
 import reactor.core.publisher.Mono;
 
 public class ChatLinkChannel extends Channel {

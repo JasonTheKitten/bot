@@ -1,17 +1,16 @@
-package everyos.bot.luwu.run.command.modules.suggestions;
+package everyos.bot.luwu.run.command.modules.tickets.channel;
 
 import everyos.bot.luwu.core.client.ArgumentParser;
 import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.core.command.CommandData;
-import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.channelcase.CommandChannelCase;
 import everyos.bot.luwu.run.command.modules.channel.ResetChannelCommand;
 import everyos.bot.luwu.run.command.modules.info.InfoCommands;
 import everyos.bot.luwu.run.command.modules.moderation.ModerationCommands;
-import everyos.bot.luwu.run.command.modules.utility.SuggestCommand;
+import everyos.bot.luwu.run.command.modules.tickets.manager.TicketManagerCommand;
 import reactor.core.publisher.Mono;
 
-public class SuggestionChannelCase extends CommandChannelCase {
+public class TicketChannelCase extends CommandChannelCase {
 	private CommandContainer commands;
 
 	@Override
@@ -19,6 +18,7 @@ public class SuggestionChannelCase extends CommandChannelCase {
 		this.commands = new CommandContainer();
 		
 		commands.category("default");
+		commands.registerCommand("command.ticket.manager", new TicketManagerCommand());
 		commands.registerCommand("command.resetchannel", new ResetChannelCommand());
 		
 		commands.category("moderation");
@@ -32,28 +32,17 @@ public class SuggestionChannelCase extends CommandChannelCase {
 
 	@Override
 	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
-		return runCommands(data, parser)
-			.filter(v->!v)
-			.flatMap(v->data.getChannel().as(SuggestionChannel.type))
-			.flatMap(channel->channel.getOutputChannel())
-			.flatMap(channel->SuggestCommand.sendSuggestion(channel, data.getInvoker(),
-				data.getMessage().getContent().orElse("<empty message>"), data.getLocale())
-				.then(channel.getInterface(ChannelTextInterface.class).send(spec->{
-					spec.setPresanitizedContent("<@"+data.getMessage().getAuthorID().toString()+">");
-				})))
-			.flatMap(message->message.delete())
-			.then(data.getMessage().delete())
-			.then();
+		return runCommands(data, parser).then();
 	}
 	
 	@Override
 	public String getID() {
-		return "command.suggestion.channelcase";
+		return "command.ticket.channelcase";
 	}
 	
-	private static SuggestionChannelCase instance = new SuggestionChannelCase();
+	private static TicketChannelCase instance = new TicketChannelCase();
 	
-	public static SuggestionChannelCase get() {
+	public static TicketChannelCase get() {
 		return instance;
 	}
 }

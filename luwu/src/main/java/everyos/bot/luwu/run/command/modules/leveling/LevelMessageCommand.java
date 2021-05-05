@@ -35,7 +35,7 @@ public class LevelMessageCommand extends CommandBase {
 	
 	private Mono<Tuple<ChannelID, String>> parseArgs(Locale locale, ArgumentParser parser) {
 		if (!parser.couldBeChannelID()) return expect(locale, parser, "command.error.channelid");
-		ChannelID channelID = parser.eatChannelID();
+		ChannelID channelID = parser.eatUncheckedChannelID();
 		//TODO: Validate channel ID
 		
 		if (parser.isEmpty()) return expect(locale, parser, "command.error.string");

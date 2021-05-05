@@ -39,7 +39,7 @@ public class SuggestionChannelCommand extends CommandBase {
 		if (!parser.couldBeChannelID()) {
 			return expect(locale, parser, "command.error.channelid");
 		}
-		ChannelID outputChannel = parser.eatChannelID();
+		ChannelID outputChannel = parser.eatUncheckedChannelID();
 		
 		return Mono.just(outputChannel);
 	}

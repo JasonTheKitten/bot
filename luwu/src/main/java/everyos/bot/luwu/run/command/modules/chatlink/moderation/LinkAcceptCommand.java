@@ -11,8 +11,8 @@ import everyos.bot.luwu.core.entity.Message;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.CommandBase;
-import everyos.bot.luwu.run.command.modules.chatlink.ChatLink;
-import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannel;
+import everyos.bot.luwu.run.command.modules.chatlink.channel.ChatLinkChannel;
+import everyos.bot.luwu.run.command.modules.chatlink.link.ChatLink;
 import reactor.core.publisher.Mono;
 
 public class LinkAcceptCommand extends CommandBase {
@@ -54,7 +54,7 @@ public class LinkAcceptCommand extends CommandBase {
 				"expected", locale.localize("command.error.channelid"),
 				"got", got)));
 		}
-		ChannelID id = parser.eatChannelID();
+		ChannelID id = parser.eatUncheckedChannelID();
 		
 		int cliid = id.getConnectionID();
 		//TODO

@@ -6,8 +6,8 @@ import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.ChannelID;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.run.command.CommandBase;
-import everyos.bot.luwu.run.command.modules.chatlink.ChatLink;
-import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannel;
+import everyos.bot.luwu.run.command.modules.chatlink.channel.ChatLinkChannel;
+import everyos.bot.luwu.run.command.modules.chatlink.link.ChatLink;
 import reactor.core.publisher.Mono;
 
 public class LinkOptCommand extends CommandBase {
@@ -30,7 +30,7 @@ public class LinkOptCommand extends CommandBase {
 	}
 	
 	private Mono<ChannelID> parseArguments(ArgumentParser parser, Locale locale) {
-		return Mono.just(parser.eatChannelID()); //TODO: 
+		return Mono.just(parser.eatUncheckedChannelID()); //TODO: 
 	}
 
 	private Mono<Void> optChannel(ChannelID channel, ChatLink link) {

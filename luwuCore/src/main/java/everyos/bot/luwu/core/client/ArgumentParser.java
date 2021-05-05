@@ -115,7 +115,7 @@ public abstract class ArgumentParser {
 	public abstract UserID eatUserID();
 	
 	public abstract boolean couldBeChannelID();
-	public abstract ChannelID eatChannelID();
+	public abstract ChannelID eatUncheckedChannelID();
 	
 	public abstract boolean couldBeGuildID();
 	public abstract ServerID eatGuildID();

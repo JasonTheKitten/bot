@@ -33,7 +33,7 @@ public class StarboardSetCommand extends CommandBase {
 		if (!parser.couldBeChannelID()) {
 			return expect(locale, parser, "command.error.channelid");
 		}
-		ChannelID channelID = parser.eatChannelID();
+		ChannelID channelID = parser.eatUncheckedChannelID();
 		
 		if (!parser.couldBeEmojiID()) {
 			return expect(locale, parser, "command.error.emoji");

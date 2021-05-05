@@ -11,6 +11,7 @@ import everyos.bot.luwu.core.entity.event.MemberJoinEvent;
 import everyos.bot.luwu.core.entity.event.MessageCreateEvent;
 import everyos.bot.luwu.core.entity.event.MessageEvent;
 import everyos.bot.luwu.core.entity.event.ReactionEvent;
+import everyos.bot.luwu.core.entity.event.ServerDeleteEvent;
 import everyos.bot.luwu.core.entity.event.ServerEvent;
 import everyos.bot.luwu.core.event.MessageCreateEventProcessor;
 import everyos.bot.luwu.discord.DiscordClientBuilder;
@@ -19,15 +20,17 @@ import everyos.bot.luwu.mongo.MongoDatabaseBuilder;
 import everyos.bot.luwu.nertivia.NertiviaClientBuilder;
 import everyos.bot.luwu.run.command.channelcase.DefaultChannelCase;
 import everyos.bot.luwu.run.command.channelcase.PrivateChannelCase;
-import everyos.bot.luwu.run.command.modules.chatlink.ChatLinkChannelCase;
+import everyos.bot.luwu.run.command.modules.chatlink.channel.ChatLinkChannelCase;
 import everyos.bot.luwu.run.command.modules.currency.FethHooks;
 import everyos.bot.luwu.run.command.modules.leveling.LevelHooks;
 import everyos.bot.luwu.run.command.modules.logging.LogsHooks;
 import everyos.bot.luwu.run.command.modules.oneword.OneWordChannelCase;
+import everyos.bot.luwu.run.command.modules.privacy.PrivacyHooks;
 import everyos.bot.luwu.run.command.modules.role.autorole.AutoroleHooks;
 import everyos.bot.luwu.run.command.modules.role.reaction.ReactionHooks;
 import everyos.bot.luwu.run.command.modules.starboard.StarboardHooks;
 import everyos.bot.luwu.run.command.modules.suggestions.SuggestionChannelCase;
+import everyos.bot.luwu.run.command.modules.tickets.channel.TicketChannelCase;
 import everyos.bot.luwu.run.command.modules.welcome.WelcomeHooks;
 import everyos.bot.luwu.run.command.usercase.DefaultUserCase;
 import everyos.bot.luwu.run.status.StatusHooks;
@@ -39,6 +42,7 @@ public class Luwu {
 	private static final String CHATLINK_CHANNELCASE = "chatlink"; //TODO: The value of this constant is hard-coded elsewhere :/
 	private static final String ONEWORD_CHANNELCASE = "oneword";
 	private static final String SUGGESTIONS_CHANNELCASE = "suggestions";
+	private static final String TICKET_CHANNELCASE = "ticket";
 	
 	private static final String DEFAULT_USERCASE = "default";
 	
@@ -90,6 +94,7 @@ public class Luwu {
 		engineBuilder.registerChannelCase(PRIVATE_CHANNELCASE, PrivateChannelCase.get());
 		engineBuilder.registerChannelCase(ONEWORD_CHANNELCASE, OneWordChannelCase.get());
 		engineBuilder.registerChannelCase(SUGGESTIONS_CHANNELCASE, SuggestionChannelCase.get());
+		engineBuilder.registerChannelCase(TICKET_CHANNELCASE, TicketChannelCase.get());
 		engineBuilder.setDefaultChannelCase(DEFAULT_CHANNELCASE);
 		engineBuilder.transformChannelCase((type, data)->{
 			if (data.getChannel().isPrivateChannel()) {
@@ -111,6 +116,7 @@ public class Luwu {
 		engineBuilder.registerHook(ServerEvent.class, StatusHooks::statusHook);
 		engineBuilder.registerHook(MessageEvent.class, LogsHooks::logsHook);
 		engineBuilder.registerHook(MessageCreateEvent.class, FethHooks::fethHook);
+		engineBuilder.registerHook(ServerDeleteEvent.class, PrivacyHooks::privacyHook);
 		engineBuilder.registerSequencedHook(MessageCreateEvent.class, MessageCreateEventProcessor::apply);
 
 		//Register repeating tasks

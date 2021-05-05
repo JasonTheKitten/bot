@@ -31,27 +31,33 @@ public class MongoDBResult implements DBResult {
 		this.filters = new ArrayList<Bson>();
 	}
 	
-	@Override public DBResult with(String key, Object value) {
+	@Override
+	public DBResult with(String key, Object value) {
 		iddata.put(key, value);
 		filters.add(Filters.eq(key, value));
 		return this;
 	}
-	@Override public DBResult filter(Bson filter) {
+	@Override
+	public DBResult filter(Bson filter) {
 		filters.add(filter);
 		return this;
 	}
 	
-	@Override public Mono<Boolean> exists() {
+	@Override
+	public Mono<Boolean> exists() {
 		return Mono.from(search().first()).map(o->true).defaultIfEmpty(false);
 	}
-	@Override public Mono<Void> deleteAll() {
+	@Override
+	public Mono<Void> deleteAll() {
 		return Mono.from(collection.deleteMany(Filters.and(filters.toArray(new Bson[filters.size()])))).then();
 	}
 
-	@Override public Mono<DBDocument> orDefault(DBObject def) {
+	@Override
+	public Mono<DBDocument> orDefault(DBObject def) {
 		return Mono.from(search().first()).map(d->new MongoDBDocument(collection, d)); //TODO
 	}
-	@Override public Mono<DBDocument> orCreate(Consumer<DBObject> func) {
+	@Override
+	public Mono<DBDocument> orCreate(Consumer<DBObject> func) {
 		return Mono.from(search().first()).map(d->new MongoDBDocument(collection, d))
 			.switchIfEmpty(Mono.just(new MongoDBDocument(collection, new Document())).doOnNext(document->{
 				iddata.forEach((k, v)->{
@@ -61,11 +67,13 @@ public class MongoDBResult implements DBResult {
 			}))
 			.cast(DBDocument.class);
 	}
-	@Override public Mono<DBDocument> orEmpty() {
+	@Override
+	public Mono<DBDocument> orEmpty() {
 		return Mono.from(search().first()).map(d->new MongoDBDocument(collection, d));
 	}
 
-	@Override public Flux<DBDocument> rest() {
+	@Override
+	public Flux<DBDocument> rest() {
 		return Flux.from(search()).map(d->new MongoDBDocument(collection, d));
 	}
 	

@@ -142,5 +142,3 @@ public class BotEngine {
 		return configuration.getConfiguration();
 	}
 }
-
-

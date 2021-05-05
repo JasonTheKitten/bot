@@ -33,7 +33,7 @@ public class StarboardOverrideCommand extends CommandBase {
 			return expect(locale, parser, "command.error.channelid");
 		}
 		
-		ChannelID channelID = parser.eatChannelID();
+		ChannelID channelID = parser.eatUncheckedChannelID();
 		
 		if (parser.isEmpty()) {
 			return Mono.just(Tuple.of(channelID, -1));

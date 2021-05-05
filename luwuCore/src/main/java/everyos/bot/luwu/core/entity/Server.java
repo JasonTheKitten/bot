@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import everyos.bot.chat4j.entity.ChatGuild;
 import everyos.bot.chat4j.functionality.channel.ChannelCreateSpec;
+import everyos.bot.luwu.core.database.DBDatabase;
 import everyos.bot.luwu.core.database.DBDocument;
 import everyos.bot.luwu.core.functionality.Interface;
 import everyos.bot.luwu.core.functionality.InterfaceProvider;
@@ -70,11 +71,24 @@ public class Server implements InterfaceProvider {
 	}
 	
 	protected Mono<DBDocument> getGlobalDocument() {
-		return getNamedDocument("servers");
+		return getNamedDocument("guilds");
 	}
 
 	public Mono<Channel> createChannel(Consumer<ChannelCreateSpec> func) {
 		return guild.createChannel(func)
 			.map(channel->new Channel(connection, channel));
+	}
+	
+	public Mono<Void> wipe() {
+		DBDatabase db = getConnection().getBotEngine().getDatabase();
+		return
+			db.collection("members").scan().with("gid", guild.getID()).deleteAll()
+			.and(db.collection("messages").scan().with("gid", guild.getID()).deleteAll())
+			.and(db.collection("modmembers").scan().with("gid", guild.getID()).deleteAll())
+			.and(db.collection("channels").scan().with("gid", guild.getID()).deleteAll())
+			//TODO: Store gid for channels
+			.and(db.collection("guilds").scan().with("gid", guild.getID()).deleteAll());
+			//TODO: Clear chatlink entries
+			//TODO: Properly check cliid
 	}
 }

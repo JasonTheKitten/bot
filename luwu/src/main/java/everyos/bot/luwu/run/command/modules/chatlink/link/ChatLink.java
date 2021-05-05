@@ -1,4 +1,4 @@
-package everyos.bot.luwu.run.command.modules.chatlink;
+package everyos.bot.luwu.run.command.modules.chatlink.link;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +17,8 @@ import everyos.bot.luwu.core.entity.Message;
 import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
+import everyos.bot.luwu.run.command.modules.chatlink.channel.ChatLinkChannel;
+import everyos.bot.luwu.run.command.modules.chatlink.channel.NewChatLinkChannel;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import xyz.downgoon.snowflake.Snowflake;
@@ -55,6 +57,12 @@ public class ChatLink {
 			.flatMap(channel->sendTextToChannel(channel, locale.localize("command.link.systemheader", "message", quote(message))))
 			.then();
 	}
+	
+	public Mono<Void> delete() {
+		return document.delete();
+	}
+	
+	//
 
 	public Mono<ChatLinkChannel> addChannel(Channel channel) {
 		return channel
@@ -73,15 +81,58 @@ public class ChatLink {
 			return null;
 		});
 	}
-
-	public Mono<Void> deleteLink() {
-		return document.delete();
+	
+	public Mono<Void> addAdmin(ChannelID channelID) {
+		document.getObject().getOrCreateObject("data", obj->{}).getOrCreateArray("admins").add(channelID.getLong());
+		return document.save();
+		//TODO
+	}
+	
+	public Mono<Void> addMutedUser(UserID user) {
+		//TODO: Dealing with multiple client types
+		document.getObject().getOrCreateArray("muted").add(user.getLong());
+		return document.save();
+	}
+	
+	public Mono<Void> setUserVerified(UserID id, boolean b) {
+		DBArray verified = document.getObject().getOrCreateArray("verified");
+		if (b) {
+			verified.add(id.getLong()); //TODO: Save client ID
+		} else {
+			verified.removeAll(id.getLong());
+		}
+		return document.save();
+	}
+	
+	public Mono<Void> setRules(String rules) {
+		if (rules.isEmpty()) {
+			document.getObject().remove("rules");
+		} else {
+			document.getObject().set("rules", rules);
+		}
+		return document.save();
 	}
 
+	//
 	public boolean isAutoVerify() {
 		return document.getObject().getOrDefaultBoolean("autoverify", false);
 	}
 	
+	public boolean isAdmin(ChannelID channelID) {
+		return document.getObject().getOrCreateObject("data", obj->{}).getOrCreateArray("admins").contains(channelID.getLong());
+		//TODO
+	}
+	
+	public boolean isUserVerified(UserID userID) {
+		// TODO: Ideally we should create a "linkmembers" object in the DB to be
+		// more efficient when dealing with large numbers of users.
+		DBArray verified = document.getObject().getOrCreateArray("verified");
+		return verified.contains(userID.getLong()); //TODO: Also check against the connection ID
+	}
+	
+	public Optional<String> getRules() {
+		return Optional.ofNullable(document.getObject().getOrDefaultString("rules", null));
+	}
 	
 	//Private methods
 	private Mono<Void> sendTextToChannel(ChatLinkChannel channel, String textToSend) {
@@ -141,53 +192,6 @@ public class ChatLink {
 					Mono.empty():
 					Mono.error(new TextException("TODO: Localize error message (We can not access locales in this portion of the code)"));
 			});
-	}
-
-	public boolean isAdmin(ChannelID channelID) {
-		return document.getObject().getOrCreateObject("data", obj->{}).getOrCreateArray("admins").contains(channelID.getLong());
-		//TODO
-	}
-
-	public Mono<Void> addAdmin(ChannelID channelID) {
-		document.getObject().getOrCreateObject("data", obj->{}).getOrCreateArray("admins").add(channelID.getLong());
-		return document.save();
-		//TODO
-	}
-
-	public Mono<Void> addMutedUser(UserID user) {
-		//TODO: Dealing with multiple client types
-		document.getObject().getOrCreateArray("muted").add(user.getLong());
-		return document.save();
-	}
-	
-	public Mono<Void> setUserVerified(UserID id, boolean b) {
-		DBArray verified = document.getObject().getOrCreateArray("verified");
-		if (b) {
-			verified.add(id.getLong()); //TODO: Save client ID
-		} else {
-			verified.removeAll(id.getLong());
-		}
-		return document.save();
-	}
-	
-	public Mono<Void> setRules(String rules) {
-		if (rules.isEmpty()) {
-			document.getObject().remove("rules");
-		} else {
-			document.getObject().set("rules", rules);
-		}
-		return document.save();
-	}
-	
-	public boolean isUserVerified(UserID userID) {
-		// TODO: Ideally we should create a "linkmembers" object in the DB to be
-		// more efficient when dealing with large numbers of users.
-		DBArray verified = document.getObject().getOrCreateArray("verified");
-		return verified.contains(userID.getLong()); //TODO: Also check against the connection ID
-	}
-	
-	public Optional<String> getRules() {
-		return Optional.ofNullable(document.getObject().getOrDefaultString("rules", null));
 	}
 	
 	private Flux<ChatLinkChannel> getChannelFlux() {

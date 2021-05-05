@@ -1,4 +1,4 @@
-package everyos.bot.luwu.run.command.modules.chatlink;
+package everyos.bot.luwu.run.command.modules.chatlink.channel;
 
 import everyos.bot.luwu.core.entity.UserID;
 

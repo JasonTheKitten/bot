@@ -10,8 +10,7 @@ dependencies {
     //TODO: Anything below does not belong here.
     //Code using these should be moved to the non-core code
     //Or modified to use an alternative without the dependencies
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'org.mongodb:mongodb-driver-reactivestreams:4.2.2'
+    implementation 'org.mongodb:mongodb-driver-reactivestreams:4.2.3'
 }
 repositories {
     mavenCentral()

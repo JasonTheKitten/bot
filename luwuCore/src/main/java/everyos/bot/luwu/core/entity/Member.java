@@ -87,7 +87,7 @@ public class Member extends User implements InterfaceProvider {
 	}
 	
 	protected Mono<DBDocument> getLocalDocument() {
-		return getNamedDocument("members");
+		return getNamedDocument("members"); //TODO: Include gid
 	}
 	
 	public <T extends Member> T as(MemberFactory<T> factory) {
@@ -116,6 +116,6 @@ public class Member extends User implements InterfaceProvider {
 		"perm.sendmessages", "perm.kickmembers", "perm.banmembers", "perm.sendembeds", "perm.addreactions",
 		"perm.removeallreactions", "perm.vcconnect", "perm.vcspeak", "perm.manageroles", "perm.managemessages",
 		"perm.managechannels", "perm.manageguild", "perm.manageemojis", "perm.externalemojis", "perm.vcpriority",
-		"perm.managemembers"
+		"perm.managemembers", "perm.viewchannel"
 	};
 }

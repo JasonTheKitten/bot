@@ -1,4 +1,4 @@
-package everyos.bot.luwu.run.command.modules.chatlink;
+package everyos.bot.luwu.run.command.modules.chatlink.channel;
 
 import java.time.Duration;
 
@@ -13,6 +13,7 @@ import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.core.functionality.message.MessageReactionInterface;
 import everyos.bot.luwu.run.command.channelcase.CommandChannelCase;
 import everyos.bot.luwu.run.command.modules.channel.ResetChannelCommand;
+import everyos.bot.luwu.run.command.modules.chatlink.link.ChatLink;
 import everyos.bot.luwu.run.command.modules.chatlink.moderation.LinkModerationCommands;
 import everyos.bot.luwu.run.command.modules.chatlink.moderation.WarnedMuteCommandWrapper;
 import everyos.bot.luwu.run.command.modules.info.InfoCommands;

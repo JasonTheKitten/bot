@@ -6,7 +6,6 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.object.entity.channel.GuildChannel;
-import discord4j.rest.util.Permission;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatGuild;
@@ -15,6 +14,7 @@ import everyos.bot.chat4j.functionality.ChatInterface;
 import everyos.bot.chat4j.functionality.member.ChatMemberModerationInterface;
 import everyos.bot.chat4j.functionality.member.ChatMemberRoleInterface;
 import everyos.bot.chat4j.functionality.member.ChatMemberVoiceConnectionInterface;
+import everyos.discord.chat4d.PermissionUtil;
 import everyos.discord.chat4d.functionality.member.DiscordGuildMemberModerationInterface;
 import everyos.discord.chat4d.functionality.member.DiscordGuildMemberRoleInterface;
 import everyos.discord.chat4d.functionality.member.DiscordGuildMemberVoiceConnectionInterface;
@@ -28,12 +28,14 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 		if (member instanceof Member) this.member = (Member) member;
 	}
 
-	@Override public <T extends ChatInterface> boolean supportsInterface(Class<T> cls) {
+	@Override
+	public <T extends ChatInterface> boolean supportsInterface(Class<T> cls) {
 		return getInterface(cls)!=null;
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override public <T extends ChatInterface> T getInterface(Class<T> cls) {
+	@Override
+	public <T extends ChatInterface> T getInterface(Class<T> cls) {
 		if (member!=null) {
 			if (cls==ChatMemberModerationInterface.class) {
 				return (T) new DiscordGuildMemberModerationInterface(getConnection(), member);
@@ -46,7 +48,8 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 		return super.getInterface(cls);
 	}
 	
-	@Override public Mono<Boolean> isHigherThan(ChatMember chatMember) {
+	@Override
+	public Mono<Boolean> isHigherThan(ChatMember chatMember) {
 		if (!(chatMember instanceof DiscordMember)) {
 			throw new IllegalArgumentException("Two incompatible objects being compared!");
 		}
@@ -95,28 +98,6 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 	public Mono<Integer> getPermissions() {
 		if (member==null) return Mono.just(Integer.MAX_VALUE);
 		
-		return member.getBasePermissions().map(perms->{
-			if (perms.contains(Permission.ADMINISTRATOR)) {
-				return Integer.MAX_VALUE;
-			}
-			
-			int permsint = 0;
-			
-			for (int i=0; i<permsOrder.length; i++) {
-				if (permsOrder[i]==null) continue;
-				if (perms.contains(permsOrder[i])) {
-					permsint|=1<<i;
-				}
-			}
-			
-			return permsint;
-		});
+		return member.getBasePermissions().map(PermissionUtil::fromNativePermissions);
 	}
-	
-	private static Permission[] permsOrder = new Permission[] {
-		Permission.SEND_MESSAGES, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.EMBED_LINKS,
-		Permission.ADD_REACTIONS, Permission.MANAGE_EMOJIS, Permission.CONNECT, Permission.SPEAK,
-		Permission.MANAGE_ROLES, Permission.MANAGE_MESSAGES, Permission.MANAGE_CHANNELS, Permission.MANAGE_GUILD,
-		Permission.MANAGE_EMOJIS, Permission.USE_EXTERNAL_EMOJIS, Permission.PRIORITY_SPEAKER, Permission.MANAGE_ROLES
-	};
 }

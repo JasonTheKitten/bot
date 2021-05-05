@@ -56,7 +56,7 @@ public class NertiviaArgumentParser extends ArgumentParser {
         }
 	}
 	@Override
-	public ChannelID eatChannelID() {
+	public ChannelID eatUncheckedChannelID() {
 		String token = eat();
         if (token.startsWith("<#") && token.endsWith(">"))
             token = token.substring(2, token.length() - 1);

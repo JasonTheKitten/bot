@@ -38,7 +38,7 @@ public class WelcomeCommand extends CommandBase {
 		if (!parser.couldBeChannelID()) {
 			return expect(locale, parser, "command.error.channelid");
 		}
-		ChannelID channelID = parser.eatChannelID();
+		ChannelID channelID = parser.eatUncheckedChannelID();
 		
 		if (parser.isEmpty()) {
 			return expect(locale, parser, "command.error.string");

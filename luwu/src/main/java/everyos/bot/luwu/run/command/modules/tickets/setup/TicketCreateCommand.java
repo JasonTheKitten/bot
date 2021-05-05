@@ -6,9 +6,12 @@ import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.Member;
+import everyos.bot.luwu.core.entity.RoleID;
 import everyos.bot.luwu.core.exception.TextException;
+import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.CommandBase;
-import everyos.bot.luwu.run.command.modules.tickets.TicketServer;
+import everyos.bot.luwu.run.command.modules.tickets.channel.TicketChannel;
+import everyos.bot.luwu.run.command.modules.tickets.server.TicketServer;
 import reactor.core.publisher.Mono;
 
 public class TicketCreateCommand extends CommandBase {
@@ -40,9 +43,33 @@ public class TicketCreateCommand extends CommandBase {
 	
 	private Mono<Void> runCommand(Member invoker, Channel channel, Locale locale) {
 		return channel.getServer()
+			.flatMap(server->server.as(TicketServer.type))
 			.flatMap(server->server.createChannel(spec->{
 				spec.setName(locale.localize("command.ticket.create.name")+'-'+invoker.getHumanReadableID().substring(0, 15));
-			}))
-			.then();
+				spec.setTopic(locale.localize("command.ticket.create.topic"));
+				spec.setReason(locale.localize("command.ticket.create.topic")+" "+invoker.getID().toString());
+				
+				int botRoles = ChatPermission.SEND_MESSAGES | ChatPermission.SEND_MESSAGES;
+				int userRoles =
+					ChatPermission.SEND_MESSAGES | ChatPermission.ADD_REACTIONS | ChatPermission.USE_EXTERNAL_EMOJIS |
+					ChatPermission.SEND_EMBEDS | ChatPermission.VIEW_CHANNEL;
+				//int modRoles = userRoles;
+				
+				spec.setRoleOverride(RoleID.EVERYONE, ChatPermission.NONE, ChatPermission.ALL);
+				spec.setMemberOverride(invoker.getID().getLong(), userRoles, ChatPermission.NONE);
+				spec.setMemberOverride(invoker.getConnection().getSelfID(), botRoles, ChatPermission.NONE);
+				//TODO: Ticket reviewer role
+			})
+			.flatMap(ticketChannel->ticketChannel.as(TicketChannel.type))
+			.flatMap(ticketChannel->{
+				String message = locale.localize("command.ticket.create.default");
+				Mono<Void> m1 = ticketChannel.getInterface(ChannelTextInterface.class).send(spec->{
+					spec.setPresanitizedContent("<@"+invoker.getID().getLong()+">\n"+message);
+				}).then();
+				Mono<Void> m2 = channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.ticket.create.message")).then();
+				Mono<Void> m3 = ticketChannel.edit(spec->spec.configure());
+				
+				return m1.and(m2).and(m3);
+			})).then();
 	}
 }

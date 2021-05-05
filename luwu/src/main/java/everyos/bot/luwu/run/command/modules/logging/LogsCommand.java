@@ -37,7 +37,7 @@ public class LogsCommand extends CommandBase {
 			return expect(locale, parser, "");
 		}
 		
-		return Mono.just(parser.eatChannelID());
+		return Mono.just(parser.eatUncheckedChannelID());
 	}
 	
 	private Mono<Void> runCommand(Channel channel, ChannelID channelID, Locale locale) {
