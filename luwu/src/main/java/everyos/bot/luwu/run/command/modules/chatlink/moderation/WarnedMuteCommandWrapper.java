@@ -9,6 +9,7 @@ import everyos.bot.luwu.run.command.modules.moderation.MuteCommand;
 import reactor.core.publisher.Mono;
 
 public class WarnedMuteCommandWrapper implements Command {
+	
 	private MuteCommand muteCommand;
 	
 	public WarnedMuteCommandWrapper(boolean isMute) {
@@ -32,4 +33,5 @@ public class WarnedMuteCommandWrapper implements Command {
 	public boolean isSupported(Client client) {
 		return muteCommand.isSupported(client);
 	}
+	
 }

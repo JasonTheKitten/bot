@@ -8,8 +8,6 @@ public interface EmojiID {
 	Optional<Long> getID();
 	String getFormatted();
 	
-	//TODO: Override equals and hashCode
-	
 	static EmojiID of(String name) {
 		try {
 			return EmojiID.of(Long.valueOf(name));

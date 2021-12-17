@@ -22,6 +22,7 @@ public class DiscordChatClient implements ChatClient {
 	@Override
 	public Mono<Void> login(Function<ChatConnection, Mono<?>> func) {
 		GatewayBootstrap<GatewayOptions> gb = client.gateway()
+			.setEnabledIntents(IntentSet.all())
 			.setDisabledIntents(IntentSet.of(Intent.GUILD_PRESENCES));
 		return gb.withGateway(connection->func.apply(new DiscordConnection(this, connection)));
 	}

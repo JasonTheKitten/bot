@@ -3,6 +3,7 @@ package everyos.bot.luwu.run.command.modules.utility;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
@@ -34,12 +35,15 @@ public class ProfileCommand extends CommandBase {
 		return channel.getMember(uid).flatMap(member->{
 			return channel.getInterface(ChannelTextInterface.class).send(spec->{	
 				spec.setEmbed(embed->{
-					ZonedDateTime time = Instant.ofEpochMilli(member.getJoinTimestamp()).atZone(ZoneId.of("GMT"));
+					Optional<Long> optTime = member.getJoinTimestamp();
 					
 					embed.setTitle("Profile - "+member.getHumanReadableID()); //TODO: Localize
 					embed.setDescription("User information");
 					member.getNickname().ifPresent(nick->embed.addField("Nickname", nick, true));
-					embed.addField("Joined Server", time.getMonthValue()+"/"+time.getDayOfMonth()+"/"+time.getYear(), false);
+					if (optTime.isPresent()) {
+						ZonedDateTime time = Instant.ofEpochMilli(optTime.get()).atZone(ZoneId.of("GMT"));
+						embed.addField("Joined Server", time.getMonthValue()+"/"+time.getDayOfMonth()+"/"+time.getYear(), false);
+					}
 					member.getAvatarUrl().ifPresent(url->embed.setImage(url));
 					//TODO: Balance and level
 					

@@ -4,6 +4,7 @@ import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.run.command.MultiCommand;
 
 public class MusicPlaylistCommand extends MultiCommand {
+	
 	public MusicPlaylistCommand() {
 		super("command.music.playlist");
 	}
@@ -15,7 +16,9 @@ public class MusicPlaylistCommand extends MultiCommand {
 		container.registerCommand("command.music.playlist.create", new MusicPlaylistCreateCommand());
 		container.registerCommand("command.music.playlist.delete", new MusicPlaylistDeleteCommand());
 		container.registerCommand("command.music.playlist.list", new MusicPlaylistListCommand());
+		container.registerCommand("command.music.playlist.play", new MusicPlaylistPlayCommand());
 		
 		return container;
 	}
+	
 }

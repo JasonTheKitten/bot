@@ -3,6 +3,7 @@ package everyos.discord.chat4d.functionality.channel;
 import java.nio.ByteBuffer;
 
 import discord4j.core.object.entity.channel.VoiceChannel;
+import discord4j.core.spec.VoiceChannelJoinSpec;
 import discord4j.voice.AudioProvider;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
@@ -23,21 +24,21 @@ public class DiscordChannelVoiceInterface implements ChatChannelVoiceInterface {
 
 	@Override
 	public Mono<ChatVoiceConnection> join(AudioBridge bridge) {
-		return voiceChannel.join(spec->{
-			spec.setSelfDeaf(true);
-			spec.setProvider(new AudioProvider() {
-				@Override
-				public boolean provide() {
-					return bridge.provide();
-				}
-				
-				@Override
-				public ByteBuffer getBuffer() {
-					return bridge.getBuffer();
-				}
-			});
-		})
-		.map(voiceConnection->new DiscordVoiceConnection(voiceConnection));
+		return voiceChannel
+			.join(VoiceChannelJoinSpec.create()
+				.withSelfDeaf(true)
+				.withProvider(new AudioProvider() {
+					@Override
+					public boolean provide() {
+						return bridge.provide();
+					}
+					
+					@Override
+					public ByteBuffer getBuffer() {
+						return bridge.getBuffer();
+					}
+				}))
+			.map(voiceConnection -> new DiscordVoiceConnection(voiceConnection));
 	}
 
 	@Override

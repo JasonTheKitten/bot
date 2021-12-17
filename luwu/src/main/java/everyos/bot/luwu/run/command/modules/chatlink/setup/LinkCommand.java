@@ -4,6 +4,7 @@ import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.run.command.MultiCommand;
 
 public class LinkCommand extends MultiCommand {
+	
 	private CommandContainer commands;
 
 	public LinkCommand() {
@@ -21,4 +22,5 @@ public class LinkCommand extends MultiCommand {
 	public CommandContainer getCommands() {
 		return commands;
 	}
+	
 }

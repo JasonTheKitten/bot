@@ -69,8 +69,7 @@ public class PlaylistUser extends User {
 		
 		@Override
 		public PlaylistEditSpec getPlaylistEditSpec(String name) {
-			// TODO Auto-generated method stub
-			return null;
+			return new PlaylistEditSpecImp();
 		}
 
 		@Override
@@ -87,8 +86,8 @@ public class PlaylistUser extends User {
 	
 	private class PlaylistInfoImp implements PlaylistInfo {
 		@SuppressWarnings("unused")
-		private DBArray object;
-		private String name;
+		private final DBArray object;
+		private final String name;
 
 		public PlaylistInfoImp(String name, DBArray object) {
 			this.name = name;
@@ -98,8 +97,10 @@ public class PlaylistUser extends User {
 		@Override
 		public String getName() {
 			return name;
-		}
-		
+		}	
+	}
+	
+	private class PlaylistEditSpecImp implements PlaylistEditSpec {
 		
 	}
 

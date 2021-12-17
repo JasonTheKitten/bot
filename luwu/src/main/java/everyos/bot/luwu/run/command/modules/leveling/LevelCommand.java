@@ -5,6 +5,7 @@ import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.run.command.MultiCommand;
 
 public class LevelCommand extends MultiCommand {
+	
 	private final CommandContainer commands;
 
 	public LevelCommand() {
@@ -28,4 +29,5 @@ public class LevelCommand extends MultiCommand {
 	public CommandContainer getCommands() {
 		return commands;
 	}
+	
 }

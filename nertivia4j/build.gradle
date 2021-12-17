@@ -1,6 +1,5 @@
 plugins {
     id 'java-library'
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 dependencies {
@@ -9,6 +8,7 @@ dependencies {
     implementation 'io.projectreactor:reactor-core:3.4.5'
 	implementation 'io.socket:socket.io-client:1.0.1'
 }
+
 repositories {
     mavenCentral()
 }

@@ -26,11 +26,11 @@ public class WelcomeCommand extends CommandBase {
 		Locale locale = data.getLocale();
 		
 		return
-			parseArgs(parser, locale)
+			parseArgs(parser, data.getChannel(), locale)
 			.flatMap(message->runCommand(data.getChannel(), message.getT1(), message.getT2(), locale));
 	}
 
-	private Mono<Tuple<ChannelID, String>> parseArgs(ArgumentParser parser, Locale locale) {
+	private Mono<Tuple<ChannelID, String>> parseArgs(ArgumentParser parser, Channel baseChannel, Locale locale) {
 		if (parser.isEmpty()) {
 			return Mono.just(Tuple.of(null, null));
 		}
@@ -38,14 +38,16 @@ public class WelcomeCommand extends CommandBase {
 		if (!parser.couldBeChannelID()) {
 			return expect(locale, parser, "command.error.channelid");
 		}
-		ChannelID channelID = parser.eatUncheckedChannelID();
-		
-		if (parser.isEmpty()) {
-			return expect(locale, parser, "command.error.string");
-		}
-		//TODO: Text length limit
-		
-		return Mono.just(Tuple.of(channelID, parser.getRemaining()));
+		return parser
+			.eatChannel(baseChannel, locale)
+			.flatMap(channel -> {
+				if (parser.isEmpty()) {
+					return expect(locale, parser, "command.error.string");
+				}
+				//TODO: Text length limit
+				
+				return Mono.just(Tuple.of(channel.getID(), parser.getRemaining()));
+			});
 	}
 	
 	private Mono<Void> runCommand(Channel channel, ChannelID output, String message, Locale locale) {

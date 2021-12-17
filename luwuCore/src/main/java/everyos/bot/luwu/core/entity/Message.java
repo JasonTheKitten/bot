@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
+import everyos.bot.chat4j.entity.ChatAttachment;
 import everyos.bot.chat4j.entity.ChatMessage;
 import everyos.bot.chat4j.functionality.message.ChatMessageReactionInterface;
 import everyos.bot.chat4j.functionality.message.MessageEditSpec;
@@ -80,6 +81,10 @@ public class Message implements InterfaceProvider {
 		return message.pin();
 	}
 	
+	public ChatAttachment[] getAttachments() {
+		return message.getAttachments();
+	}
+	
 	protected Map<String, DBDocument> getDocuments() {
 		return documents;
 	}
@@ -121,4 +126,5 @@ public class Message implements InterfaceProvider {
 	public <T extends Message> Mono<T> as(MessageFactory<T> factory) {
 		return factory.createMessage(connection, message, getDocuments());
 	}
+	
 }

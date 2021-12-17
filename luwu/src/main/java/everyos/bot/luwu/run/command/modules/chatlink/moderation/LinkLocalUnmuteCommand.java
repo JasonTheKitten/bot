@@ -8,10 +8,11 @@ import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.CommandBase;
-import everyos.bot.luwu.run.command.modules.chatlink.channel.ChatLinkChannel;
+import everyos.bot.luwu.run.command.modules.chatlink.channel.LinkChannel;
 import reactor.core.publisher.Mono;
 
 public class LinkLocalUnmuteCommand extends CommandBase {
+	
 	public LinkLocalUnmuteCommand() {
 		super("command.link.unmute.local", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.MANAGE_MEMBERS);
 	}
@@ -22,7 +23,7 @@ public class LinkLocalUnmuteCommand extends CommandBase {
 		
 		return
 			parseArguments(parser, locale)
-			.flatMap(uid->runCommand(uid, data.getChannel(), locale))
+			.flatMap(uid -> runCommand(uid, data.getChannel(), locale))
 			.then();
 	}
 	
@@ -30,23 +31,21 @@ public class LinkLocalUnmuteCommand extends CommandBase {
 		if (!parser.couldBeUserID()) {
 			return expect(locale, parser, "command.error.userid");
 		}
+		
 		return Mono.just(parser.eatUserID());
 	}
 	
 	private Mono<Void> runCommand(UserID user, Channel channel, Locale locale) {
-		return channel.as(ChatLinkChannel.type)
-			.flatMap(clchannel->{
-				//TODO: Ensure guild is member of link
-				return unmuteUserLocally(user, clchannel, locale);
-			});
+		return channel.as(LinkChannel.type)
+			.flatMap(clchannel -> unmuteUserLocally(user, clchannel, locale));
+			//TODO: Ensure guild is member of link
 	}
 
-	private Mono<Void> unmuteUserLocally(UserID user, ChatLinkChannel channel, Locale locale) {
+	private Mono<Void> unmuteUserLocally(UserID user, LinkChannel channel, Locale locale) {
 		return
-			channel.edit(spec->{
-				spec.removeMutedUser(user);
-			})
-			.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.link.unmute.local.message")))
+			channel.edit(spec -> spec.removeMutedUser(user))
+			.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.link.unmute.local.success")))
 			.then();
 	}
+	
 }

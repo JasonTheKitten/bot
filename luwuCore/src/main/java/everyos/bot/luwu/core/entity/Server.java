@@ -13,6 +13,7 @@ import everyos.bot.luwu.core.functionality.InterfaceProvider;
 import reactor.core.publisher.Mono;
 
 public class Server implements InterfaceProvider {
+	
 	private Connection connection;
 	private ChatGuild guild;
 	private Map<String, DBDocument> documents;
@@ -31,19 +32,23 @@ public class Server implements InterfaceProvider {
 		return new ServerID(connection, guild.getID()); 
 	}
 
-	@Override public <T extends Interface> boolean supportsInterface(Class<T> cls) {
+	@Override
+	public <T extends Interface> boolean supportsInterface(Class<T> cls) {
 		return false;
 	}
 
-	@Override public <T extends Interface> T getInterface(Class<T> cls) {
+	@Override
+	public <T extends Interface> T getInterface(Class<T> cls) {
 		return null;
 	}
 
-	@Override public Client getClient() {
+	@Override
+	public Client getClient() {
 		return connection.getClient();
 	}
 	
-	@Override public Connection getConnection() {
+	@Override
+	public Connection getConnection() {
 		return connection;
 	}
 
@@ -63,9 +68,12 @@ public class Server implements InterfaceProvider {
 		if (documents.containsKey(name)) {
 			return Mono.just(documents.get(name));
 		}
-		return getConnection().getBotEngine().getDatabase()
-			.collection(name).scan()
-			.with("gid", guild.getID())
+		return getConnection()
+			.getBotEngine()
+			.getDatabase()
+			.collection(name)
+			.scan()
+				.with("gid", guild.getID())
 			.orCreate(document->{})
 			.doOnNext(document->documents.put(name, document));
 	}
@@ -91,4 +99,5 @@ public class Server implements InterfaceProvider {
 			//TODO: Clear chatlink entries
 			//TODO: Properly check cliid
 	}
+	
 }

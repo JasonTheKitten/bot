@@ -18,5 +18,5 @@ public interface ChatMember extends ChatUser {
 
 	Optional<String> getNickname();
 
-	long getJoinTime();
+	Optional<Long> getJoinTime();
 }

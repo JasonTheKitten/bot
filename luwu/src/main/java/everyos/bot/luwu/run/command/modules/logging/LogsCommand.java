@@ -22,13 +22,13 @@ public class LogsCommand extends CommandBase {
 		Locale locale = data.getLocale();
 		
 		return
-			parseArguments(parser, locale)
-			.flatMap(channelID->runCommand(data.getChannel(), channelID, locale).then(Mono.just(true)))
+			parseArguments(parser, data.getChannel(), locale)
+			.flatMap(channelID -> runCommand(data.getChannel(), channelID, locale).then(Mono.just(true)))
 			.switchIfEmpty(disableLogs(data.getChannel(), locale))
 			.then();
 	}
 
-	private Mono<ChannelID> parseArguments(ArgumentParser parser, Locale locale) {
+	private Mono<ChannelID> parseArguments(ArgumentParser parser, Channel baseChannel, Locale locale) {
 		if (parser.isEmpty()) {
 			return Mono.empty();
 		}
@@ -37,11 +37,13 @@ public class LogsCommand extends CommandBase {
 			return expect(locale, parser, "");
 		}
 		
-		return Mono.just(parser.eatUncheckedChannelID());
+		return parser.eatChannel(baseChannel, locale)
+			.map(channel -> channel.getID());
 	}
 	
 	private Mono<Void> runCommand(Channel channel, ChannelID channelID, Locale locale) {
-		return channel.getServer()
+		return channel
+				.getServer()
 			.flatMap(server->server.as(LogsServer.type))
 			.flatMap(server->server.edit(spec->{
 				spec.setLogChannel(channelID);

@@ -10,6 +10,7 @@ import everyos.bot.luwu.run.command.CommandBase;
 import reactor.core.publisher.Mono;
 
 public class LevelCheckCommand extends CommandBase {
+	
 	public LevelCheckCommand() {
 		super("command.level.check", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 	}
@@ -33,11 +34,11 @@ public class LevelCheckCommand extends CommandBase {
 				return textGrip.send(
 					"Current Level: "+String.valueOf(levelState.getLevel())+"\n"+
 					"XP: "+levelState.getXPTotal()+" ("+String.valueOf(levelState.getXPLeveled())+"/"+String.valueOf(levelState.getXPToNextLevel())+")");
-						//TODO: Embed and localize
 			}).then();
 		});
 		//TODO: Localize
 		//TODO: Should I use an embed?
 		//TODO: Test error handling with `return null;` instead of `return Mono.empty();`
 	}
+	
 }

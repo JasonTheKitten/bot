@@ -18,6 +18,7 @@ import everyos.bot.luwu.core.entity.event.Event;
 import reactor.core.publisher.Mono;
 
 public class BotEngineBuilder {
+	
 	private List<ClientWrapper> clients = new ArrayList<>();
 	
 	private Map<String, ChannelCase> channelCases = new HashMap<>();
@@ -173,4 +174,5 @@ public class BotEngineBuilder {
 	public void setConfiguration(Configuration configuration) {
 		this.globalConfiguration = configuration;
 	}
+	
 }

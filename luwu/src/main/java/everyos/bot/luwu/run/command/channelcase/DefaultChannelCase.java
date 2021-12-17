@@ -84,7 +84,9 @@ public class DefaultChannelCase extends CommandChannelCase {
 	}
 
 	public static DefaultChannelCase get() {
-		if (instance==null) instance = new DefaultChannelCase();
+		if (instance == null) {
+			instance = new DefaultChannelCase();
+		}
 		return instance;
 	}
 }

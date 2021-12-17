@@ -21,9 +21,9 @@ public class SuggestionChannelCommand extends CommandBase {
 	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		Locale locale = data.getLocale();
 		
-		return parseArgs(parser, locale)
+		return parseArgs(parser, data.getChannel(), locale)
 			.switchIfEmpty(Mono.just(data.getChannel().getID()))
-			.flatMap(oc->runCommand(data.getChannel().getID(), oc, locale))
+			.flatMap(oc->runCommand(data.getChannel(), oc, locale))
 			.then(sendMessage(data.getChannel(), locale));
 	}
 
@@ -33,20 +33,19 @@ public class SuggestionChannelCommand extends CommandBase {
 			.then();
 	}
 
-	private Mono<ChannelID> parseArgs(ArgumentParser parser, Locale locale) {
+	private Mono<ChannelID> parseArgs(ArgumentParser parser, Channel channelBase, Locale locale) {
 		if (parser.isEmpty()) return Mono.empty();
 		
 		if (!parser.couldBeChannelID()) {
 			return expect(locale, parser, "command.error.channelid");
 		}
-		ChannelID outputChannel = parser.eatUncheckedChannelID();
 		
-		return Mono.just(outputChannel);
+		return parser.eatChannel(channelBase, locale)
+			.map(channel -> channel.getID());
 	}
 	
-	private Mono<Void> runCommand(ChannelID inputChannelID, ChannelID outputChannelID, Locale locale) {
-		return inputChannelID.getChannel()
-			.flatMap(channel->channel.as(SuggestionChannel.type))
-			.flatMap(c->c.setOutput(outputChannelID));
+	private Mono<Void> runCommand(Channel inputChannel, ChannelID outputChannelID, Locale locale) {
+		return inputChannel.as(SuggestionChannel.type)
+			.flatMap(c -> c.setOutput(outputChannelID));
 	}
 }

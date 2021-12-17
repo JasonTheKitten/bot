@@ -11,18 +11,19 @@ import everyos.bot.luwu.core.entity.Connection;
 import reactor.core.publisher.Mono;
 
 public class TicketChannel extends Channel {
+	
 	public TicketChannel(Connection connection, ChatChannel channel, Map<String, DBDocument> documents) {
 		super(connection, channel, documents);
 	}
 	
 	public Mono<TicketChannelInfo> getInfo() {
-		return getGlobalDocument().map(doc->{
+		return getGlobalDocument().map(doc -> {
 			return new TicketChannelInfoImp(doc.getObject());
 		});
 	}
 	
 	public Mono<Void> edit(Consumer<TicketChannelEditSpec> func) {
-		return getGlobalDocument().flatMap(doc->{
+		return getGlobalDocument().flatMap(doc -> {
 			func.accept(new TicketChannelEditSpecImp(doc.getObject()));
 			
 			return doc.save();
@@ -51,4 +52,5 @@ public class TicketChannel extends Channel {
 	}
 
 	public static final TicketChannelFactory type = new TicketChannelFactory();
+	
 }

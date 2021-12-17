@@ -7,6 +7,8 @@ import everyos.bot.luwu.core.entity.ChannelID;
 import reactor.core.publisher.Mono;
 
 public interface TicketMemberInfo {
+	
 	Optional<ChannelID> getTicketChannelID();
 	Mono<Channel> getTicketChannel();
+	
 }

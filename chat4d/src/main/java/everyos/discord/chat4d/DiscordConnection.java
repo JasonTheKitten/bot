@@ -12,9 +12,8 @@ import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.event.domain.message.MessageUpdateEvent;
 import discord4j.core.event.domain.message.ReactionAddEvent;
 import discord4j.core.event.domain.message.ReactionRemoveEvent;
-import discord4j.core.object.presence.Activity;
-import discord4j.core.object.presence.Presence;
-import discord4j.discordjson.json.ActivityUpdateRequest;
+import discord4j.core.object.presence.ClientActivity;
+import discord4j.core.object.presence.ClientPresence;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
 import everyos.bot.chat4j.entity.ChatChannel;
@@ -198,15 +197,15 @@ public class DiscordConnection implements ChatConnection {
 
 	@Override
 	public Mono<Void> setStatus(StatusType type, String text) {
-		ActivityUpdateRequest activity = null;
+		ClientActivity activity = null;
 		switch(type) {
 			case WATCHING:
-				activity = Activity.watching(text);
+				activity = ClientActivity.watching(text);
 				break;
 			case PLAYING:
 			default:
-				activity = Activity.playing(text);
+				activity = ClientActivity.playing(text);
 		}
-		return connection.updatePresence(Presence.online(activity));
+		return connection.updatePresence(ClientPresence.online(activity));
 	}
 }

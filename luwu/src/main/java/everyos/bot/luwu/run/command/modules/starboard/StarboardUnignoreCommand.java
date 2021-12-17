@@ -32,6 +32,7 @@ public class StarboardUnignoreCommand extends CommandBase {
 			return expect(locale, parser, "command.error.channelid");
 		}
 		
+		//TODO: Should probably use checked channels, but really doesn't matter for starboard.
 		ChannelID channelID = parser.eatUncheckedChannelID();
 
 		return Mono.just(channelID);

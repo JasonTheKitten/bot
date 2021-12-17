@@ -94,7 +94,7 @@ public class Member extends User implements InterfaceProvider {
 		return factory.create(getConnection(), member, getDocuments());
 	}
 	
-	public long getJoinTimestamp() {
+	public Optional<Long> getJoinTimestamp() {
 		return member.getJoinTime();
 	}
 

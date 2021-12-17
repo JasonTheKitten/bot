@@ -39,4 +39,5 @@ public class GuildResetCommand extends CommandBase {
 			.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.resetguild.message")))
 			.then();
 	}
+	
 }

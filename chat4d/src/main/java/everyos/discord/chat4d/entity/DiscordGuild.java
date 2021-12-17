@@ -92,7 +92,7 @@ public class DiscordGuild implements ChatGuild {
 			});
 			
 			spec.setPermissionOverwrites(overrides);
-		}).map(channel->new DiscordChannel(connection, channel));
+		}).map(channel -> new DiscordChannel(connection, channel));
 	}
 
 }

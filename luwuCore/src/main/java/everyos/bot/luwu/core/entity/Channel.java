@@ -16,6 +16,7 @@ import everyos.bot.luwu.core.functionality.channel.ChannelVoiceInterface;
 import reactor.core.publisher.Mono;
 
 public class Channel implements InterfaceProvider {
+	
 	private Connection connection;
 	private ChatChannel channel;
 	private Map<String, DBDocument> documents;
@@ -37,6 +38,7 @@ public class Channel implements InterfaceProvider {
 			(cls==ChannelTextInterface.class) ||
 			(cls==ChannelVoiceInterface.class&&channel.supportsInterface(ChatChannelVoiceInterface.class));
 	};
+	
 	@SuppressWarnings("unchecked")
 	public <T extends Interface> T getInterface(Class<T> cls) {
 		if (cls==ChannelTextInterface.class) {
@@ -133,4 +135,5 @@ public class Channel implements InterfaceProvider {
 	}
 	
 	//TODO: Read+Edit
+	
 }

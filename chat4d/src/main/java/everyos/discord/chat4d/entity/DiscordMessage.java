@@ -1,11 +1,14 @@
 package everyos.discord.chat4d.entity;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import discord4j.core.object.entity.Attachment;
 import discord4j.core.object.entity.Message;
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
+import everyos.bot.chat4j.entity.ChatAttachment;
 import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.entity.ChatMessage;
@@ -19,6 +22,7 @@ import everyos.discord.chat4d.functionality.message.DiscordMessageReactionInterf
 import reactor.core.publisher.Mono;
 
 public class DiscordMessage implements ChatMessage {
+	
 	private Message message;
 	private ChatConnection connection;
 
@@ -29,7 +33,9 @@ public class DiscordMessage implements ChatMessage {
 	
 	@Override
 	public Optional<String> getContent() {
-		return Optional.of(message.getContent());
+		return Optional
+			.of(message.getContent())
+			.filter(s -> !s.isEmpty());
 	}
 
 	@Override
@@ -128,4 +134,35 @@ public class DiscordMessage implements ChatMessage {
 			});
 		}).map(m->new DiscordMessage(connection, m));
 	}
+
+	@Override
+	public ChatAttachment[] getAttachments() {
+		return convertAttachments(message.getAttachments());
+	}
+
+	private ChatAttachment[] convertAttachments(List<Attachment> oAttachments) {
+		ChatAttachment[] attachments = new ChatAttachment[oAttachments.size()];
+		for (int i = 0; i < oAttachments.size(); i++) {
+			Attachment attachment = oAttachments.get(i);
+			attachments[i] = new ChatAttachment() {
+				@Override
+				public String getURL() {
+					return attachment.getProxyUrl();
+				}
+
+				@Override
+				public String getName() {
+					return attachment.getFilename();
+				}
+				
+				@Override
+				public boolean isSpoiler() {
+					return attachment.isSpoiler();
+				}
+			};
+		}
+		
+		return attachments;
+	}
+	
 }

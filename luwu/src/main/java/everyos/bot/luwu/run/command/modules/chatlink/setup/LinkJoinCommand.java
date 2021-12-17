@@ -10,8 +10,10 @@ import everyos.bot.luwu.core.entity.Member;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.CommandBase;
-import everyos.bot.luwu.run.command.modules.chatlink.channel.ChatLinkChannel;
-import everyos.bot.luwu.run.command.modules.chatlink.link.ChatLink;
+import everyos.bot.luwu.run.command.modules.chatlink.channel.LinkChannel;
+import everyos.bot.luwu.run.command.modules.chatlink.link.Link;
+import everyos.bot.luwu.run.command.modules.chatlink.link.LinkInfo;
+import everyos.bot.luwu.run.command.modules.chatlink.link.LinkUtil;
 import reactor.core.publisher.Mono;
 
 public class LinkJoinCommand extends CommandBase {
@@ -19,7 +21,8 @@ public class LinkJoinCommand extends CommandBase {
 		super("command.link.join", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.MANAGE_MESSAGES);
 	}
 
-	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
+	@Override
+	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
 		//Get the channel
 		//Check that we have proper perms, throwing if not
 		//Parse arguments for link id, throwing if not provided
@@ -38,40 +41,41 @@ public class LinkJoinCommand extends CommandBase {
 	private Mono<Void> checkPerms(Member member, Locale locale) {
 		return Mono.empty(); //TODO: Throw if not valid perms
 	}
+	
 	private Mono<String> parseArgs(ArgumentParser parser, Locale locale) {
 		if (parser.isEmpty()) {
 			return Mono.error(new TextException(locale.localize("command.error.usage", "expected", locale.localize("command.link.linkid"), "got", "nothing")));
 		}
 		return Mono.just(parser.getRemaining().trim());
 	}
-	private Mono<Void> joinLink(BotEngine bot, ChatLink link, Channel channel, Locale locale) {
+	
+	private Mono<Void> joinLink(BotEngine bot, Link link, Channel channel, Locale locale) {
 		//To join a link
 		//  Lookup the link
 		//  Convert our channel to a link channel
 		//  If the link is free-join, auto-verify, else, prompt verification
 		//  If the link is DMing join requests, send the DM
 		ChannelTextInterface textGrip = channel.getInterface(ChannelTextInterface.class);
+		LinkInfo info = link.getInfo();
 		
-		Mono<Void> nextAction =
-			textGrip.send(locale.localize("command.link.pleaseverify", "id", String.valueOf(channel.getID())))
-			.then();
-		if (link.isAutoVerify()) {
-			nextAction = channel
-				.as(ChatLinkChannel.type)
-				.flatMap(clchannel->clchannel.edit(spec->spec.setVerified(true)))
-				.then(textGrip.send(locale.localize("command.link.autoverify", "id", String.valueOf(channel.getID()))))
-				.then();
-		}
-		
-		return
-			link.addChannel(channel)
-			.then(nextAction);
+		return channel
+			.as(LinkChannel.type)
+			.flatMap(linkChannel -> linkChannel.edit(spec -> {
+				spec.setLinkID(link.getID());
+				spec.setVerified(info.isAutoVerify());
+			}))
+			.then(
+				info.isAutoVerify() ?
+					textGrip.send(locale.localize("command.link.autoverify", "id", String.valueOf(channel.getID()))) :
+					textGrip.send(locale.localize("command.link.pleaseverify", "id", String.valueOf(channel.getID())))
+			).then();
 	}
-	private Mono<ChatLink> lookupLink(BotEngine bot, String id, Locale locale) {
+	
+	private Mono<Link> lookupLink(BotEngine bot, String id, Locale locale) {
 		try {
-			return ChatLink.getByID(bot, Long.valueOf(id));
+			return LinkUtil.getByID(bot, Long.valueOf(id));
 		} catch (NumberFormatException e) {
-			return ChatLink.getByName(bot, id);
+			return LinkUtil.getByName(bot, id);
 		}
 	}
 }

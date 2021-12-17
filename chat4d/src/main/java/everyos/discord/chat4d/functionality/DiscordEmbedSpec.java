@@ -2,18 +2,19 @@ package everyos.discord.chat4d.functionality;
 
 import java.time.Instant;
 
-import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.core.spec.legacy.LegacyEmbedCreateSpec;
 import discord4j.rest.util.Color;
 import everyos.bot.chat4j.entity.ChatColor;
 import everyos.bot.chat4j.functionality.message.EmbedSpec;
 
 public class DiscordEmbedSpec implements EmbedSpec {
-	private EmbedCreateSpec spec = null;
+	
+	private LegacyEmbedCreateSpec spec = null;
 	private String footer = null;
 
-	public DiscordEmbedSpec(EmbedCreateSpec spec) {
-		this.spec = spec;
-		spec.setTimestamp(Instant.now());
+	public DiscordEmbedSpec(LegacyEmbedCreateSpec eSpec) {
+		this.spec = eSpec;
+		eSpec.setTimestamp(Instant.now());
 		//TODO: Method to set a timestamp
 	}
 
@@ -49,13 +50,14 @@ public class DiscordEmbedSpec implements EmbedSpec {
 	public void setImage(String url) {
 		spec.setImage(url);
 	}
-	
-	private void updateFooter() {
-		spec.setFooter(footer, null);
-	}
 
 	@Override
 	public void setAuthor(String author, String url, String image) {
 		spec.setAuthor(author, url, image);
 	}
+	
+	private void updateFooter() {
+		spec.setFooter(footer, null);
+	}
+	
 }

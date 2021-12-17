@@ -4,6 +4,7 @@ import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.run.command.MultiCommand;
 
 public class PrefixCommand extends MultiCommand {
+	
 	public PrefixCommand() {
 		super("command.prefix");
 	}

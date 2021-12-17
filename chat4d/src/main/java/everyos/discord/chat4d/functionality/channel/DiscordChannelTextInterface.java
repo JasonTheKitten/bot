@@ -16,6 +16,7 @@ import everyos.discord.chat4d.functionality.DiscordEmbedSpec;
 import reactor.core.publisher.Mono;
 
 public class DiscordChannelTextInterface implements ChatChannelTextInterface {
+	
 	private MessageChannel channel;
 	private ChatConnection connection;
 
@@ -24,10 +25,13 @@ public class DiscordChannelTextInterface implements ChatChannelTextInterface {
 		this.connection = connection;
 	}
 
-	@Override public Mono<ChatMessage> send(String text) {
-		return send(spec->spec.setContent(text));
+	@Override
+	public Mono<ChatMessage> send(String text) {
+		return send(spec -> spec.setContent(text));
 	}
-	@Override public Mono<ChatMessage> send(Consumer<MessageCreateSpec> func) {
+	
+	@Override
+	public Mono<ChatMessage> send(Consumer<MessageCreateSpec> func) {
 		return channel.createMessage(spec->{
 			func.accept(new MessageCreateSpec() {
 				@Override
@@ -41,12 +45,15 @@ public class DiscordChannelTextInterface implements ChatChannelTextInterface {
 				}
 
 				@Override
-				public void addAttachment(String name, String imageURL) {
+				public void addAttachment(String name, String imageURL, boolean spoiler) {
 					try {
-						spec.addFile(name, new URL(imageURL).openStream());
+						if (spoiler) {
+							spec.addFileSpoiler(name, new URL(imageURL).openStream());
+						} else {
+							spec.addFile(name, new URL(imageURL).openStream());
+						}
 					} catch (IOException e) {
-						//TODO:
-						e.printStackTrace();
+						throw new RuntimeException(e);
 					}
 				}
 
@@ -55,14 +62,17 @@ public class DiscordChannelTextInterface implements ChatChannelTextInterface {
 					spec.setEmbed(eSpec->embedSpec.accept(new DiscordEmbedSpec(eSpec)));
 				}
 			});
-		}).map(message->new DiscordMessage(connection, message));
+		}).map(message -> new DiscordMessage(connection, message));
 	}
 
-	@Override public ChatConnection getConnection() {
+	@Override
+	public ChatConnection getConnection() {
 		return connection;
 	}
 
-	@Override public ChatClient getClient() {
+	@Override
+	public ChatClient getClient() {
 		return getConnection().getClient();
 	}
+	
 }

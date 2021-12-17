@@ -24,23 +24,26 @@ public class StarboardSetCommand extends CommandBase {
 		Locale locale = data.getLocale();
 		
 		return
-			parseArgs(parser, locale)
+			parseArgs(parser, data.getChannel(), locale)
 			.flatMap(tup->runCommand(data.getChannel(), tup.getT1(), tup.getT2(), locale))
 			.then();
 	}
 
-	private Mono<Tuple<EmojiID, ChannelID>> parseArgs(ArgumentParser parser, Locale locale) {
+	private Mono<Tuple<EmojiID, ChannelID>> parseArgs(ArgumentParser parser, Channel baseChannel, Locale locale) {
 		if (!parser.couldBeChannelID()) {
 			return expect(locale, parser, "command.error.channelid");
 		}
-		ChannelID channelID = parser.eatUncheckedChannelID();
 		
-		if (!parser.couldBeEmojiID()) {
-			return expect(locale, parser, "command.error.emoji");
-		}
-		EmojiID emojiID = parser.eatEmojiID();
-		
-		return Mono.just(Tuple.of(emojiID, channelID));
+		return parser
+			.eatChannel(baseChannel, locale)
+			.flatMap(channel -> {
+				if (!parser.couldBeEmojiID()) {
+					return expect(locale, parser, "command.error.emoji");
+				}
+				EmojiID emojiID = parser.eatEmojiID();
+				
+				return Mono.just(Tuple.of(emojiID, channel.getID()));
+			});
 	}
 	
 	private Mono<Void> runCommand(Channel channel, EmojiID emoji, ChannelID channelID, Locale locale) {
@@ -50,7 +53,8 @@ public class StarboardSetCommand extends CommandBase {
 				spec.setReaction(emoji);
 				spec.setOutputChannel(channelID);
 			}))
-			.then(channel.getInterface(ChannelTextInterface.class).send("command.starboard.set.message"))
+			.then(channel.getInterface(ChannelTextInterface.class)
+				.send(locale.localize("command.starboard.set.message")))
 			.then();
 				
 	}

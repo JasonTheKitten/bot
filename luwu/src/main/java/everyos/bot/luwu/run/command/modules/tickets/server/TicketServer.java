@@ -11,6 +11,7 @@ import everyos.bot.luwu.core.entity.Server;
 import reactor.core.publisher.Mono;
 
 public class TicketServer extends Server {
+	
 	public TicketServer(Connection connection, ChatGuild guild, Map<String, DBDocument> documents) {
 		super(connection, guild, documents);
 	}
@@ -56,4 +57,5 @@ public class TicketServer extends Server {
 	}
 
 	public static final TicketServerFactory type = new TicketServerFactory();
+	
 }

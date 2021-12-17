@@ -57,4 +57,6 @@ public interface ChatMessage extends ChatInterfaceProvider {
 	long getAuthorID();
 
 	long getID();
+
+	ChatAttachment[] getAttachments();
 }

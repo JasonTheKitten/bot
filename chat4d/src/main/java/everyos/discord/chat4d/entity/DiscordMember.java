@@ -90,8 +90,8 @@ public class DiscordMember extends DiscordUser implements ChatMember {
 	}
 	
 	@Override
-	public long getJoinTime() {
-		return member.getJoinTime().toEpochMilli();
+	public Optional<Long> getJoinTime() {
+		return member.getJoinTime().map(i->i.toEpochMilli());
 	}
 
 	@Override

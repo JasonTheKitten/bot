@@ -9,7 +9,7 @@ import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.CommandBase;
-import everyos.bot.luwu.run.command.modules.chatlink.channel.ChatLinkChannel;
+import everyos.bot.luwu.run.command.modules.chatlink.channel.LinkChannel;
 import reactor.core.publisher.Mono;
 
 public class LinkRulesCommand extends CommandBase {
@@ -26,11 +26,13 @@ public class LinkRulesCommand extends CommandBase {
 	}
 
 	private Mono<Void> runCommand(Channel channel, Locale locale) {
-		return channel.as(ChatLinkChannel.type)
-			.flatMap(c->c.getLink())
-			.flatMap(link->{
+		return channel.as(LinkChannel.type)
+			.flatMap(clchannel -> clchannel.getInfo())
+			.flatMap(info -> info.getLink())
+			.map(link -> link.getInfo())
+			.flatMap(info -> {
 				ChannelTextInterface textGrip = channel.getInterface(ChannelTextInterface.class);
-				Optional<String> rules = link.getRules();
+				Optional<String> rules = info.getRules();
 				if (rules.isPresent()) {
 					return textGrip.send(locale.localize("command.link.rules.message", "rules", rules.get()));
 				} else {

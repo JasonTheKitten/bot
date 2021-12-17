@@ -11,22 +11,26 @@ import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.ChannelID;
 import everyos.bot.luwu.core.entity.Connection;
 import everyos.bot.luwu.core.entity.Member;
+import everyos.bot.luwu.core.entity.MemberFactory;
 import reactor.core.publisher.Mono;
 
 public class TicketMember extends Member {
+	
 	public TicketMember(Connection connection, ChatMember member, Map<String, DBDocument> documents) {
 		super(connection, member, documents);
 	}
 	
 	public Mono<TicketMemberInfo> getInfo() {
-		return getGlobalDocument().map(doc->{
-			return new TicketMemberInfoImp(doc.getObject());
+		return getGlobalDocument().map(doc -> {
+			DBObject data = doc.getObject().getOrCreateObject("data", obj -> {});
+			return new TicketMemberInfoImp(data);
 		});
 	}
 	
 	public Mono<Void> edit(Consumer<TicketMemberEditSpec> func) {
-		return getGlobalDocument().flatMap(doc->{
-			func.accept(new TicketMemberEditSpecImp(doc.getObject()));
+		return getGlobalDocument().flatMap(doc -> {
+			DBObject data = doc.getObject().getOrCreateObject("data", obj -> {});
+			func.accept(new TicketMemberEditSpecImp(data));
 			
 			return doc.save();
 		});
@@ -50,7 +54,9 @@ public class TicketMember extends Member {
 
 		@Override
 		public Mono<Channel> getTicketChannel() {
-			return getTicketChannelID().map(id->id.getChannel()).orElse(Mono.empty());
+			return getTicketChannelID()
+				.map(id -> id.getChannel())
+				.orElse(Mono.empty());
 		}
 	}
 	
@@ -71,4 +77,7 @@ public class TicketMember extends Member {
 			object.remove("ticket");
 		}
 	}
+	
+	public static MemberFactory<TicketMember> type = (connection, member, documents) -> new TicketMember(connection, member, documents);
+	
 }

@@ -29,7 +29,7 @@ public abstract class ModerationCommandBase<T extends ModerationArguments> exten
 		Member invoker = data.getInvoker();
 		
 		return
-			parseArgs(parser, locale)
+			parseArguments(parser, locale)
 			.flatMapMany(args->{
 				return Flux.fromArray(args.getUsers())
 					.flatMap(uid->channel.getMember(uid)).flatMap(member->{
@@ -50,7 +50,7 @@ public abstract class ModerationCommandBase<T extends ModerationArguments> exten
 			.flatMap(list->sendActionSuccess(channel, locale, list));
 	}
 	
-	abstract protected Mono<T> parseArgs(ArgumentParser parser, Locale locale);
+	abstract protected Mono<T> parseArguments(ArgumentParser parser, Locale locale);
 	
 	protected Mono<Member> ensureAuthority(Member invoker, Member member, Locale locale) {
 		//Ensure each member is of lower rank than invoker

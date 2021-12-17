@@ -13,8 +13,9 @@ import everyos.bot.luwu.run.command.modules.music.playlist.internal.PlaylistUser
 import reactor.core.publisher.Mono;
 
 public class MusicPlaylistListCommand extends CommandBase {
+	
 	public MusicPlaylistListCommand() {
-		super("command.music.playlist.list", e->true,
+		super("command.music.playlist.list", e -> true,
 			ChatPermission.SEND_MESSAGES | ChatPermission.SEND_EMBEDS,
 			ChatPermission.NONE);
 	}
@@ -41,12 +42,12 @@ public class MusicPlaylistListCommand extends CommandBase {
 
 	private Mono<Void> runCommand(Channel channel, Member member, String name, Locale locale) {
 		return member.as(PlaylistUser.type)
-			.flatMap(m->m.getInfo())
+			.flatMap(m -> m.getInfo())
 			.flatMap(info->{
 				if (name.isEmpty()) {
 					StringBuilder desc = new StringBuilder();
 					for (PlaylistInfo playlist: info.getPlaylists()) {
-						desc.append("**"+playlist.getName()+"**\n");
+						desc.append("**" + playlist.getName() + "**\n");
 					}
 					return channel.getInterface(ChannelTextInterface.class).send(spec->{
 						spec.setEmbed(embed->{
@@ -62,4 +63,5 @@ public class MusicPlaylistListCommand extends CommandBase {
 			})
 			.then();
 	}
+	
 }

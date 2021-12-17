@@ -17,6 +17,7 @@ import everyos.bot.luwu.util.UnirestUtil;
 import reactor.core.publisher.Mono;
 
 public class StatusHooks {
+	
 	private static Map<Connection, Integer> counts = new HashMap<>();
 	private static Map<Connection, Integer> lastCounts = new HashMap<>();
 
@@ -46,13 +47,18 @@ public class StatusHooks {
     @SuppressWarnings("deprecation")
     private static Mono<Void> onRecount(Connection connection, int c) {
         Mono<Void> m1 = connection.setStatus(new Status[] {
-            new Status(StatusType.WATCHING, c+" server"+(c!=1?"s":"")+" | luwu help | Luwu!")
+            new Status(StatusType.WATCHING, c + " server" + (c != 1 ? "s" : "") + " | luwu help | Luwu!")
         });
+        
+        Configuration configs = connection.getBotEngine().getConfiguration();
+		if (configs.getCustomField("debug").equals("true")) {
+			return m1;
+		}
+		
 		Mono<Void> m2 = UnirestUtil.post("https://botblock.org/api/count", req->{
 			JsonObject body = new JsonObject();
 			body.addProperty("server_count", c);
 			body.addProperty("bot_id", String.valueOf(connection.getSelfID()));
-			Configuration configs = connection.getBotEngine().getConfiguration();
 			body.addProperty("discord.bots.gg", configs.getCustomField("botsgg_key"));
 			body.addProperty("bots.ondiscord.xyz", configs.getCustomField("bod_key"));
 			body.addProperty("discordbotlist.com", configs.getCustomField("dblcom_key"));
@@ -65,4 +71,5 @@ public class StatusHooks {
 
 		return m1.and(m2);
     }
+    
 }

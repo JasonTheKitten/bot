@@ -22,8 +22,9 @@ import reactor.core.publisher.Mono;
 
 //TODO: Show required permissions
 public class HelpCommand extends CommandBase {
+	
 	public HelpCommand() {
-		super("command.help", e->true, ChatPermission.SEND_MESSAGES|ChatPermission.SEND_EMBEDS, ChatPermission.NONE);
+		super("command.help", e->true, ChatPermission.SEND_MESSAGES | ChatPermission.SEND_EMBEDS, ChatPermission.NONE);
 	}
 
 	@Override
@@ -43,16 +44,17 @@ public class HelpCommand extends CommandBase {
 			while (!remaining.isEmpty()) {
 				if (!(resolved instanceof GroupCommand)) {
 					return Mono.just(Tuple.of(null, null));
-				}
-				if (remaining.startsWith(">")) {
+				} else if (remaining.startsWith(">")) {
 					return Mono.just(Tuple.of(resolved, remaining.substring(1, remaining.length())));
 				}
 				int space = remaining.indexOf(" ");
-				space=space==-1?remaining.length():space;
+				space = space == -1 ?
+					remaining.length() :
+					space;
 				//TODO: Don't show help for hidden commands
 				resolved = ((GroupCommand) resolved).getCommands().getCommand(remaining.substring(0, space), locale);
 				
-				if (space==remaining.length()) {
+				if (space == remaining.length()) {
 					remaining = "";
 				} else {
 					remaining = remaining.substring(space+1, remaining.length()).strip();
@@ -123,7 +125,9 @@ public class HelpCommand extends CommandBase {
 		StringBuilder listingsBuilder = new StringBuilder();
 		if (category.equals("")) {
 			for (String key: groups.keySet()) {
-				if (key.equals("default")) continue;
+				if (key.equals("default")) {
+					continue;
+				}
 				//TODO
 				listingsBuilder.append("\n**"+key+"** - `help >"+key+"`");
 			}
@@ -143,7 +147,8 @@ public class HelpCommand extends CommandBase {
 				@SuppressWarnings("deprecation")
 				String[] fillins = {
 					"github", config.getCustomField("github-url"),
-					"dblurl", config.getCustomField("dbl-url")
+					"dblurl", config.getCustomField("dbl-url"),
+					"policy", config.getCustomField("privacypolicy-url"),
 				};
 				
 				String desc = getOrUndocumented(id==null?null:(id+".help.extended"), locale, fillins);
@@ -186,4 +191,5 @@ public class HelpCommand extends CommandBase {
 		
 		return locale.localize(label, fillins);
 	}
+	
 }

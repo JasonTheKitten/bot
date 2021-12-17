@@ -1,6 +1,7 @@
 package everyos.bot.luwu.run.command.modules.moderation;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import everyos.bot.chat4j.entity.ChatPermission;
 import everyos.bot.luwu.core.client.ArgumentParser;
@@ -13,30 +14,28 @@ import everyos.bot.luwu.run.command.modules.moderation.BanCommand.BanArguments;
 import reactor.core.publisher.Mono;
 
 public class BanCommand extends ModerationCommandBase<BanArguments> {
+	
 	private BanCommand() {
-		super("command.ban", e->true, ChatPermission.SEND_EMBEDS|ChatPermission.BAN_MEMBERS, ChatPermission.BAN_MEMBERS);
+		super("command.ban", e->true,
+			ChatPermission.SEND_EMBEDS | ChatPermission.BAN_MEMBERS,
+			ChatPermission.BAN_MEMBERS);
 	}
 	
-	private static BanCommand instance;
-	public static BanCommand get() {
-		if (instance==null) instance = new BanCommand();
-		return instance;
-	}
-	
-	@Override protected Mono<BanArguments> parseArgs(ArgumentParser parser, Locale locale) {
+	@Override
+	protected Mono<BanArguments> parseArguments(ArgumentParser parser, Locale locale) {
 		//Read each of the users that must be banned
-		ArrayList<UserID> ids = new ArrayList<>();
+		List<UserID> ids = new ArrayList<>();
 		String reason = null;
 		while (!parser.isEmpty()) {
 			if (!parser.couldBeUserID()) {
-				return Mono.error(new TextException(locale.localize("command.error.usage", "expected", locale.localize("user"), "got", "`"+parser.eat()+"`")));
+				return expect(locale, parser, locale.localize("user"));
 			}
 			ids.add(parser.eatUserID());
 			
 			//TODO: Temp time
 			
 			//We have found a mod-log reason
-			if (!parser.isEmpty()&&parser.peek(1).equals(";")) {
+			if (!parser.isEmpty() && parser.peek(1).equals(";")) {
 				parser.eat();
 				reason = parser.toString();
 				break;
@@ -44,8 +43,12 @@ public class BanCommand extends ModerationCommandBase<BanArguments> {
 		}
 		
 		//Prevents us from hitting ratelimits, probably
-		if (ids.size()<1) return Mono.error(new TextException(locale.localize("command.error.banmin", "min", "1")));
-		if (ids.size()>3) return Mono.error(new TextException(locale.localize("command.error.banmax", "max", "3")));
+		if (ids.size() < 1) {
+			return Mono.error(new TextException(locale.localize("command.error.banmin", "min", "1")));
+		}
+		if (ids.size() > 3) {
+			return Mono.error(new TextException(locale.localize("command.error.banmax", "max", "3")));
+		}
 		
 		String freason = reason;
 		return Mono.just(new BanArguments() {
@@ -59,7 +62,8 @@ public class BanCommand extends ModerationCommandBase<BanArguments> {
 		});
 	}
 	
-	@Override protected Mono<Result> performAction(BanArguments arguments, Member member, Locale locale) {
+	@Override
+	protected Mono<Result> performAction(BanArguments arguments, Member member, Locale locale) {
 		return member.getInterface(MemberModerationInterface.class).ban(arguments.getReason())
 			.then(Mono.just(new Result(true, member)));
 	}
@@ -67,4 +71,10 @@ public class BanCommand extends ModerationCommandBase<BanArguments> {
 	static protected interface BanArguments extends ModerationArguments {
 		
 	}
+	
+	private static BanCommand instance = new BanCommand();
+	public static BanCommand get() {
+		return instance;
+	}
+	
 }

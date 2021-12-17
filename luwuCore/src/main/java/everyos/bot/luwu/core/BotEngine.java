@@ -17,6 +17,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class BotEngine {
+	
 	private Client[] clients;
 	private BotEngineConfiguration configuration;
 	private Map<Integer, Connection> connections;
@@ -141,4 +142,5 @@ public class BotEngine {
 	public Configuration getConfiguration() {
 		return configuration.getConfiguration();
 	}
+	
 }

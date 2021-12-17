@@ -20,7 +20,7 @@ import everyos.bot.luwu.mongo.MongoDatabaseBuilder;
 import everyos.bot.luwu.nertivia.NertiviaClientBuilder;
 import everyos.bot.luwu.run.command.channelcase.DefaultChannelCase;
 import everyos.bot.luwu.run.command.channelcase.PrivateChannelCase;
-import everyos.bot.luwu.run.command.modules.chatlink.channel.ChatLinkChannelCase;
+import everyos.bot.luwu.run.command.modules.chatlink.channel.LinkChannelCase;
 import everyos.bot.luwu.run.command.modules.currency.FethHooks;
 import everyos.bot.luwu.run.command.modules.leveling.LevelHooks;
 import everyos.bot.luwu.run.command.modules.logging.LogsHooks;
@@ -36,7 +36,15 @@ import everyos.bot.luwu.run.command.usercase.DefaultUserCase;
 import everyos.bot.luwu.run.status.StatusHooks;
 import reactor.core.publisher.Mono;
 
+/*
+ * ISSUE BOARD 
+ * Port some moderation commands
+ * Port playlists (started)
+ * Quality Assurance
+ */
+
 public class Luwu {
+	
 	private static final String PRIVATE_CHANNELCASE = "private";
 	private static final String DEFAULT_CHANNELCASE = "default";
 	private static final String CHATLINK_CHANNELCASE = "chatlink"; //TODO: The value of this constant is hard-coded elsewhere :/
@@ -69,7 +77,7 @@ public class Luwu {
 		if (nertiviaToken.isPresent()) {
 			NertiviaClientBuilder nertiviaBuilder = new NertiviaClientBuilder();
 			nertiviaBuilder.setToken(nertiviaToken.get());
-			engineBuilder.registerClient(nertiviaBuilder.build(1, "n"));
+			//engineBuilder.registerClient(nertiviaBuilder.build(1, "n"));
 		}
 		
 		Optional<String> discordToken = configuration.getDiscordToken();
@@ -90,7 +98,7 @@ public class Luwu {
 		
 		// Register channel behaviors
 		engineBuilder.registerChannelCase(DEFAULT_CHANNELCASE, DefaultChannelCase.get());
-		engineBuilder.registerChannelCase(CHATLINK_CHANNELCASE, ChatLinkChannelCase.get());
+		engineBuilder.registerChannelCase(CHATLINK_CHANNELCASE, LinkChannelCase.get());
 		engineBuilder.registerChannelCase(PRIVATE_CHANNELCASE, PrivateChannelCase.get());
 		engineBuilder.registerChannelCase(ONEWORD_CHANNELCASE, OneWordChannelCase.get());
 		engineBuilder.registerChannelCase(SUGGESTIONS_CHANNELCASE, SuggestionChannelCase.get());
@@ -120,9 +128,10 @@ public class Luwu {
 		engineBuilder.registerSequencedHook(MessageCreateEvent.class, MessageCreateEventProcessor::apply);
 
 		//Register repeating tasks
-		engineBuilder.registerRepeatingTask(10000, StatusHooks::statusUpdateHook);
+		engineBuilder.registerRepeatingTask(60000, StatusHooks::statusUpdateHook);
 		
 		// Start the bot
 		return engineBuilder.build().start();
 	}
+	
 }

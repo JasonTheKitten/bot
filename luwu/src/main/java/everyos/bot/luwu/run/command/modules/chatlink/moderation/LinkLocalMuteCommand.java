@@ -8,12 +8,13 @@ import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.UserID;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.CommandBase;
-import everyos.bot.luwu.run.command.modules.chatlink.channel.ChatLinkChannel;
+import everyos.bot.luwu.run.command.modules.chatlink.channel.LinkChannel;
 import reactor.core.publisher.Mono;
 
 public class LinkLocalMuteCommand extends CommandBase {
+	
 	public LinkLocalMuteCommand() {
-		super("command.link.mute.local", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.MANAGE_MEMBERS);
+		super("command.link.mute.local", e -> true, ChatPermission.SEND_MESSAGES, ChatPermission.MANAGE_MEMBERS);
 	}
 
 	@Override
@@ -22,7 +23,7 @@ public class LinkLocalMuteCommand extends CommandBase {
 		
 		return
 			parseArguments(parser, locale)
-			.flatMap(uid->runCommand(uid, data.getChannel(), locale))
+			.flatMap(uid -> runCommand(uid, data.getChannel(), locale))
 			.then();
 	}
 	
@@ -30,23 +31,21 @@ public class LinkLocalMuteCommand extends CommandBase {
 		if (!parser.couldBeUserID()) {
 			return expect(locale, parser, "command.error.userid");
 		}
+		
 		return Mono.just(parser.eatUserID());
 	}
 	
 	private Mono<Void> runCommand(UserID user, Channel channel, Locale locale) {
-		return channel.as(ChatLinkChannel.type)
-			.flatMap(clchannel->{
-				//TODO: Ensure guild is member of link
-				return muteUserLocally(user, clchannel, locale);
-			});
+		return channel.as(LinkChannel.type)
+			.flatMap(clchannel -> muteUserLocally(user, clchannel, locale));
+			//TODO: Ensure guild is member of link
 	}
 
-	private Mono<Void> muteUserLocally(UserID user, ChatLinkChannel channel, Locale locale) {
+	private Mono<Void> muteUserLocally(UserID user, LinkChannel channel, Locale locale) {
 		return
-			channel.edit(spec->{
-				spec.addMutedUser(user);
-			})
-			.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.link.mute.local.message")))
+			channel.edit(spec -> spec.addMutedUser(user))
+			.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.link.mute.local.success")))
 			.then();
 	}
+	
 }

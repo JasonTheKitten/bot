@@ -70,7 +70,7 @@ public class NertiviaMember extends NertiviaUser implements ChatMember {
 	}
 
 	@Override
-	public long getJoinTime() {
-		return 0;
+	public Optional<Long> getJoinTime() {
+		return Optional.of(0L);
 	}
 }

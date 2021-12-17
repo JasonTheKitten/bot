@@ -8,6 +8,7 @@ import everyos.bot.luwu.run.command.CommandBase;
 import reactor.core.publisher.Mono;
 
 public class TicketManagerCloseCommand extends CommandBase {
+	
 	public TicketManagerCloseCommand() {
 		super("command.ticket.manager.close", e->true, ChatPermission.SEND_MESSAGES, ChatPermission.NONE);
 	}
@@ -21,4 +22,5 @@ public class TicketManagerCloseCommand extends CommandBase {
 	private Mono<Void> runCommand(Channel channel) {
 		return channel.delete();
 	}
+	
 }

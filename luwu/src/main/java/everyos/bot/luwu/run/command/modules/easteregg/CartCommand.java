@@ -22,7 +22,7 @@ public class CartCommand extends CommandBase {
 		return data.getChannel().getInterface(ChannelTextInterface.class)
 			.send(spec->{
 				spec.setContent("This command does not exist, but take a cart anyways! (Image from WixMP)"); //TODO: Localize
-				spec.addAttachment("cart.gif", URL);
+				spec.addAttachment("cart.gif", URL, false);
 			})
 			.then();
 	}

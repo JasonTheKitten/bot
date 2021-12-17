@@ -46,11 +46,11 @@ public class PrefixServer extends Server {
 		@Override
 		public String[] getPrefixes() {
 			DBArray prefixArray = object.getOrCreateArray("prefixes");
-			if (prefixArray.getLength()==0) {
+			if (prefixArray.getLength() == 0) {
 				return getDefaultPrefixes();
 			}
 			String[] prefixes = new String[prefixArray.getLength()];
-			for (int i=0; i<prefixArray.getLength(); i++) {
+			for (int i = 0; i < prefixArray.getLength(); i++) {
 				prefixes[i] = prefixArray.getString(i);
 			}
 			return prefixes;
@@ -80,7 +80,7 @@ public class PrefixServer extends Server {
 		@Override
 		public void addPrefix(String prefix) {
 			DBArray prefixes = object.getOrCreateArray("prefixes");
-			if (prefixes.getLength()==0) {
+			if (prefixes.getLength() == 0) {
 				for (String dprefix: getDefaultPrefixes()) {
 					prefixes.add(dprefix);
 				}
@@ -91,7 +91,7 @@ public class PrefixServer extends Server {
 		@Override
 		public void removePrefix(String prefix) {
 			DBArray prefixes = object.getOrCreateArray("prefixes");
-			if (prefixes.getLength()==0) {
+			if (prefixes.getLength() == 0) {
 				for (String dprefix: getDefaultPrefixes()) {
 					prefixes.add(dprefix);
 				}
@@ -118,4 +118,5 @@ public class PrefixServer extends Server {
 	}
 	
 	public static PrefixServerFactory type = new PrefixServerFactory();
+	
 }

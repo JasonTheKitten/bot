@@ -12,8 +12,9 @@ import everyos.bot.luwu.run.command.modules.music.playlist.internal.PlaylistUser
 import reactor.core.publisher.Mono;
 
 public class MusicPlaylistDeleteCommand extends CommandBase {
+	
 	public MusicPlaylistDeleteCommand() {
-		super("command.music.playlist.delete", e->true,
+		super("command.music.playlist.delete", e -> true,
 			ChatPermission.SEND_MESSAGES,
 			ChatPermission.NONE);
 	}
@@ -24,7 +25,7 @@ public class MusicPlaylistDeleteCommand extends CommandBase {
 		
 		return
 			parseArgs(parser, locale)
-			.flatMap(name->runCommand(data.getChannel(), data.getInvoker(), name, locale));
+			.flatMap(name -> runCommand(data.getChannel(), data.getInvoker(), name, locale));
 	}
 
 	private Mono<String> parseArgs(ArgumentParser parser, Locale locale) {
@@ -36,11 +37,11 @@ public class MusicPlaylistDeleteCommand extends CommandBase {
 	}
 
 	private Mono<Void> runCommand(Channel channel, Member member, String name, Locale locale) {
-		return member.as(PlaylistUser.type)
-			.flatMap(m->m.edit(spec->{
-				spec.deletePlaylist(name);
-			}))
+		return member
+			.as(PlaylistUser.type)
+			.flatMap(m -> m.edit(spec -> spec.deletePlaylist(name)))
 			.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.music.playlist.delete.message")))
 			.then();
 	}
+	
 }

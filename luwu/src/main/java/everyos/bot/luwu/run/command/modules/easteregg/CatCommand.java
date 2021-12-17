@@ -25,7 +25,7 @@ public class CatCommand extends CommandBase {
 		return data.getChannel().getInterface(ChannelTextInterface.class)
 			.send(spec->{
 				spec.setContent("This command does not exist, but take a cat anyways! (Image from WixMP)"); //TODO: Localize
-				spec.addAttachment("cat.gif", URL);
+				spec.addAttachment("cat.gif", URL, false);
 			})
 			.then();
 	}

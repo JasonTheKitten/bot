@@ -1,13 +1,18 @@
 package everyos.bot.luwu.core.client;
 
+import everyos.bot.luwu.core.entity.Channel;
 import everyos.bot.luwu.core.entity.ChannelID;
+import everyos.bot.luwu.core.entity.EmojiID;
+import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.entity.MessageID;
 import everyos.bot.luwu.core.entity.RoleID;
-import everyos.bot.luwu.core.entity.EmojiID;
 import everyos.bot.luwu.core.entity.ServerID;
 import everyos.bot.luwu.core.entity.UserID;
+import everyos.bot.luwu.core.exception.TextException;
+import reactor.core.publisher.Mono;
 
 public abstract class ArgumentParser {
+	
 	private final String original;
 	private String argument;
 	
@@ -26,22 +31,27 @@ public abstract class ArgumentParser {
 		int fin = (nl<ind&&nl!=-1)?nl:ind;
 		return fin==-1?argument.length():fin;
 	}
+	
 	public String peek(int len) {
 		if (len>argument.length()) return argument;
 		return argument.substring(0, len);
 	};
+	
 	public String peek() {
 		return peek(nextToken());
 	}
+	
 	public String eat(int len) {
 		if (len==0) return "";
 		String rtn = peek(len);
 		argument = argument.substring(len).trim();
 		return rtn;
 	}
+	
 	public String eat() {
 		return eat(nextToken());
 	};
+	
 	public boolean eatString(String match) {
 		if (argument.startsWith(match)) {
 			argument = argument.substring(match.length()).trim();
@@ -53,6 +63,7 @@ public abstract class ArgumentParser {
 	public String getOriginal() {
 		return original;
 	}
+	
 	public String getRemaining() {
 		return argument;
 	}
@@ -74,6 +85,7 @@ public abstract class ArgumentParser {
     	}
     	return false;
 	};
+	
 	public String eatQuote() {
 		StringBuilder quote = new StringBuilder();
     	boolean foundStart = false;
@@ -117,6 +129,30 @@ public abstract class ArgumentParser {
 	public abstract boolean couldBeChannelID();
 	public abstract ChannelID eatUncheckedChannelID();
 	
+	public Mono<Channel> eatChannel(ChannelID sibling, Locale locale) {
+		return sibling
+			.getChannel()
+			.flatMap(channel -> eatChannel(channel, locale));
+	};
+	
+	public Mono<Channel> eatChannel(Channel sibling, Locale locale) {
+		return eatUncheckedChannelID()
+			.getChannel()
+			.onErrorResume(e -> Mono.empty())
+			.flatMap(channel -> {
+				return channel
+					.getServer()
+					.flatMap(server1 -> {
+						return sibling
+							.getServer()
+							.map(server2 -> server1.getID().equals(server2.getID()));
+					})
+					.filter(b -> b)
+					.map(_1 -> channel);
+			})
+			.switchIfEmpty(Mono.error(new TextException(locale.localize("command.error.channelguild"))));
+	};
+	
 	public abstract boolean couldBeGuildID();
 	public abstract ServerID eatGuildID();
 	
@@ -131,4 +167,5 @@ public abstract class ArgumentParser {
 
 	public abstract boolean couldBeURL();
 	public abstract String eatURL();
+	
 }

@@ -6,6 +6,7 @@ import everyos.bot.luwu.core.command.Command;
 import everyos.bot.luwu.core.command.CommandContainer;
 import everyos.bot.luwu.core.command.CommandData;
 import everyos.bot.luwu.core.command.GroupCommand;
+import everyos.bot.luwu.core.entity.Locale;
 import everyos.bot.luwu.core.exception.TextException;
 import everyos.bot.luwu.core.functionality.channel.ChannelTextInterface;
 import everyos.bot.luwu.run.command.modules.configuration.prefix.PrefixServer;
@@ -40,7 +41,28 @@ public abstract class CommandChannelCase implements ChannelCase, GroupCommand {
 						return Mono.just(true);
 					}
 				}
-				//TODO: Support ping prefix
+				
+				String[] prefixes = new String[] {
+					"<@" + data.getConnection().getSelfID() + ">",
+					"<@!" + data.getConnection().getSelfID() + ">"
+				};
+				
+				for (String prefix: prefixes) {
+					if (parser.peek(prefix.length()).equals(prefix)) {
+						parser.eat(prefix.length());
+						
+						if (parser.isEmpty()) {
+							Locale locale = data.getLocale();
+							
+							// Kind of not how TextException was designed to be used
+							return Mono.error(new TextException(
+								locale.localize("command.easteregg.prefix.message")));
+						}
+						
+						return Mono.just(true);
+					}
+				}
+				
 				return Mono.just(false);
 			});
 	}

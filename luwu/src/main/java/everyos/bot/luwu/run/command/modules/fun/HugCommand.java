@@ -20,9 +20,9 @@ import everyos.bot.luwu.run.command.CommandBase;
 import reactor.core.publisher.Mono;
 
 public class HugCommand extends CommandBase {
+	
 	public HugCommand() {
-		super("command.hug", e->true, ChatPermission.SEND_MESSAGES|ChatPermission.SEND_EMBEDS, ChatPermission.NONE);
-		// TODO Auto-generated constructor stub
+		super("command.hug", e->true, ChatPermission.SEND_MESSAGES | ChatPermission.SEND_EMBEDS, ChatPermission.NONE);
 	}
 
 	private static String[] hugs;
@@ -38,8 +38,9 @@ public class HugCommand extends CommandBase {
         } catch (Exception e) { e.printStackTrace(); }
 	}
 
-	@Override public Mono<Void> execute(CommandData data, ArgumentParser parser) {
-		//TODO: Segregate argument parser from command: allows for running commands from more UIs
+	@Override
+	public Mono<Void> execute(CommandData data, ArgumentParser parser) {
+		//TODO: Separate argument parser from command: allows for running commands from more UIs
 		
 		//Parse arguments
 		//Choose the header
@@ -55,14 +56,17 @@ public class HugCommand extends CommandBase {
 			.flatMap(id->id.getUser())
 			.flatMap(member->determineHugMessage(data.getConnection(), invoker, member, locale))
 			.flatMap(message->sendHugMessage(data.getChannel(), message, locale))
-			//TODO: Send the hug
 			.then();
 	}
 
 	private Mono<UserID> parseArgs(ArgumentParser parser, UserID userID, Locale locale) {
 		//Parse arguments
-		if (parser.isEmpty()) return Mono.just(userID);
-		if (!parser.couldBeUserID()) return Mono.error(new TextException("Usage")); //TODO
+		if (parser.isEmpty()) {
+			return Mono.just(userID);
+		}
+		if (!parser.couldBeUserID()) {
+			return Mono.error(new TextException("Usage")); //TODO
+		}
 		return Mono.just(parser.eatUserID());
 	}
 	private Mono<String> determineHugMessage(Connection connection, User invoker, User member, Locale locale) {
@@ -85,11 +89,11 @@ public class HugCommand extends CommandBase {
 				embed.setImage(hugs[(int) (Math.floor((Math.random()*.999999)*hugs.length))]);
 				embed.setFooter("Powered by Giphy"); //Doesn't need localized
 			});
-		})
-		.then();
+		}).then();
 	}
 
 	private String formatName(User user) {
 		return user.getHumanReadableID();
 	}
+	
 }

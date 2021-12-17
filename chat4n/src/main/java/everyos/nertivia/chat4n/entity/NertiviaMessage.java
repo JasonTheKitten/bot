@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import everyos.bot.chat4j.ChatClient;
 import everyos.bot.chat4j.ChatConnection;
+import everyos.bot.chat4j.entity.ChatAttachment;
 import everyos.bot.chat4j.entity.ChatChannel;
 import everyos.bot.chat4j.entity.ChatMember;
 import everyos.bot.chat4j.entity.ChatMessage;
@@ -143,5 +144,10 @@ public class NertiviaMessage implements ChatMessage {
 	@Override
 	public Mono<ChatMessage> edit(Consumer<MessageEditSpec> spec) {
 		return Mono.empty();
+	}
+
+	@Override
+	public ChatAttachment[] getAttachments() {
+		return new ChatAttachment[0];
 	}
 }

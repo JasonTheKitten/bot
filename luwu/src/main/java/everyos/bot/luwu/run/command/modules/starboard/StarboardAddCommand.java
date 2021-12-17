@@ -12,8 +12,9 @@ import everyos.bot.luwu.util.Tuple;
 import reactor.core.publisher.Mono;
 
 public class StarboardAddCommand extends CommandBase {
+	
 	public StarboardAddCommand() {
-		super("command.starboard.add", e->true,
+		super("command.starboard.add", e -> true,
 			ChatPermission.SEND_EMBEDS,
 			ChatPermission.MANAGE_CHANNELS);
 	}
@@ -26,12 +27,12 @@ public class StarboardAddCommand extends CommandBase {
 		
 		return
 			parseArgs(parser, locale)
-			.flatMap(tup->runCommand(data.getChannel(), tup.getT1(), tup.getT2(), locale))
+			.flatMap(tup -> runCommand(data.getChannel(), tup.getT1(), tup.getT2(), locale))
 			.then();
 	}
 
 	private Mono<Tuple<Integer, EmojiID>> parseArgs(ArgumentParser parser, Locale locale) {
-		if (!parser.isNumerical()||Integer.valueOf(parser.peek())<=0) {
+		if (!parser.isNumerical() || Integer.valueOf(parser.peek()) <= 0) {
 			return expect(locale, parser, "command.error.positiveinteger");
 		}
 		int level = (int) parser.eatNumerical();
@@ -47,11 +48,10 @@ public class StarboardAddCommand extends CommandBase {
 	private Mono<Void> runCommand(Channel channel, int level, EmojiID emoji, Locale locale) {
 		return channel.getServer()
 			.flatMap(s->s.as(StarboardServer.type))
-			.flatMap(c->c.edit(spec->{
-				spec.addEmojiLevel(level, emoji);
-			}))
+			.flatMap(c->c.edit(spec -> spec.addEmojiLevel(level, emoji)))
 			.then(channel.getInterface(ChannelTextInterface.class).send(locale.localize("command.starboard.add.message")))
 			.then();
 				
 	}
+	
 }
